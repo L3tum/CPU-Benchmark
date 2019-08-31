@@ -9,18 +9,27 @@ Execute it :)
 ## Available Options
 
 Choose the benchmark to execute (replace BENCHMARK with the name of one of the benchmarks down below):
+
 `.\benchmarker.exe --benchmark={BENCHMARK}`
 
+
 Automatically detect the number of logical processors and execute the benchmark multithreaded (number of threads = number of logical processors)
+
 `.\benchmarker.exe --multithreaded`
 
+
 Manually set the amount of threads to use. Overwrites `--multithreaded`
+
 `.\benchmarker.exe --threads=4`
 
+
 Run the benchmark `X` times and average out the results. By default the benchmark will be run `3` times
+
 `\.benchmarker.exe --runs=5`
 
+
 To combine the above
+
 `.\benchmarker.exe --benchmark=zip --multithreaded --runs=64`
 
 ## Available Benchmarks
