@@ -58,6 +58,7 @@ steps:
   inputs:
     command: publish
     projects: '**/*.csproj'
+    publishWebProjects: false
     arguments: '--configuration ${buildConfiguration} -r ${release} --framework netcoreapp3.0 --self-contained true'
 
 - task: DotNetCoreCLI@2
@@ -66,6 +67,7 @@ steps:
   inputs:
     command: publish
     projects: '**/*.csproj'
+    publishWebProjects: false
     arguments: '--configuration ${buildConfiguration} -r ${release} --framework netcoreapp2.0 --self-contained true'
 
 #- task: VSTest@2
