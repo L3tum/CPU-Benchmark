@@ -44,6 +44,9 @@ To combine the above
 * Deflate
 * ZIPCompressors (All of the above)
 
+### Arithmetic
+* Simple Integer (byte, short, int, long) (name is arithmetic_int)
+
 More will be added in the future :)
 
 ## References
