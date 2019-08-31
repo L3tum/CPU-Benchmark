@@ -11,21 +11,27 @@ strategy:
     ubuntu:
       imageName: 'ubuntu-16.04'
       release: 'ubuntu-x64'
+      arch: 'x86_64'
     debian:
       imageName: 'ubuntu-16.04'
       release: 'debian-x64'
+      arch: 'x86_64'
     mac:
       imageName: 'macos-10.13'
       release: 'osx-x64'
+      arch: 'x86_64'
     windows:
       imageName: 'windows-latest'
       release: 'win-x64'
+      arch: 'x86_64'
     windows-arm:
       imageName: 'windows-latest'
       release: 'win-arm'
+      arch: 'arm'
     windows-arm64:
       imageName: 'windows-latest'
       release: 'win-arm64'
+      arch: 'arm'
 
 pool:
   vmImage: $(imageName)
@@ -36,10 +42,11 @@ variables:
 
 steps:
 
-- task: DotNetCoreInstaller@0
-  displayName: 'Install .net core 3.0 (preview)'
+- task: UseDotNet@2
+  displayName: 'Use dotnet sdk 3.x'
   inputs:
-    version: '3.0.100-preview6-012264'
+    version: 3.x
+    includePreviewVersions: true
 
 - task: NuGetToolInstaller@1
 
@@ -48,11 +55,19 @@ steps:
     restoreSolution: '$(solution)'
 
 - task: DotNetCoreCLI@2
-  displayName: Build
+  displayName: Publish Self Contained .Net Core 3.0 App
   inputs:
-    command: build
+    command: publish
     projects: '**/*.csproj'
-    arguments: '--configuration ${buildConfiguration} -r ${release} --self-contained'
+    arguments: '--configuration ${buildConfiguration} -r ${release} --framework netcoreapp3.0 --self-contained true'
+
+- task: DotNetCoreCLI@2
+  displayName: Publish Self Contained .Net Core 2.0 App
+  condition: ne( variables['arch'], 'arm' )
+  inputs:
+    command: publish
+    projects: '**/*.csproj'
+    arguments: '--configuration ${buildConfiguration} -r ${release} --framework netcoreapp2.0 --self-contained true'
 
 #- task: VSTest@2
 #  inputs:
