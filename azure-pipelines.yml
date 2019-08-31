@@ -8,8 +8,11 @@ trigger:
 
 strategy:
   matrix:
-    linux:
-      imageName: 'ubuntu-16.04'
+    ubuntu:
+      imageName: 'ubuntu-18.04'
+      release: 'ubuntu-x64'
+    debian:
+      imageName: 'ubuntu-18.04'
       release: 'debian-x64'
     mac:
       imageName: 'macos-10.13'
@@ -17,9 +20,12 @@ strategy:
     windows:
       imageName: 'windows-latest'
       release: 'win-x64'
-    windows-ARM:
-      imageName: 'windows-ARM'
+    windows-arm:
+      imageName: 'windows-latest'
       release: 'win-arm'
+    windows-arm64:
+      imageName: 'windows-latest'
+      release: 'win-arm64'
 
 pool:
   vmImage: $(imageName)
