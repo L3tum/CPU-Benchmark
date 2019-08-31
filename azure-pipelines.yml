@@ -9,10 +9,10 @@ trigger:
 strategy:
   matrix:
     ubuntu:
-      imageName: 'ubuntu-18.04'
+      imageName: 'ubuntu-16.04'
       release: 'ubuntu-x64'
     debian:
-      imageName: 'ubuntu-18.04'
+      imageName: 'ubuntu-16.04'
       release: 'debian-x64'
     mac:
       imageName: 'macos-10.13'
