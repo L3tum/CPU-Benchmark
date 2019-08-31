@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Benchmarking.Compression;
 
 #endregion
 
@@ -12,22 +13,62 @@ namespace Benchmarking
 {
 	public class BenchmarkRunner
 	{
+		public static string[] AvailableBenchmarks = {"ZIP", "GZIP", "BZIP2", "DEFLATE", "ZIPCOMPRESSORS"};
 		private readonly Options options;
 		private readonly long[] timings;
 		public double lastTiming;
-		public Benchmark benchmark;
 
 		public BenchmarkRunner(Options options)
 		{
 			this.options = options;
-			timings = new long[options.Repeated];
+			timings = new long[options.Runs];
 		}
 
-		public void RunZipBenchmark()
+		public Benchmark benchmark { get; private set; }
+
+		public void RunBenchmark()
 		{
-			if (benchmark == null || typeof(Benchmark) != typeof(ZIP.ZIP))
+			switch (options.Benchmark.ToUpper())
 			{
-				benchmark = new ZIP.ZIP(options);
+				case "ZIP":
+				{
+					benchmark = new ZIP(options);
+
+					break;
+				}
+
+				case "GZIP":
+				{
+					benchmark = new GZip(options);
+
+					break;
+				}
+
+				case "BZIP2":
+				{
+					benchmark = new BZip2(options);
+
+					break;
+				}
+
+				case "DEFLATE":
+				{
+					benchmark = new Deflate(options);
+
+					break;
+				}
+
+				case "ZIPCOMPRESSORS":
+				{
+					benchmark = new ZIPCompressors(options);
+
+					break;
+				}
+
+				default:
+				{
+					throw new ArgumentException($"Benchmark {options.Benchmark} to recognized!");
+				}
 			}
 
 			RunGenericBenchmark();
@@ -35,20 +76,20 @@ namespace Benchmarking
 
 		private void RunGenericBenchmark()
 		{
-			InitializeBenchmark(benchmark.Initialize);
+			InitializeBenchmark();
 
-			lastTiming = RunBenchmark(benchmark.Run);
+			lastTiming = ExecuteBenchmark();
 		}
 
-		private void InitializeBenchmark(Action action)
+		private void InitializeBenchmark()
 		{
 			Console.WriteLine("Initializing Benchmark...");
-			action.Invoke();
+			benchmark.Initialize();
 		}
 
-		private double RunBenchmark(Action action)
+		private double ExecuteBenchmark()
 		{
-			Console.WriteLine($"Running Benchmark {options.Repeated} times on {options.Threads} threads...");
+			Console.WriteLine($"Running Benchmark {options.Runs} times on {options.Threads} threads...");
 			var sw = new Stopwatch();
 			var ct = new CancellationTokenSource();
 			var t = Task.Run(() =>
@@ -68,10 +109,10 @@ namespace Benchmarking
 				Console.WriteLine();
 			}, ct.Token);
 
-			for (var i = 0; i < options.Repeated; i++)
+			for (var i = 0; i < options.Runs; i++)
 			{
 				sw.Start();
-				action.Invoke();
+				benchmark.Run();
 				sw.Stop();
 
 				timings[i] = sw.ElapsedMilliseconds;

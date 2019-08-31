@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Benchmarking;
+using CommandLine;
 
 #endregion
 
@@ -14,8 +15,24 @@ namespace Benchmarker
 	{
 		private static void Main(string[] args)
 		{
-			var runner = new BenchmarkRunner(new Options(){Threads = 24});
-			runner.RunZipBenchmark();
+			Options options = new Options();
+
+#if RELEASE
+			Parser.Default.ParseArguments<Options>(args).WithParsed<Options>(opts =>
+			{
+				options = opts;
+
+				if (opts.Multithreaded && opts.Threads == 0)
+				{
+					options.Threads = Environment.ProcessorCount;
+				}
+			});
+#else
+			options = new Options() {Benchmark = "ZIP", Multithreaded = true, Runs = 1};
+#endif
+
+			var runner = new BenchmarkRunner(options);
+			runner.RunBenchmark();
 
 			Console.WriteLine(
 				new Dictionary<string, double> {{runner.benchmark.GetDescription(), runner.lastTiming}}.ToStringTable(
