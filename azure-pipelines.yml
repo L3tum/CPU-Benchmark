@@ -1,0 +1,48 @@
+# .NET Core
+# Build and test .NET Core projects targeting the full .NET Framework.
+# Add steps that publish symbols, save build artifacts, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+
+trigger:
+- master
+
+strategy:
+  matrix:
+    linux:
+      imageName: 'ubuntu-18.04'
+      release: 'debian-x64'
+    mac:
+      imageName: 'macos-10.13'
+      release: 'osx-x64'
+    windows:
+      imageName: 'windows-latest'
+      release: 'win-x64'
+    windows-ARM:
+      imageName: 'windows-ARM'
+      release: 'win-arm'
+
+pool:
+  vmImage: $(imageName)
+
+variables:
+  solution: '**/*.sln'
+  buildConfiguration: 'Release'
+
+steps:
+- task: NuGetToolInstaller@1
+
+- task: NuGetCommand@2
+  inputs:
+    restoreSolution: '$(solution)'
+
+- task: DotNetCoreCLI@2
+  displayName: Build
+  inputs:
+    command: build
+    projects: '**/*.csproj'
+    arguments: '--configuration ${buildConfiguration} -r ${release} --self-contained'
+
+#- task: VSTest@2
+#  inputs:
+#    platform: '$(buildPlatform)'
+#    configuration: '$(buildConfiguration)'
