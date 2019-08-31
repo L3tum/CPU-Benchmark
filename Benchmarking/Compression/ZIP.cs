@@ -82,7 +82,7 @@ namespace Benchmarking.Compression
 		{
 			if (options.Threads == 1)
 			{
-				return 25878.0d;
+				return 24878.0d;
 			}
 
 			return 2675.0d;

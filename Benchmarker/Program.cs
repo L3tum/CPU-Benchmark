@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using Benchmarking;
 using CommandLine;
 
@@ -15,7 +17,7 @@ namespace Benchmarker
 	{
 		private static void Main(string[] args)
 		{
-			Options options = new Options();
+			var options = new Options();
 
 #if RELEASE
 			Parser.Default.ParseArguments<Options>(args).WithParsed<Options>(opts =>
@@ -28,15 +30,44 @@ namespace Benchmarker
 				}
 			});
 #else
-			options = new Options() {Benchmark = "ZIP", Multithreaded = true, Runs = 1};
+			options = new Options {Benchmark = "ZIP", Threads = Environment.ProcessorCount, Runs = 1};
 #endif
-
 			var runner = new BenchmarkRunner(options);
-			runner.RunBenchmark();
+
+			Console.WriteLine(
+				$"Running Benchmark {options.Benchmark} on {options.Threads} threads {options.Runs} times");
+
+			using (var progress = new ProgressBar())
+			{
+				var ct = new CancellationTokenSource();
+				var t = Task.Run(() =>
+				{
+					while (!ct.IsCancellationRequested)
+					{
+						progress.Report(BenchmarkRunner.CurrentProgress);
+
+						Thread.Sleep(20);
+					}
+				}, ct.Token);
+
+				runner.RunBenchmark();
+
+				progress.Report(1.0d);
+
+				ct.Cancel();
+				t.GetAwaiter().GetResult();
+			}
+
+			Console.WriteLine();
 
 			Console.WriteLine(
 				new Dictionary<string, double> {{runner.benchmark.GetDescription(), runner.lastTiming}}.ToStringTable(
-					new[] {"Benchmark", "Time", "Reference (3900x)"}, d => d.Key, d => FormatTime(d.Value), d => FormatTime(runner.benchmark.GetReferenceValue())));
+					new[] {"Benchmark", "Time", "Reference (3900x)", "Points", "Reference(3900x)"},
+					d => d.Key,
+					d => FormatTime(d.Value), d => FormatTime(runner.benchmark.GetReferenceValue()),
+					d => BenchmarkRater.RateCompressionBenchmark(d.Value),
+					d => BenchmarkRater.RateCompressionBenchmark(runner.benchmark.GetReferenceValue())
+				));
 
 			Console.ReadLine();
 		}
