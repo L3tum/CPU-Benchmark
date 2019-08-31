@@ -9,7 +9,7 @@ using System.Threading;
 namespace Benchmarker
 {
 	/// <summary>
-	///     An ASCII progress bar
+	///     An ASCII progress bar from https://gist.github.com/DanielSWolf/0ab6a96899cc5377bf54
 	/// </summary>
 	public class ProgressBar : IDisposable, IProgress<double>
 	{
