@@ -24,13 +24,20 @@ namespace Benchmarker
 			{
 				options = opts;
 
-				if (opts.Multithreaded && opts.Threads == 0)
+				if (opts.Threads == 0)
 				{
-					options.Threads = Environment.ProcessorCount;
+					if (opts.Multithreaded)
+					{
+						options.Threads = Environment.ProcessorCount;
+					}
+					else
+					{
+						options.Threads = 1;
+					}
 				}
 			});
 #else
-			options = new Options {Benchmark = "ZIP", Threads = Environment.ProcessorCount, Runs = 1};
+			options = new Options {Benchmark = "ARITHMETIC_INT", Threads = Environment.ProcessorCount, Runs = 1};
 #endif
 			var runner = new BenchmarkRunner(options);
 
@@ -65,8 +72,8 @@ namespace Benchmarker
 					new[] {"Benchmark", "Time", "Reference (3900x)", "Points", "Reference(3900x)"},
 					d => d.Key,
 					d => FormatTime(d.Value), d => FormatTime(runner.benchmark.GetReferenceValue()),
-					d => BenchmarkRater.RateCompressionBenchmark(d.Value),
-					d => BenchmarkRater.RateCompressionBenchmark(runner.benchmark.GetReferenceValue())
+					d => BenchmarkRater.RateBenchmark(d.Value),
+					d => BenchmarkRater.RateBenchmark(runner.benchmark.GetReferenceValue())
 				));
 
 			Console.ReadLine();

@@ -3,6 +3,7 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
+using Benchmarking.Arithmetic;
 using Benchmarking.Compression;
 
 #endregion
@@ -11,7 +12,7 @@ namespace Benchmarking
 {
 	public class BenchmarkRunner
 	{
-		public static string[] AvailableBenchmarks = {"ZIP", "GZIP", "BZIP2", "DEFLATE", "ZIPCOMPRESSORS"};
+		public static string[] AvailableBenchmarks = {"ZIP", "GZIP", "BZIP2", "DEFLATE", "ZIPCOMPRESSORS", "ARITHMETIC_INT"};
 		private static int finished;
 		private static int total;
 		private static object _lock = new object();
@@ -66,6 +67,13 @@ namespace Benchmarking
 				case "ZIPCOMPRESSORS":
 				{
 					benchmark = new ZIPCompressors(options);
+
+					break;
+				}
+
+				case "ARITHMETIC_INT":
+				{
+					benchmark = new Integer(options);
 
 					break;
 				}

@@ -4,7 +4,8 @@ namespace Benchmarking
 {
 	public static class BenchmarkRater
 	{
-		public static double RateCompressionBenchmark(double timeInMillis)
+		// Maybe replace with linear rating?
+		public static double RateBenchmark(double timeInMillis)
 		{
 			// 1 minute as upper bound
 			const double maxTime = 60000;
