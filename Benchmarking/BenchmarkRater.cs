@@ -7,11 +7,13 @@ namespace Benchmarking
 		// Maybe replace with linear rating?
 		public static double RateBenchmark(double timeInMillis)
 		{
-			// 1 minute as upper bound
-			const double maxTime = 60000;
+			// Maximum 1000000 points (100k)
+			const double maxTime = 100000;
 
-			// Nice exponential graph from x = 0 to x ~ 100000 and
-			return Math.Round(maxTime * Math.Pow(0.5, 0.0001 * timeInMillis), 0);
+			// "Maximum" of 10000000 (1M) milliseconds or 1000 seconds
+
+			// Nice exponential graph from x = 0 to x ~ 1000000 and
+			return Math.Round(maxTime * Math.Pow(0.5, 0.00001 * timeInMillis), 0);
 		}
 	}
 }
