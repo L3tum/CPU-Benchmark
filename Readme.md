@@ -39,6 +39,7 @@ To combine the above
 * ALL (runs all of the below benchmarks)
 * COMPRESSION (runs all compression benchmarks)
 * ARITHMETIC (runs all arithmetic benchmarks)
+* EXTENSION (runs all instruction extension benchmarks)
 
 ### Compression
 
@@ -51,6 +52,10 @@ To combine the above
 
 ### Arithmetic
 * Arithmetic_Int (Simple Integer Benchmark for byte, short, int and long performance)
+
+### Instruction extensions
+
+* AVX
 
 More will be added in the future :)
 
