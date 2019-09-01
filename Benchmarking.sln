@@ -5,7 +5,14 @@ VisualStudioVersion = 16.0.29123.88
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Benchmarking", "Benchmarking\Benchmarking.csproj", "{06C3CE05-77FC-4631-9812-DEA52EC86AE5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmarker", "Benchmarker\Benchmarker.csproj", "{874F59AE-52A8-49B2-9C98-653164631D95}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Benchmarker", "Benchmarker\Benchmarker.csproj", "{874F59AE-52A8-49B2-9C98-653164631D95}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{235C6351-5D3D-46F9-9577-835EDCBE4676}"
+	ProjectSection(SolutionItems) = preProject
+		Dockerfile.alpine = Dockerfile.alpine
+		Dockerfile.arm32v7 = Dockerfile.arm32v7
+		Dockerfile.arm64 = Dockerfile.arm64
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
