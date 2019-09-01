@@ -67,14 +67,12 @@ namespace Benchmarker
 
 			Console.WriteLine();
 
-			Console.WriteLine(
-				new Dictionary<string, double> {{runner.benchmark.GetDescription(), runner.lastTiming}}.ToStringTable(
-					new[] {"Benchmark", "Time", "Reference (3900x)", "Points", "Reference(3900x)"},
-					d => d.Key,
-					d => FormatTime(d.Value), d => FormatTime(runner.benchmark.GetReferenceValue()),
-					d => BenchmarkRater.RateBenchmark(d.Value),
-					d => BenchmarkRater.RateBenchmark(runner.benchmark.GetReferenceValue())
-				));
+			Console.WriteLine(runner.Results.ToStringTable(new []{"Benchmark", "Time", "Reference (3900x)", "Points", "Reference(3900x)"},
+				r => r.Benchmark,
+				r => FormatTime(r.Timing),
+				r => FormatTime(r.ReferenceTiming),
+				r => r.Points,
+				r => r.ReferencePoints));
 
 			Console.ReadLine();
 		}

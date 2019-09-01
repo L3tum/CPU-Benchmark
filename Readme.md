@@ -34,6 +34,12 @@ To combine the above
 
 ## Available Benchmarks
 
+### General
+
+* ALL (runs all of the below benchmarks)
+* COMPRESSION (runs all compression benchmarks)
+* ARITHMETIC (runs all arithmetic benchmarks)
+
 ### Compression
 
 `Note: All compression algorithms are run with the highest compression level (if applicable).`
@@ -42,10 +48,9 @@ To combine the above
 * GZip
 * BZip2
 * Deflate
-* ZIPCompressors (All of the above)
 
 ### Arithmetic
-* Simple Integer (byte, short, int, long) (name is arithmetic_int)
+* Arithmetic_Int (Simple Integer Benchmark for byte, short, int and long performance)
 
 More will be added in the future :)
 
@@ -56,3 +61,4 @@ Detailed system specs:
 - R9 3900x
 - 32 GB 3200 MHz CL16 RAM
 - ASUS Hero VIII
+

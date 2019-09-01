@@ -1,6 +1,7 @@
 ﻿#region using
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Benchmarking.Arithmetic;
@@ -12,13 +13,16 @@ namespace Benchmarking
 {
 	public class BenchmarkRunner
 	{
-		public static string[] AvailableBenchmarks = {"ZIP", "GZIP", "BZIP2", "DEFLATE", "ZIPCOMPRESSORS", "ARITHMETIC_INT"};
+		public static readonly string[] AvailableBenchmarks =
+			{"ZIP", "GZIP", "BZIP2", "DEFLATE", "ARITHMETIC_INT", "ALL", "COMPRESSION", "ARITHMETIC"};
+
 		private static int finished;
 		private static int total;
-		private static object _lock = new object();
+		private static readonly object _lock = new object();
 		private readonly Options options;
+		public readonly List<Result> Results = new List<Result>();
 		private readonly long[] timings;
-		public double lastTiming;
+		private readonly List<Benchmark> benchmarksToRun = new List<Benchmark>();
 
 		public BenchmarkRunner(Options options)
 		{
@@ -30,57 +34,76 @@ namespace Benchmarking
 
 		public static double CurrentProgress { get; private set; }
 
-		public Benchmark benchmark { get; private set; }
-
 		public void RunBenchmark()
 		{
 			switch (options.Benchmark.ToUpper())
 			{
 				case "ZIP":
 				{
-					benchmark = new ZIP(options);
+					benchmarksToRun.Add(new ZIP(options));
 
 					break;
 				}
 
 				case "GZIP":
 				{
-					benchmark = new GZip(options);
+					benchmarksToRun.Add(new GZip(options));
 
 					break;
 				}
 
 				case "BZIP2":
 				{
-					benchmark = new BZip2(options);
+					benchmarksToRun.Add(new BZip2(options));
 
 					break;
 				}
 
 				case "DEFLATE":
 				{
-					benchmark = new Deflate(options);
-
-					break;
-				}
-
-				case "ZIPCOMPRESSORS":
-				{
-					benchmark = new ZIPCompressors(options);
+					benchmarksToRun.Add(new Deflate(options));
 
 					break;
 				}
 
 				case "ARITHMETIC_INT":
 				{
-					benchmark = new Integer(options);
+					benchmarksToRun.Add(new Integer(options));
+
+					break;
+				}
+
+				case "COMPRESSION":
+				{
+					benchmarksToRun.Add(new ZIP(options));
+					benchmarksToRun.Add(new GZip(options));
+					benchmarksToRun.Add(new BZip2(options));
+					benchmarksToRun.Add(new Deflate(options));
+
+					break;
+				}
+
+				case "ARITHMETIC":
+				{
+					benchmarksToRun.Add(new Integer(options));
+
+					break;
+				}
+
+				case "ALL":
+				{
+					benchmarksToRun.Add(new ZIP(options));
+					benchmarksToRun.Add(new GZip(options));
+					benchmarksToRun.Add(new BZip2(options));
+					benchmarksToRun.Add(new Deflate(options));
+					benchmarksToRun.Add(new Integer(options));
 
 					break;
 				}
 
 				default:
 				{
-					throw new ArgumentException($"Benchmark {options.Benchmark} to recognized!");
+					throw new ArgumentException($"Benchmark {options.Benchmark} not recognized!");
 				}
 			}
 
@@ -98,9 +121,18 @@ namespace Benchmarking
 
 		private void RunGenericBenchmark()
 		{
-			benchmark.Initialize();
+			while (benchmarksToRun.Count > 0)
+			{
+				benchmarksToRun[0].Initialize();
+				var timing = ExecuteBenchmark();
 
-			lastTiming = ExecuteBenchmark();
+				Results.Add(new Result(benchmarksToRun[0].GetDescription(), timing,
+					BenchmarkRater.RateBenchmark(timing), benchmarksToRun[0].GetReferenceValue(),
+					BenchmarkRater.RateBenchmark(benchmarksToRun[0].GetReferenceValue())));
+
+				benchmarksToRun.RemoveAt(0);
+				GC.Collect();
+			}
 		}
 
 		private double ExecuteBenchmark()
@@ -110,10 +142,10 @@ namespace Benchmarking
 			for (var i = 0; i < options.Runs; i++)
 			{
 				sw.Start();
-				benchmark.Run();
+				benchmarksToRun[0].Run();
 				sw.Stop();
 
-				benchmark.PostRun();
+				benchmarksToRun[0].PostRun();
 				GC.Collect();
 
 				timings[i] = sw.ElapsedMilliseconds;
