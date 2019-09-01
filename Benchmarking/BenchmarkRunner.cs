@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using Benchmarking.Arithmetic;
 using Benchmarking.Compression;
+using Benchmarking.Extension;
 
 #endregion
 
@@ -14,7 +15,7 @@ namespace Benchmarking
 	public class BenchmarkRunner
 	{
 		public static readonly string[] AvailableBenchmarks =
-			{"ZIP", "GZIP", "BZIP2", "DEFLATE", "ARITHMETIC_INT", "ALL", "COMPRESSION", "ARITHMETIC"};
+			{"ZIP", "GZIP", "BZIP2", "DEFLATE", "ARITHMETIC_INT", "AVX", "ALL", "COMPRESSION", "ARITHMETIC", "EXTENSION"};
 
 		private static int finished;
 		private static int total;
@@ -73,6 +74,13 @@ namespace Benchmarking
 					break;
 				}
 
+				case "AVX":
+				{
+					benchmarksToRun.Add(new AVX(options));
+
+					break;
+				}
+
 				case "COMPRESSION":
 				{
 					benchmarksToRun.Add(new ZIP(options));
@@ -90,6 +98,13 @@ namespace Benchmarking
 					break;
 				}
 
+				case "EXTENSIONS":
+				{
+					benchmarksToRun.Add(new AVX(options));
+
+					break;
+				}
+
 				case "ALL":
 				{
 					benchmarksToRun.Add(new ZIP(options));
@@ -97,8 +112,9 @@ namespace Benchmarking
 					benchmarksToRun.Add(new BZip2(options));
 					benchmarksToRun.Add(new Deflate(options));
 					benchmarksToRun.Add(new Integer(options));
+					benchmarksToRun.Add(new AVX(options));
 
-					break;
+						break;
 				}
 
 				default:
