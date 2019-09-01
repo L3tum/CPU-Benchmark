@@ -37,7 +37,7 @@ namespace Benchmarker
 				}
 			});
 #else
-			options = new Options {Benchmark = "ARITHMETIC_INT", Threads = Environment.ProcessorCount, Runs = 1};
+			options = new Options {Benchmark = "AVX", Threads = 1, Runs = 1};
 #endif
 			var runner = new BenchmarkRunner(options);
 
