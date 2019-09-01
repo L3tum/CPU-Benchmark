@@ -40,6 +40,8 @@ To combine the above
 * COMPRESSION (runs all compression benchmarks)
 * ARITHMETIC (runs all arithmetic benchmarks)
 * EXTENSION (runs all instruction extension benchmarks)
+* INT (runs all integer-related benchmarks)
+* FLOAT (runs all float-related benchmarks)
 
 ### Compression
 
@@ -52,10 +54,12 @@ To combine the above
 
 ### Arithmetic
 * Arithmetic_Int (Simple Integer Benchmark for byte, short, int and long performance)
+* Arithmetic_Float (Simple Float Benchmark)
 
 ### Instruction extensions
 
 * AVX
+* SSE
 
 More will be added in the future :)
 
