@@ -15,15 +15,18 @@ namespace Benchmarking
 	public class BenchmarkRunner
 	{
 		public static readonly string[] AvailableBenchmarks =
-			{"ZIP", "GZIP", "BZIP2", "DEFLATE", "ARITHMETIC_INT", "AVX", "ALL", "COMPRESSION", "ARITHMETIC", "EXTENSION"};
+		{
+			"ZIP", "GZIP", "BZIP2", "DEFLATE", "ARITHMETIC_INT", "ARITHMETIC_FLOAT", "AVX", "ALL", "COMPRESSION",
+			"ARITHMETIC", "EXTENSION", "INT", "FLOAT"
+		};
 
 		private static int finished;
 		private static int total;
 		private static readonly object _lock = new object();
+		private readonly List<Benchmark> benchmarksToRun = new List<Benchmark>();
 		private readonly Options options;
 		public readonly List<Result> Results = new List<Result>();
 		private readonly long[] timings;
-		private readonly List<Benchmark> benchmarksToRun = new List<Benchmark>();
 
 		public BenchmarkRunner(Options options)
 		{
@@ -74,6 +77,13 @@ namespace Benchmarking
 					break;
 				}
 
+				case "ARITHMETIC_FLOAT":
+				{
+					benchmarksToRun.Add(new Float(options));
+
+					break;
+				}
+
 				case "AVX":
 				{
 					benchmarksToRun.Add(new AVX(options));
@@ -94,6 +104,7 @@ namespace Benchmarking
 				case "ARITHMETIC":
 				{
 					benchmarksToRun.Add(new Integer(options));
+					benchmarksToRun.Add(new Float(options));
 
 					break;
 				}
@@ -105,6 +116,20 @@ namespace Benchmarking
 					break;
 				}
 
+				case "IMT":
+				{
+					benchmarksToRun.Add(new Integer(options));
+
+					break;
+				}
+
+				case "FLOAT":
+				{
+					benchmarksToRun.Add(new Float(options));
+
+					break;
+				}
+
 				case "ALL":
 				{
 					benchmarksToRun.Add(new ZIP(options));
@@ -112,9 +137,10 @@ namespace Benchmarking
 					benchmarksToRun.Add(new BZip2(options));
 					benchmarksToRun.Add(new Deflate(options));
 					benchmarksToRun.Add(new Integer(options));
+					benchmarksToRun.Add(new Float(options));
 					benchmarksToRun.Add(new AVX(options));
 
-						break;
+					break;
 				}
 
 				default:
@@ -160,9 +186,6 @@ namespace Benchmarking
 				sw.Start();
 				benchmarksToRun[0].Run();
 				sw.Stop();
-
-				benchmarksToRun[0].PostRun();
-				GC.Collect();
 
 				timings[i] = sw.ElapsedMilliseconds;
 				sw.Reset();
