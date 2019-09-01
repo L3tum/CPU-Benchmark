@@ -1,17 +1,18 @@
 ﻿#region using
 
-#region using
-
-#endregion
-
-#if NETCOREAPP3_0
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.Intrinsics;
-using System.Runtime.Intrinsics.X86;
 using System.Threading.Tasks;
 
+#endregion
+
+#region using
+
+
+#if NETCOREAPP3_0
+using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.X86;
 #endif
 
 #endregion
