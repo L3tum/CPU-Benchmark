@@ -62,3 +62,9 @@ Detailed system specs:
 - 32 GB 3200 MHz CL16 RAM
 - ASUS Hero VIII
 
+## License
+
+This tool is licensed under the GNU GPLv3. This tool and the developers are not responsible for bricking your system (e.g. when you're running without a thermal treshold).
+
+You may contact us if the license is not suitable for your needs.
+
