@@ -5,11 +5,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
-#endregion
-
-#region using
-
-
 #if NETCOREAPP3_0
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
