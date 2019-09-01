@@ -12,17 +12,17 @@ using System.Runtime.Intrinsics.X86;
 
 namespace Benchmarking.Extension
 {
-	internal class AVX : Benchmark
+	internal class SSE : Benchmark
 	{
 		private List<float[]> datas;
 		private float randomFloatingNumber;
 
-		public AVX(Options options) : base(options)
+		public SSE(Options options) : base(options)
 		{
 #if NETCOREAPP3_0
-			if (!Avx.IsSupported)
+			if (!Sse.IsSupported)
 			{
-				throw new NotSupportedException("Your hardware does not support AVX intrinsics!");
+				throw new NotSupportedException("Your hardware does not support SSE intrinsics!");
 			}
 #else
 			throw new NotSupportedException("You need at least .NET Core 3 to use this benchmark!");
@@ -39,7 +39,7 @@ namespace Benchmarking.Extension
 				var i1 = i;
 				threads[i] = Task.Run(() =>
 				{
-					var randomFloatingSpan = new Span<float>(new[] {randomFloatingNumber});
+					var randomFloatingSpan = new Span<float>(new[] { randomFloatingNumber });
 					var dst = new Span<float>(datas[i1]);
 
 					var iterations = 1000000000 / options.Threads;
@@ -59,7 +59,7 @@ namespace Benchmarking.Extension
 
 		public override string GetDescription()
 		{
-			return "AVX benchmark adding vectors of 256 bit (8 floats) from a vector of 1024 floats";
+			return "SSE benchmark by adding two vectors of 128 bit (4 floats) from a big vector of 512 floats";
 		}
 
 		public override void Initialize()
@@ -71,7 +71,7 @@ namespace Benchmarking.Extension
 			for (var i = 0; i < options.Threads; i++)
 			{
 				// Multiple of 256 to test AVX only
-				datas.Add(new float[1024]);
+				datas.Add(new float[512]);
 			}
 		}
 
@@ -79,10 +79,10 @@ namespace Benchmarking.Extension
 		{
 			if (options.Threads == 1)
 			{
-				return 51493.0d;
+				return 131352.0d;
 			}
 
-			return 10691.0d;
+			return 32379.0d;
 		}
 
 #if NETCOREAPP3_0
@@ -93,15 +93,6 @@ namespace Benchmarking.Extension
 			{
 				var pDstEnd = pdst + dst.Length;
 				var pDstCurrent = pdst;
-
-				var scalarVector256 = Avx.BroadcastScalarToVector256(psrc);
-
-				while (pDstCurrent + 8 <= pDstEnd)
-				{
-					Avx.Store(pDstCurrent, scalarVector256);
-
-					pDstCurrent += 8;
-				}
 
 				var scalarVector128 = Sse.LoadScalarVector128(psrc);
 
@@ -128,17 +119,6 @@ namespace Benchmarking.Extension
 			{
 				var pDstEnd = pdst + dst.Length;
 				var pDstCurrent = pdst;
-
-				var scalarVector256 = Avx.BroadcastScalarToVector256(psrc);
-
-				while (pDstCurrent + 8 <= pDstEnd)
-				{
-					var dstVector = Avx.LoadVector256(pDstCurrent);
-					dstVector = Avx.Add(dstVector, scalarVector256);
-					Avx.Store(pDstCurrent, dstVector);
-
-					pDstCurrent += 8;
-				}
 
 				var scalarVector128 = Sse.LoadScalarVector128(psrc);
 
