@@ -37,7 +37,7 @@ namespace Benchmarker
 				}
 			});
 #else
-			options = new Options {Benchmark = "AVX", Threads = 1, Runs = 1};
+			options = new Options {Benchmark = "BZIP2", Threads = 1, Runs = 1};
 #endif
 			var runner = new BenchmarkRunner(options);
 
@@ -57,7 +57,16 @@ namespace Benchmarker
 					}
 				}, ct.Token);
 
-				runner.RunBenchmark();
+				try
+				{
+					runner.RunBenchmark();
+				}
+				catch (ArgumentException e)
+				{
+					Console.WriteLine(e.Message);
+
+					return;
+				}
 
 				progress.Report(1.0d);
 

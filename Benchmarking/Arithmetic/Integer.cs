@@ -12,10 +12,10 @@ namespace Benchmarking.Arithmetic
 	{
 		// 200 "MB"
 		private const int LENGTH = 200000000;
-		private readonly byte[] resultByteArray = new byte[LENGTH];
-		private readonly int[] resultIntArray = new int[LENGTH];
-		private readonly long[] resultLongArray = new long[LENGTH];
-		private readonly short[] resultShortArray = new short[LENGTH];
+		private byte[] resultByteArray;
+		private int[] resultIntArray;
+		private long[] resultLongArray;
+		private short[] resultShortArray;
 
 		private byte randomByte;
 		private int randomInt;
@@ -188,6 +188,8 @@ namespace Benchmarking.Arithmetic
 					{
 						resultLongArray[j] = Math.BigMul(randomInt, randomInt);
 					}
+
+					BenchmarkRunner.ReportProgress();
 				});
 			}
 
@@ -217,6 +219,11 @@ namespace Benchmarking.Arithmetic
 			randomByte = (byte) rand.Next();
 			randomLong = (long) int.MaxValue + rand.Next();
 			randomShort = (short) rand.Next();
+
+			resultByteArray = new byte[LENGTH];
+			resultIntArray = new int[LENGTH];
+			resultLongArray = new long[LENGTH];
+			resultShortArray = new short[LENGTH];
 		}
 	}
 }

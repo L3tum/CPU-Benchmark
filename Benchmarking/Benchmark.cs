@@ -27,10 +27,5 @@
 		{
 			return 0.0d;
 		}
-
-		public virtual void PostRun()
-		{
-			BenchmarkRunner.ReportProgress();
-		}
 	}
 }
