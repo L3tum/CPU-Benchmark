@@ -98,7 +98,7 @@ namespace Benchmarking
 					break;
 				}
 
-				case "EXTENSIONS":
+				case "EXTENSION":
 				{
 					benchmarksToRun.Add(new AVX(options));
 
