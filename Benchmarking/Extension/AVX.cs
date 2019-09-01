@@ -2,12 +2,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
-
 #if NETCOREAPP3_0
-using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
+
 #endif
 
 #endregion
@@ -44,12 +42,14 @@ namespace Benchmarking.Extension
 					var randomFloatingSpan = new Span<float>(new[] {randomFloatingNumber});
 					var dst = new Span<float>(datas[i1]);
 
-					int iterations = 1000000000 / options.Threads;
+					var iterations = 1000000000 / options.Threads;
 
 					for (var j = 0; j < iterations; j++)
 					{
 						AddScalarU(randomFloatingSpan, dst);
 					}
+
+					BenchmarkRunner.ReportProgress();
 				});
 			}
 
@@ -120,6 +120,7 @@ namespace Benchmarking.Extension
 				}
 			}
 		}
+
 		private unsafe void AddScalarU(Span<float> scalar, Span<float> dst)
 		{
 			fixed (float* pdst = dst)
