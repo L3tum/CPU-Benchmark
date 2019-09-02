@@ -51,6 +51,7 @@ To combine the above
 * GZip
 * BZip2
 * Deflate
+* Brotli (please bear in mind that the highest compression with Brotli is *incredibly* slow as it took almost *10 minutes* on the reference system in singlethread mode)
 
 ### Arithmetic
 * Arithmetic_Int (Simple Integer Benchmark for byte, short, int and long performance)
