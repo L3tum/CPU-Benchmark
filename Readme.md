@@ -40,6 +40,7 @@ To combine the above
 * COMPRESSION (runs all compression benchmarks)
 * ARITHMETIC (runs all arithmetic benchmarks)
 * EXTENSION (runs all instruction extension benchmarks)
+* CRYPTOGRAPHY (runs all cryptography benchmarks)
 * INT (runs all integer-related benchmarks)
 * FLOAT (runs all float-related benchmarks)
 
@@ -61,6 +62,12 @@ To combine the above
 
 * AVX
 * SSE
+
+### Cryptography
+
+* Encryption
+* Decryption
+* CSPRNG (cryptographically secure pseudo-random number generator)
 
 More will be added in the future :)
 
