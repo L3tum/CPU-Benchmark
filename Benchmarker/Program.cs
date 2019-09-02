@@ -2,7 +2,6 @@
 
 using System;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,16 +18,23 @@ namespace Benchmarker
 		{
 			var options = new Options();
 
-			Console.WriteLine("Starting Benchmark...");
-			Console.WriteLine();
-			Console.WriteLine("OS:            {0}", Environment.OSVersion);
-			Console.WriteLine("Processor:     {0} Revision {1}",
-				Environment.GetEnvironmentVariable("PROCESSOR_IDENTIFIER"),
-				Environment.GetEnvironmentVariable("PROCESSOR_REVISION"));
-			Console.WriteLine("Architecture:  {0}", RuntimeInformation.ProcessArchitecture);
-			Console.WriteLine("Logical Cores: {0}", Environment.ProcessorCount);
+			Console.WriteLine("Gathing hardware information...");
+
+			var information = MachineInformationGatherer.GatherInformation();
+
+			Console.WriteLine("OS:             {0}", information.OperatingSystem);
+			Console.WriteLine("Processor:      {0}", information.Cpu.Name);
+			Console.WriteLine("Architecture:   {0}", information.Cpu.Architecture);
+			Console.WriteLine("Logical Cores:  {0}", information.Cpu.LogicalCores);
+			Console.WriteLine("Physical Cores: {0}", information.Cpu.PhysicalCores);
 
 			Console.WriteLine();
+
+			Console.WriteLine("Starting Benchmark...");
+
+			Console.WriteLine();
+
+			ResultSaver.Init();
 
 #if RELEASE
 			Parser.Default.ParseArguments<Options>(args).WithParsed<Options>(opts =>
@@ -48,7 +54,7 @@ namespace Benchmarker
 				}
 			});
 #else
-			options = new Options {Benchmark = "BZIP2", Threads = 1, Runs = 1};
+			options = new Options {Benchmark = "encryption", Threads = 1, Runs = 1};
 #endif
 			var runner = new BenchmarkRunner(options);
 
@@ -94,6 +100,11 @@ namespace Benchmarker
 				r => FormatTime(r.ReferenceTiming),
 				r => r.Points,
 				r => r.ReferencePoints));
+
+			foreach (var runnerResult in runner.Results)
+			{
+				ResultSaver.SaveResult(runnerResult);
+			}
 
 			Console.ReadLine();
 		}
