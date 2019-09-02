@@ -2,7 +2,9 @@
 
 ## Usage
 
-Download the tool here.
+Download the tool on the Releases tab.
+
+You can download a pre-packaged version for your system or choose the "general" system. You'll need to install .NET Core 3 (or compatible) yourself in that case.
 
 Execute it :)
 
