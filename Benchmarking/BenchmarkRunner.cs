@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using Benchmarking.Arithmetic;
 using Benchmarking.Compression;
+using Benchmarking.Cryptography;
 using Benchmarking.Extension;
 
 #endregion
@@ -16,9 +17,10 @@ namespace Benchmarking
 	{
 		public static readonly string[] AvailableBenchmarks =
 		{
-			"ZIP", "GZIP", "BZIP2", "DEFLATE", "BROTLI", "ARITHMETIC_INT", "ARITHMETIC_FLOAT", "AVX", "SSE", "ALL",
-			"COMPRESSION",
-			"ARITHMETIC", "EXTENSION", "INT", "FLOAT"
+			"ZIP", "GZIP", "BZIP2", "DEFLATE", "BROTLI", "ARITHMETIC_INT", "ARITHMETIC_FLOAT", "AVX", "SSE",
+			"ENCRYPTION",
+			"ALL", "COMPRESSION", "ARITHMETIC", "EXTENSION", "CRYPTOGRAPHY",
+			"INT", "FLOAT"
 		};
 
 		private static int finished;
@@ -106,6 +108,13 @@ namespace Benchmarking
 					break;
 				}
 
+				case "ENCRYPTION":
+				{
+					benchmarksToRun.Add(new Encryption(options));
+
+					break;
+				}
+
 				case "COMPRESSION":
 				{
 					benchmarksToRun.Add(new ZIP(options));
@@ -133,9 +142,17 @@ namespace Benchmarking
 					break;
 				}
 
+				case "CRYPTOGRAPHY":
+				{
+					benchmarksToRun.Add(new Encryption(options));
+
+					break;
+				}
+
 				case "IMT":
 				{
 					benchmarksToRun.Add(new Integer(options));
+					benchmarksToRun.Add(new Encryption(options));
 
 					break;
 				}
@@ -155,6 +172,7 @@ namespace Benchmarking
 					benchmarksToRun.Add(new Deflate(options));
 					benchmarksToRun.Add(new Brotli(options));
 					benchmarksToRun.Add(new Integer(options));
+					benchmarksToRun.Add(new Encryption(options));
 					benchmarksToRun.Add(new Float(options));
 					benchmarksToRun.Add(new AVX(options));
 					benchmarksToRun.Add(new SSE(options));
