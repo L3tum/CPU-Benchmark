@@ -13,6 +13,8 @@ namespace Benchmarking.Cryptography
 	internal class Encryption : Benchmark
 	{
 		private readonly string[] datas;
+		private byte[] aesIV;
+		private byte[] aesKey;
 
 		public Encryption(Options options, string[] data = null) : base(options)
 		{
@@ -52,8 +54,8 @@ namespace Benchmarking.Cryptography
 						{
 							aes.Mode = CipherMode.CBC;
 							aes.KeySize = 256;
-							aes.GenerateIV();
-							aes.GenerateKey();
+							aes.IV = aesIV;
+							aes.Key = aesKey;
 
 							using (var stream = new CryptoStream(s, aes.CreateEncryptor(), CryptoStreamMode.Write))
 							{
@@ -92,6 +94,18 @@ namespace Benchmarking.Cryptography
 			}
 
 			Task.WaitAll(tasks);
+
+			using (var aes = new AesManaged())
+			{
+				aes.Mode = CipherMode.CBC;
+				aes.KeySize = 256;
+
+				aes.GenerateIV();
+				aes.GenerateKey();
+
+				aesIV = aes.IV;
+				aesKey = aes.Key;
+			}
 		}
 
 		public override double GetReferenceValue()
