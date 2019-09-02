@@ -1,8 +1,12 @@
 ﻿#region using
 
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Management;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 
 #endregion
 
@@ -75,11 +79,12 @@ namespace Benchmarking
 			information.Cpu.Caption = Environment.GetEnvironmentVariable("PROCESSOR_IDENTIFIER");
 			information.Cpu.Name = information.Cpu.Caption;
 
-			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+			try
 			{
-				try
+				if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
 				{
-					var mos = new ManagementObjectSearcher("select * from Win32_Processor");
+					var mos = new ManagementObjectSearcher(
+						"select Name,L2CacheSize,L3CacheSize,NumberOfEnabledCore,NumberOfLogicalProcessors,SocketDesignation,MaxClockSpeed from Win32_Processor");
 
 					foreach (var managementBaseObject in mos.Get())
 					{
@@ -89,7 +94,7 @@ namespace Benchmarking
 							{
 								case "Name":
 								{
-									information.Cpu.Name = (string) propertyData.Value;
+									information.Cpu.Name = propertyData.Value.ToString().Trim();
 
 									break;
 								}
@@ -124,7 +129,7 @@ namespace Benchmarking
 
 								case "SocketDesignation":
 								{
-									information.Cpu.Socket = (string) propertyData.Value;
+									information.Cpu.Socket = propertyData.Value.ToString().Trim();
 
 									break;
 								}
@@ -139,7 +144,8 @@ namespace Benchmarking
 						}
 					}
 
-					mos = new ManagementObjectSearcher("select * from Win32_PhysicalMemory");
+					mos = new ManagementObjectSearcher(
+						"select ConfiguredClockSpeed,Manufacturer,Capacity from Win32_PhysicalMemory");
 
 					foreach (var managementBaseObject in mos.Get())
 					{
@@ -169,39 +175,146 @@ namespace Benchmarking
 						}
 					}
 
-					information.Ram.CapacityHRF = FormatBytes(information.Ram.Capacity);
-
-					mos = new ManagementObjectSearcher("select * from Win32_BIOS");
+					mos = new ManagementObjectSearcher("select Caption from Win32_BIOS");
 
 					foreach (var managementBaseObject in mos.Get())
 					{
 						foreach (var propertyData in managementBaseObject.Properties)
 						{
-							switch (propertyData.Name)
+							if (propertyData.Name == "Caption")
 							{
-								case "Caption":
-								{
-									information.Cpu.BIOSVersion = propertyData.Value.ToString();
-
-									break;
-								}
+								information.Cpu.BIOSVersion = propertyData.Value.ToString();
 							}
 						}
 					}
 				}
-				catch (Exception e)
+				else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
 				{
-					Console.WriteLine(e.Message);
-				}
-			}
+					var info = File.ReadAllLines("/proc/cpuinfo");
+					var modelNameRegex = new Regex(@"^model name\s+:\s+(.+)");
+					var cpuSpeedRegex = new Regex(@"^cpu MHz\s+:\s+(.+)");
+					var physicalCoresRegex = new Regex(@"^cpu cores\s+:\s+(.+)");
+					var logicalCoresRegex = new Regex(@"^siblings\s+:\s+(.+)");
 
+					foreach (var s in info)
+					{
+						var match = modelNameRegex.Match(s);
+
+						if (match.Success)
+						{
+							information.Cpu.Name = match.Groups[1].Value.Trim();
+
+							continue;
+						}
+
+						match = cpuSpeedRegex.Match(s);
+
+						if (match.Success)
+						{
+							information.Cpu.MaxClockSpeed = int.Parse(match.Groups[1].Value);
+
+							continue;
+						}
+
+						match = physicalCoresRegex.Match(s);
+
+						if (match.Success)
+						{
+							information.Cpu.PhysicalCores = int.Parse(match.Groups[1].Value);
+
+							continue;
+						}
+
+						match = logicalCoresRegex.Match(s);
+
+						if (match.Success)
+						{
+							information.Cpu.LogicalCores = int.Parse(match.Groups[1].Value);
+						}
+					}
+
+					try
+					{
+						information.Cpu.BIOSVersion = File.ReadAllText("/sys/class/dmi/id/bios_version").Trim();
+					}
+					catch (Exception)
+					{
+						// Intentionally left blank
+					}
+
+					try
+					{
+						var memInfo = File.ReadAllLines("/proc/meminfo");
+
+						foreach (var s in memInfo)
+						{
+							if (s.Trim().StartsWith("MemTotal"))
+							{
+								var value = long.Parse(s.Replace("MemTotal", "").Replace("kB", "").Trim());
+
+								value *= 1000;
+
+								information.Ram.Capacity = value;
+							}
+						}
+					}
+					catch (Exception)
+					{
+						// Intentionally left blank
+					}
+
+					try
+					{
+						var memInfo = new List<string>();
+
+						using (var p = Process.Start("dmidecode", "-t 17"))
+						{
+							using (var sr = p.StandardOutput)
+							{
+								p.WaitForExit();
+
+								while (!sr.EndOfStream)
+								{
+									memInfo.Add(sr.ReadLine());
+								}
+							}
+						}
+
+						foreach (var s in memInfo)
+						{
+							if (s.Trim().StartsWith("Speed"))
+							{
+								var value = long.Parse(s.Replace("Speed", "").Replace("MHz", "").Trim());
+
+								information.Ram.Speed = value;
+							}
+							else if (s.Trim().StartsWith("Manufacturer"))
+							{
+								var value = s.Replace("Manufacturer", "").Trim();
+
+								information.Ram.Manfucturer = value;
+							}
+						}
+					}
+					catch (Exception)
+					{
+						// Intentionally left blank
+					}
+				}
+
+				information.Ram.CapacityHRF = FormatBytes(information.Ram.Capacity);
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e.Message);
+			}
 
 			return information;
 		}
 
 		private static string FormatBytes(long bytes)
 		{
-			string[] Suffix = { "B", "KB", "MB", "GB", "TB" };
+			string[] Suffix = {"B", "KB", "MB", "GB", "TB"};
 			int i;
 			double dblSByte = bytes;
 			for (i = 0; i < Suffix.Length && bytes >= 1024; i++, bytes /= 1024)
@@ -209,7 +322,7 @@ namespace Benchmarking
 				dblSByte = bytes / 1024.0;
 			}
 
-			return String.Format("{0:0.##} {1}", dblSByte, Suffix[i]);
+			return string.Format("{0:0.##} {1}", dblSByte, Suffix[i]);
 		}
 	}
 }

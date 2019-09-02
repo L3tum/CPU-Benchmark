@@ -26,13 +26,10 @@ namespace Benchmarker
 
 			if (save == null)
 			{
-				save = new Save {MachineInformation = MachineInformationGatherer.GatherInformation()};
+				save = new Save();
 			}
 
-			if (save.MachineInformation == null)
-			{
-				save.MachineInformation = MachineInformationGatherer.GatherInformation();
-			}
+			save.MachineInformation = MachineInformationGatherer.GatherInformation();
 
 			AppDomain.CurrentDomain.ProcessExit += CurrentDomainOnProcessExit;
 		}
