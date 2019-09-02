@@ -18,7 +18,7 @@ namespace Benchmarking
 		public static readonly string[] AvailableBenchmarks =
 		{
 			"ZIP", "GZIP", "BZIP2", "DEFLATE", "BROTLI", "ARITHMETIC_INT", "ARITHMETIC_FLOAT", "AVX", "SSE",
-			"ENCRYPTION", "DECRYPTION", "CSRPNG",
+			"ENCRYPTION", "DECRYPTION", "CSPRNG",
 			"ALL", "COMPRESSION", "ARITHMETIC", "EXTENSION", "CRYPTOGRAPHY",
 			"INT", "FLOAT"
 		};
@@ -122,9 +122,9 @@ namespace Benchmarking
 					break;
 				}
 
-				case "CSRPNG":
+				case "CSPRNG":
 				{
-					benchmarksToRun.Add(new CSRPNG(options));
+					benchmarksToRun.Add(new CSPRNG(options));
 
 					break;
 				}
@@ -160,7 +160,7 @@ namespace Benchmarking
 				{
 					benchmarksToRun.Add(new Encryption(options));
 					benchmarksToRun.Add(new Decryption(options));
-					benchmarksToRun.Add(new CSRPNG(options));
+					benchmarksToRun.Add(new CSPRNG(options));
 
 					break;
 				}
@@ -170,7 +170,7 @@ namespace Benchmarking
 					benchmarksToRun.Add(new Integer(options));
 					benchmarksToRun.Add(new Encryption(options));
 					benchmarksToRun.Add(new Decryption(options));
-					benchmarksToRun.Add(new CSRPNG(options));
+					benchmarksToRun.Add(new CSPRNG(options));
 
 					break;
 				}
@@ -192,7 +192,7 @@ namespace Benchmarking
 					benchmarksToRun.Add(new Integer(options));
 					benchmarksToRun.Add(new Encryption(options));
 					benchmarksToRun.Add(new Decryption(options));
-					benchmarksToRun.Add(new CSRPNG(options));
+					benchmarksToRun.Add(new CSPRNG(options));
 					benchmarksToRun.Add(new Float(options));
 					benchmarksToRun.Add(new AVX(options));
 					benchmarksToRun.Add(new SSE(options));
