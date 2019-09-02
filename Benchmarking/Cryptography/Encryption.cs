@@ -37,7 +37,7 @@ namespace Benchmarking.Cryptography
 				{
 					using (Stream s = new MemoryStream())
 					{
-						using (var stream = new CryptoStream(s, new SHA512Managed(), CryptoStreamMode.Write))
+						using (var stream = new CryptoStream(s, new HMACSHA512(), CryptoStreamMode.Write))
 						{
 							using (var sw = new StreamWriter(stream))
 							{
