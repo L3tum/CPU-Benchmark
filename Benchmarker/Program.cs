@@ -1,8 +1,8 @@
 ﻿#region using
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,6 +18,17 @@ namespace Benchmarker
 		private static void Main(string[] args)
 		{
 			var options = new Options();
+
+			Console.WriteLine("Starting Benchmark...");
+			Console.WriteLine();
+			Console.WriteLine("OS:            {0}", Environment.OSVersion);
+			Console.WriteLine("Processor:     {0} Revision {1}",
+				Environment.GetEnvironmentVariable("PROCESSOR_IDENTIFIER"),
+				Environment.GetEnvironmentVariable("PROCESSOR_REVISION"));
+			Console.WriteLine("Architecture:  {0}", RuntimeInformation.ProcessArchitecture);
+			Console.WriteLine("Logical Cores: {0}", Environment.ProcessorCount);
+
+			Console.WriteLine();
 
 #if RELEASE
 			Parser.Default.ParseArguments<Options>(args).WithParsed<Options>(opts =>
@@ -76,7 +87,8 @@ namespace Benchmarker
 
 			Console.WriteLine();
 
-			Console.WriteLine(runner.Results.ToStringTable(new []{"Benchmark", "Time", "Reference (3900x)", "Points", "Reference(3900x)"},
+			Console.WriteLine(runner.Results.ToStringTable(
+				new[] {"Benchmark", "Time", "Reference (3900x)", "Points", "Reference(3900x)"},
 				r => r.Benchmark,
 				r => FormatTime(r.Timing),
 				r => FormatTime(r.ReferenceTiming),
