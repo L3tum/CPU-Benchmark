@@ -16,7 +16,8 @@ namespace Benchmarking
 	{
 		public static readonly string[] AvailableBenchmarks =
 		{
-			"ZIP", "GZIP", "BZIP2", "DEFLATE", "ARITHMETIC_INT", "ARITHMETIC_FLOAT", "AVX", "SSE", "ALL", "COMPRESSION",
+			"ZIP", "GZIP", "BZIP2", "DEFLATE", "BROTLI", "ARITHMETIC_INT", "ARITHMETIC_FLOAT", "AVX", "SSE", "ALL",
+			"COMPRESSION",
 			"ARITHMETIC", "EXTENSION", "INT", "FLOAT"
 		};
 
@@ -70,6 +71,13 @@ namespace Benchmarking
 					break;
 				}
 
+				case "BROTLI":
+				{
+					benchmarksToRun.Add(new Brotli(options));
+
+					break;
+				}
+
 				case "ARITHMETIC_INT":
 				{
 					benchmarksToRun.Add(new Integer(options));
@@ -104,6 +112,7 @@ namespace Benchmarking
 					benchmarksToRun.Add(new GZip(options));
 					benchmarksToRun.Add(new BZip2(options));
 					benchmarksToRun.Add(new Deflate(options));
+					benchmarksToRun.Add(new Brotli(options));
 
 					break;
 				}
@@ -144,6 +153,7 @@ namespace Benchmarking
 					benchmarksToRun.Add(new GZip(options));
 					benchmarksToRun.Add(new BZip2(options));
 					benchmarksToRun.Add(new Deflate(options));
+					benchmarksToRun.Add(new Brotli(options));
 					benchmarksToRun.Add(new Integer(options));
 					benchmarksToRun.Add(new Float(options));
 					benchmarksToRun.Add(new AVX(options));
