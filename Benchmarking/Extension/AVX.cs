@@ -47,6 +47,7 @@ namespace Benchmarking.Extension
 					for (var j = 0; j < iterations; j++)
 					{
 						AddScalarU(randomFloatingSpan, dst);
+						MultiplyScalarU(randomFloatingSpan, dst);
 					}
 
 					BenchmarkRunner.ReportProgress();
@@ -59,7 +60,7 @@ namespace Benchmarking.Extension
 
 		public override string GetDescription()
 		{
-			return "AVX benchmark adding vectors of 256 bit (8 floats) from a vector of 1024 floats";
+			return "AVX benchmark with big vectors";
 		}
 
 		public override void Initialize()
@@ -79,14 +80,14 @@ namespace Benchmarking.Extension
 		{
 			if (options.Threads == 1)
 			{
-				return 51493.0d;
+				return 164184.0d;
 			}
 
-			return 10691.0d;
+			return 24795.0d;
 		}
 
 #if NETCOREAPP3_0
-		private unsafe void AssignScalarU(Span<float> scalar, Span<float> dst)
+		private unsafe void MultiplyScalarU(Span<float> scalar, Span<float> dst)
 		{
 			fixed (float* pdst = dst)
 			fixed (float* psrc = scalar)
@@ -98,7 +99,9 @@ namespace Benchmarking.Extension
 
 				while (pDstCurrent + 8 <= pDstEnd)
 				{
-					Avx.Store(pDstCurrent, scalarVector256);
+					var dstVector = Avx.LoadVector256(pDstCurrent);
+					dstVector = Avx.Multiply(dstVector, scalarVector256);
+					Avx.Store(pDstCurrent, dstVector);
 
 					pDstCurrent += 8;
 				}
@@ -107,14 +110,18 @@ namespace Benchmarking.Extension
 
 				if (pDstCurrent + 4 <= pDstEnd)
 				{
-					Sse.Store(pDstCurrent, scalarVector128);
+					var dstVector = Sse.LoadVector128(pDstCurrent);
+					dstVector = Sse.Multiply(dstVector, scalarVector128);
+					Sse.Store(pDstCurrent, dstVector);
 
 					pDstCurrent += 4;
 				}
 
 				while (pDstCurrent < pDstEnd)
 				{
-					Sse.StoreScalar(pDstCurrent, scalarVector128);
+					var dstVector = Sse.LoadScalarVector128(pDstCurrent);
+					dstVector = Sse.MultiplyScalar(dstVector, scalarVector128);
+					Sse.StoreScalar(pDstCurrent, dstVector);
 
 					pDstCurrent++;
 				}
