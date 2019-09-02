@@ -1,19 +1,19 @@
 ﻿#region using
 
 using System.IO;
+using System.IO.Compression;
 using System.Threading.Tasks;
 using Benchmarking.Util;
-using ICSharpCode.SharpZipLib.GZip;
 
 #endregion
 
 namespace Benchmarking.Compression
 {
-	internal class GZip : Benchmark
+	internal class Brotli : Benchmark
 	{
 		private readonly string[] datas;
 
-		public GZip(Options options, string[] data = null) : base(options)
+		public Brotli(Options options, string[] data = null) : base(options)
 		{
 			datas = new string[options.Threads];
 
@@ -34,15 +34,12 @@ namespace Benchmarking.Compression
 				{
 					using (Stream s = new MemoryStream())
 					{
-						using (var stream = new GZipOutputStream(s))
+						using (var stream = new BrotliStream(s, CompressionLevel.Optimal))
 						{
-							stream.SetLevel(9);
-
 							using (var sw = new StreamWriter(stream))
 							{
 								sw.Write(datas[i1]);
 								sw.Flush();
-								stream.Finish();
 							}
 						}
 					}
@@ -56,7 +53,7 @@ namespace Benchmarking.Compression
 
 		public override string GetDescription()
 		{
-			return "Compressing 1 GB of data with GZip";
+			return "Compressing 1 GB of data with Brotli";
 		}
 
 		public override void Initialize()
@@ -78,10 +75,10 @@ namespace Benchmarking.Compression
 		{
 			if (options.Threads == 1)
 			{
-				return 24658.0d;
+				return 586459.0d;
 			}
 
-			return 2673.0d;
+			return 52823.0d;
 		}
 	}
 }

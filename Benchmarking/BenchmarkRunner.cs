@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using Benchmarking.Arithmetic;
 using Benchmarking.Compression;
+using Benchmarking.Cryptography;
 using Benchmarking.Extension;
 
 #endregion
@@ -15,15 +16,20 @@ namespace Benchmarking
 	public class BenchmarkRunner
 	{
 		public static readonly string[] AvailableBenchmarks =
-			{"ZIP", "GZIP", "BZIP2", "DEFLATE", "ARITHMETIC_INT", "AVX", "ALL", "COMPRESSION", "ARITHMETIC", "EXTENSION"};
+		{
+			"ZIP", "GZIP", "BZIP2", "DEFLATE", "BROTLI", "ARITHMETIC_INT", "ARITHMETIC_FLOAT", "AVX", "SSE",
+			"ENCRYPTION", "DECRYPTION", "CSRPNG",
+			"ALL", "COMPRESSION", "ARITHMETIC", "EXTENSION", "CRYPTOGRAPHY",
+			"INT", "FLOAT"
+		};
 
 		private static int finished;
 		private static int total;
 		private static readonly object _lock = new object();
+		private readonly List<Benchmark> benchmarksToRun = new List<Benchmark>();
 		private readonly Options options;
 		public readonly List<Result> Results = new List<Result>();
 		private readonly long[] timings;
-		private readonly List<Benchmark> benchmarksToRun = new List<Benchmark>();
 
 		public BenchmarkRunner(Options options)
 		{
@@ -67,9 +73,23 @@ namespace Benchmarking
 					break;
 				}
 
+				case "BROTLI":
+				{
+					benchmarksToRun.Add(new Brotli(options));
+
+					break;
+				}
+
 				case "ARITHMETIC_INT":
 				{
 					benchmarksToRun.Add(new Integer(options));
+
+					break;
+				}
+
+				case "ARITHMETIC_FLOAT":
+				{
+					benchmarksToRun.Add(new Float(options));
 
 					break;
 				}
@@ -81,12 +101,41 @@ namespace Benchmarking
 					break;
 				}
 
+				case "SSE":
+				{
+					benchmarksToRun.Add(new SSE(options));
+
+					break;
+				}
+
+				case "ENCRYPTION":
+				{
+					benchmarksToRun.Add(new Encryption(options));
+
+					break;
+				}
+
+				case "DECRYPTION":
+				{
+					benchmarksToRun.Add(new Decryption(options));
+
+					break;
+				}
+
+				case "CSRPNG":
+				{
+					benchmarksToRun.Add(new CSRPNG(options));
+
+					break;
+				}
+
 				case "COMPRESSION":
 				{
 					benchmarksToRun.Add(new ZIP(options));
 					benchmarksToRun.Add(new GZip(options));
 					benchmarksToRun.Add(new BZip2(options));
 					benchmarksToRun.Add(new Deflate(options));
+					benchmarksToRun.Add(new Brotli(options));
 
 					break;
 				}
@@ -94,13 +143,41 @@ namespace Benchmarking
 				case "ARITHMETIC":
 				{
 					benchmarksToRun.Add(new Integer(options));
+					benchmarksToRun.Add(new Float(options));
 
 					break;
 				}
 
-				case "EXTENSIONS":
+				case "EXTENSION":
 				{
 					benchmarksToRun.Add(new AVX(options));
+					benchmarksToRun.Add(new SSE(options));
+
+					break;
+				}
+
+				case "CRYPTOGRAPHY":
+				{
+					benchmarksToRun.Add(new Encryption(options));
+					benchmarksToRun.Add(new Decryption(options));
+					benchmarksToRun.Add(new CSRPNG(options));
+
+					break;
+				}
+
+				case "INT":
+				{
+					benchmarksToRun.Add(new Integer(options));
+					benchmarksToRun.Add(new Encryption(options));
+					benchmarksToRun.Add(new Decryption(options));
+					benchmarksToRun.Add(new CSRPNG(options));
+
+					break;
+				}
+
+				case "FLOAT":
+				{
+					benchmarksToRun.Add(new Float(options));
 
 					break;
 				}
@@ -111,10 +188,16 @@ namespace Benchmarking
 					benchmarksToRun.Add(new GZip(options));
 					benchmarksToRun.Add(new BZip2(options));
 					benchmarksToRun.Add(new Deflate(options));
+					benchmarksToRun.Add(new Brotli(options));
 					benchmarksToRun.Add(new Integer(options));
+					benchmarksToRun.Add(new Encryption(options));
+					benchmarksToRun.Add(new Decryption(options));
+					benchmarksToRun.Add(new CSRPNG(options));
+					benchmarksToRun.Add(new Float(options));
 					benchmarksToRun.Add(new AVX(options));
+					benchmarksToRun.Add(new SSE(options));
 
-						break;
+					break;
 				}
 
 				default:
@@ -160,9 +243,6 @@ namespace Benchmarking
 				sw.Start();
 				benchmarksToRun[0].Run();
 				sw.Stop();
-
-				benchmarksToRun[0].PostRun();
-				GC.Collect();
 
 				timings[i] = sw.ElapsedMilliseconds;
 				sw.Reset();

@@ -39,6 +39,9 @@ To combine the above
 * ALL (runs all of the below benchmarks)
 * COMPRESSION (runs all compression benchmarks)
 * ARITHMETIC (runs all arithmetic benchmarks)
+* EXTENSION (runs all instruction extension benchmarks)
+* INT (runs all integer-related benchmarks)
+* FLOAT (runs all float-related benchmarks)
 
 ### Compression
 
@@ -48,9 +51,16 @@ To combine the above
 * GZip
 * BZip2
 * Deflate
+* Brotli (please bear in mind that the highest compression with Brotli is *incredibly* slow as it took almost *10 minutes* on the reference system in singlethread mode)
 
 ### Arithmetic
 * Arithmetic_Int (Simple Integer Benchmark for byte, short, int and long performance)
+* Arithmetic_Float (Simple Float Benchmark)
+
+### Instruction extensions
+
+* AVX
+* SSE
 
 More will be added in the future :)
 
@@ -61,4 +71,10 @@ Detailed system specs:
 - R9 3900x
 - 32 GB 3200 MHz CL16 RAM
 - ASUS Hero VIII
+
+## License
+
+This tool is licensed under the GNU GPLv3. This tool and the developers are not responsible for bricking your system (e.g. when you're running without a thermal treshold).
+
+You may contact us if the license is not suitable for your needs.
 

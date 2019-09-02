@@ -1,19 +1,22 @@
 ﻿#region using
 
 using System.IO;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using Benchmarking.Util;
-using ICSharpCode.SharpZipLib.GZip;
 
 #endregion
 
-namespace Benchmarking.Compression
+namespace Benchmarking.Cryptography
 {
-	internal class GZip : Benchmark
+	internal class Encryption : Benchmark
 	{
 		private readonly string[] datas;
+		private byte[] aesIV;
+		private byte[] aesKey;
 
-		public GZip(Options options, string[] data = null) : base(options)
+		public Encryption(Options options, string[] data = null) : base(options)
 		{
 			datas = new string[options.Threads];
 
@@ -34,15 +37,34 @@ namespace Benchmarking.Compression
 				{
 					using (Stream s = new MemoryStream())
 					{
-						using (var stream = new GZipOutputStream(s))
+						using (var stream = new CryptoStream(s, new HMACSHA512(), CryptoStreamMode.Write))
 						{
-							stream.SetLevel(9);
-
 							using (var sw = new StreamWriter(stream))
 							{
 								sw.Write(datas[i1]);
 								sw.Flush();
-								stream.Finish();
+								stream.Flush();
+							}
+						}
+					}
+
+					using (Stream s = new MemoryStream())
+					{
+						using (var aes = new AesManaged())
+						{
+							aes.Mode = CipherMode.CBC;
+							aes.KeySize = 256;
+							aes.IV = aesIV;
+							aes.Key = aesKey;
+
+							using (var stream = new CryptoStream(s, aes.CreateEncryptor(), CryptoStreamMode.Write))
+							{
+								using (var sw = new StreamWriter(stream))
+								{
+									sw.Write(datas[i1]);
+									sw.Flush();
+									stream.Flush();
+								}
 							}
 						}
 					}
@@ -56,7 +78,7 @@ namespace Benchmarking.Compression
 
 		public override string GetDescription()
 		{
-			return "Compressing 1 GB of data with GZip";
+			return "Encrypting 1 GB of data with SHA512 and AES26";
 		}
 
 		public override void Initialize()
@@ -72,16 +94,28 @@ namespace Benchmarking.Compression
 			}
 
 			Task.WaitAll(tasks);
+
+			using (var aes = new AesManaged())
+			{
+				aes.Mode = CipherMode.CBC;
+				aes.KeySize = 256;
+
+				aes.GenerateIV();
+				aes.GenerateKey();
+
+				aesIV = aes.IV;
+				aesKey = aes.Key;
+			}
 		}
 
 		public override double GetReferenceValue()
 		{
 			if (options.Threads == 1)
 			{
-				return 24658.0d;
+				return 2538.0d;
 			}
 
-			return 2673.0d;
+			return 548.0d;
 		}
 	}
 }
