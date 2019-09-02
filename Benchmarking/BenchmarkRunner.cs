@@ -165,7 +165,7 @@ namespace Benchmarking
 					break;
 				}
 
-				case "IMT":
+				case "INT":
 				{
 					benchmarksToRun.Add(new Integer(options));
 					benchmarksToRun.Add(new Encryption(options));
