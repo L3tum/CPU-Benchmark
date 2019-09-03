@@ -1,19 +1,29 @@
-﻿using System;
+﻿#region using
+
+using System;
+
+#endregion
 
 namespace Benchmarking
 {
 	public static class BenchmarkRater
 	{
 		// Maybe replace with linear rating?
-		public static double RateBenchmark(double timeInMillis)
+		public static double RateBenchmark(double timeInMillis, double referenceTimeInMillis)
 		{
-			// Maximum 1000000 points (100k)
-			const double maxTime = 100000;
+			const int baseline = 50000;
 
-			// "Maximum" of 10000000 (1M) milliseconds or 1000 seconds
+			if (timeInMillis > referenceTimeInMillis)
+			{
+				return Math.Round(-0.5 * timeInMillis + baseline, 0);
+			}
 
-			// Nice exponential graph from x = 0 to x ~ 1000000 and
-			return Math.Round(maxTime * Math.Pow(0.5, 0.00001 * timeInMillis), 0);
+			if (timeInMillis < referenceTimeInMillis)
+			{
+				return Math.Round(-0.5 * timeInMillis + baseline, 0) + baseline;
+			}
+
+			return baseline;
 		}
 	}
 }

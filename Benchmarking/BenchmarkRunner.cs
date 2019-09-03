@@ -228,8 +228,10 @@ namespace Benchmarking
 				var timing = ExecuteBenchmark();
 
 				Results.Add(new Result(benchmarksToRun[0].GetDescription(), timing,
-					BenchmarkRater.RateBenchmark(timing), benchmarksToRun[0].GetReferenceValue(),
-					BenchmarkRater.RateBenchmark(benchmarksToRun[0].GetReferenceValue())));
+					BenchmarkRater.RateBenchmark(timing, benchmarksToRun[0].GetReferenceValue()),
+					benchmarksToRun[0].GetReferenceValue(),
+					BenchmarkRater.RateBenchmark(benchmarksToRun[0].GetReferenceValue(),
+						benchmarksToRun[0].GetReferenceValue())));
 
 				benchmarksToRun.RemoveAt(0);
 				GC.Collect();
