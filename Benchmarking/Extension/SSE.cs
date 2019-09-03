@@ -47,6 +47,7 @@ namespace Benchmarking.Extension
 					for (var j = 0; j < iterations; j++)
 					{
 						AddScalarU(randomFloatingSpan, dst);
+						MultiplyScalarU(randomFloatingSpan, dst);
 					}
 
 					BenchmarkRunner.ReportProgress();
@@ -79,14 +80,14 @@ namespace Benchmarking.Extension
 		{
 			if (options.Threads == 1)
 			{
-				return 131352.0d;
+				return 306293.0d;
 			}
 
-			return 32379.0d;
+			return 49363.0d;
 		}
 
 #if NETCOREAPP3_0
-		private unsafe void AssignScalarU(Span<float> scalar, Span<float> dst)
+		private unsafe void MultiplyScalarU(Span<float> scalar, Span<float> dst)
 		{
 			fixed (float* pdst = dst)
 			fixed (float* psrc = scalar)
@@ -98,14 +99,18 @@ namespace Benchmarking.Extension
 
 				if (pDstCurrent + 4 <= pDstEnd)
 				{
-					Sse.Store(pDstCurrent, scalarVector128);
+					var dstVector = Sse.LoadVector128(pDstCurrent);
+					dstVector = Sse.Multiply(dstVector, scalarVector128);
+					Sse.Store(pDstCurrent, dstVector);
 
 					pDstCurrent += 4;
 				}
 
 				while (pDstCurrent < pDstEnd)
 				{
-					Sse.StoreScalar(pDstCurrent, scalarVector128);
+					var dstVector = Sse.LoadScalarVector128(pDstCurrent);
+					dstVector = Sse.MultiplyScalar(dstVector, scalarVector128);
+					Sse.StoreScalar(pDstCurrent, dstVector);
 
 					pDstCurrent++;
 				}
