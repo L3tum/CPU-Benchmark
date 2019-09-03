@@ -206,6 +206,8 @@ namespace Benchmarking
 				}
 			}
 
+			total *= benchmarksToRun.Count;
+
 			RunGenericBenchmark();
 		}
 
