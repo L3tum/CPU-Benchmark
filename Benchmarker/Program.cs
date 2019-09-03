@@ -19,21 +19,15 @@ namespace Benchmarker
 		{
 			var options = new Options();
 
-			Console.WriteLine("Starting Benchmark...");
-			Console.WriteLine();
-			Console.WriteLine("OS:            {0}", Environment.OSVersion);
-			Console.WriteLine("Processor:     {0} Revision {1}",
-				Environment.GetEnvironmentVariable("PROCESSOR_IDENTIFIER"),
-				Environment.GetEnvironmentVariable("PROCESSOR_REVISION"));
-			Console.WriteLine("Architecture:  {0}", RuntimeInformation.ProcessArchitecture);
-			Console.WriteLine("Logical Cores: {0}", Environment.ProcessorCount);
-
-			Console.WriteLine();
-
 #if RELEASE
 			Parser.Default.ParseArguments<Options>(args).WithParsed<Options>(opts =>
 			{
 				options = opts;
+
+				if (opts == null)
+				{
+					return;
+				}
 
 				if (opts.Threads == 0)
 				{
@@ -47,9 +41,25 @@ namespace Benchmarker
 					}
 				}
 			});
+
+			if (options?.Benchmark == null)
+			{
+				return;
+			}
 #else
 			options = new Options {Benchmark = "BZIP2", Threads = 1, Runs = 1};
 #endif
+			Console.WriteLine("Starting Benchmark...");
+			Console.WriteLine();
+			Console.WriteLine("OS:            {0}", Environment.OSVersion);
+			Console.WriteLine("Processor:     {0} Revision {1}",
+				Environment.GetEnvironmentVariable("PROCESSOR_IDENTIFIER"),
+				Environment.GetEnvironmentVariable("PROCESSOR_REVISION"));
+			Console.WriteLine("Architecture:  {0}", RuntimeInformation.ProcessArchitecture);
+			Console.WriteLine("Logical Cores: {0}", Environment.ProcessorCount);
+
+			Console.WriteLine();
+
 			var runner = new BenchmarkRunner(options);
 
 			Console.WriteLine(
