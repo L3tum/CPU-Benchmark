@@ -13,7 +13,7 @@ namespace Benchmarking.Cryptography
 	internal class Encryption : Benchmark
 	{
 		private readonly string[] datas;
-		private byte[] aesIV;
+		private byte[] aesNonce;
 		private byte[] aesKey;
 
 		public Encryption(Options options, string[] data = null) : base(options)
@@ -48,25 +48,12 @@ namespace Benchmarking.Cryptography
 						}
 					}
 
-					using (Stream s = new MemoryStream())
+					using (var aes = new AesGcm(aesKey))
 					{
-						using (var aes = new AesManaged())
-						{
-							aes.Mode = CipherMode.CBC;
-							aes.KeySize = 256;
-							aes.IV = aesIV;
-							aes.Key = aesKey;
+						var cipher = new byte[datas[i1].Length];
+						var tag = new byte[16];
 
-							using (var stream = new CryptoStream(s, aes.CreateEncryptor(), CryptoStreamMode.Write))
-							{
-								using (var sw = new StreamWriter(stream))
-								{
-									sw.Write(datas[i1]);
-									sw.Flush();
-									stream.Flush();
-								}
-							}
-						}
+						aes.Encrypt(aesNonce, Encoding.UTF8.GetBytes(datas[i1]), cipher, tag);
 					}
 
 					BenchmarkRunner.ReportProgress();
@@ -78,7 +65,7 @@ namespace Benchmarking.Cryptography
 
 		public override string GetDescription()
 		{
-			return "Encrypting 1 GB of data with SHA512 and AES26";
+			return "Encrypting 1 GB of data with SHA512 and AES-GCM";
 		}
 
 		public override void Initialize()
@@ -95,24 +82,19 @@ namespace Benchmarking.Cryptography
 
 			Task.WaitAll(tasks);
 
-			using (var aes = new AesManaged())
-			{
-				aes.Mode = CipherMode.CBC;
-				aes.KeySize = 256;
+			// 12 byte nonce
+			aesNonce = new byte[12];
+			RandomNumberGenerator.Fill(aesNonce);
 
-				aes.GenerateIV();
-				aes.GenerateKey();
-
-				aesIV = aes.IV;
-				aesKey = aes.Key;
-			}
+			aesKey = new byte[32];
+			RandomNumberGenerator.Fill(aesKey);
 		}
 
 		public override double GetReferenceValue()
 		{
 			if (options.Threads == 1)
 			{
-				return 2538.0d;
+				return 2028.0d;
 			}
 
 			return 548.0d;
