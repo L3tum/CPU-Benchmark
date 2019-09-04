@@ -12,6 +12,65 @@ using System.Text.RegularExpressions;
 
 namespace Benchmarking
 {
+	/// <summary>
+	/// What gets collected for each OS?
+	///
+	/// Windows:
+	///		Cores (Physical + Logical)
+	///		Architecture
+	///		Processor Caption
+	///		Processor Name
+	///		L2CacheSize
+	///		L3CacheSize
+	///		Socket
+	///		MaxClockSpeed
+	///		RAM Speed
+	///		RAM Manufacturer
+	///		RAM Size
+	///		BIOS Version
+	/// 
+	/// Linux:
+	///		Cores (Physical + Logical)
+	///		Architecture
+	///		Processor Caption
+	///		Processor Name
+	///			NOT L2CacheSize
+	///			NOT L3CacheSize
+	///			NOT Socket
+	///		MaxClockSpeed
+	///		RAM Speed
+	///		RAM Manufacturer
+	///		RAM Size
+	///		BIOS Version
+	///
+	/// Mac:
+	///		Cores (Physical + Logical)
+	///		Architecture
+	///		Processor Caption
+	///		Processor Name
+	///			NOT L2CacheSize
+	///			NOT L3CacheSize
+	///			NOT Socket
+	///		MaxClockSpeed
+	///			NOT RAM Speed
+	///			NOT RAM Manufacturer
+	///		RAM Size
+	///			NOT BIOS Version
+	///
+	/// FreeBSD:
+	///		Cores (NOT Physical BUT Logical)
+	///		Architecture
+	///		Processor Caption
+	///		Processor Name
+	///			NOT L2CacheSize
+	///			NOT L3CacheSize
+	///		Socket
+	///		MaxClockSpeed
+	///		RAM Speed
+	///		RAM Manufacturer
+	///		RAM Size
+	///			NOT BIOS Version
+	/// </summary>
 	public class MachineInformation
 	{
 		public MachineInformation()
@@ -284,13 +343,13 @@ namespace Benchmarking
 						{
 							if (s.Trim().StartsWith("Speed"))
 							{
-								var value = long.Parse(s.Replace("Speed", "").Replace("MHz", "").Trim());
+								var value = long.Parse(s.Replace("Speed:", "").Replace("MHz", "").Trim());
 
 								information.Ram.Speed = value;
 							}
 							else if (s.Trim().StartsWith("Manufacturer"))
 							{
-								var value = s.Replace("Manufacturer", "").Trim();
+								var value = s.Replace("Manufacturer:", "").Trim();
 
 								information.Ram.Manfucturer = value;
 							}
@@ -301,12 +360,184 @@ namespace Benchmarking
 						// Intentionally left blank
 					}
 				}
+				else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+				{
+					using (var p = Process.Start("sysctl", "-n machdep.cpu.brand_string"))
+					{
+						using (var sr = p.StandardOutput)
+						{
+							p.WaitForExit();
 
-				information.Ram.CapacityHRF = FormatBytes(information.Ram.Capacity);
+							var info = sr.ReadToEnd().Trim().Split('@');
+
+							if (info[1].EndsWith("GHz"))
+							{
+								info[1] = (int.Parse(info[1].Replace("GHz", "")) * 1000).ToString();
+							}
+
+							if (info[1].EndsWith("KHz"))
+							{
+								info[1] = (int.Parse(info[1].Replace("KHz", "")) / 1000).ToString();
+							}
+
+							info[1] = info[1].Replace("MHz", "").Trim();
+
+							information.Cpu.Name = info[0];
+							information.Cpu.MaxClockSpeed = int.Parse(info[1]);
+						}
+					}
+
+					using (var p = Process.Start("sysctl", "-n hw.physicalcpu"))
+					{
+						using (var sr = p.StandardOutput)
+						{
+							p.WaitForExit();
+
+							var info = sr.ReadToEnd().Trim();
+
+							information.Cpu.PhysicalCores = int.Parse(info);
+						}
+					}
+
+					using (var p = Process.Start("sysctl", "-n hw.logicalcpu"))
+					{
+						using (var sr = p.StandardOutput)
+						{
+							p.WaitForExit();
+
+							var info = sr.ReadToEnd().Trim();
+
+							information.Cpu.LogicalCores = int.Parse(info);
+						}
+					}
+
+					using (var p = Process.Start("sysctl", "-n hw.memsize"))
+					{
+						using (var sr = p.StandardOutput)
+						{
+							p.WaitForExit();
+
+							var info = sr.ReadToEnd().Trim();
+
+							information.Ram.Capacity = long.Parse(info);
+						}
+					}
+				}
+				else if (RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD))
+				{
+					using (var p = Process.Start("sysctl", "-n hw.physmem"))
+					{
+						using (var sr = p.StandardOutput)
+						{
+							p.WaitForExit();
+
+							var info = sr.ReadToEnd().Trim();
+
+							information.Ram.Capacity = long.Parse(info);
+						}
+					}
+
+					using (var p = Process.Start("sysctl", "-n hw.model"))
+					{
+						using (var sr = p.StandardOutput)
+						{
+							p.WaitForExit();
+
+							var info = sr.ReadToEnd().Trim();
+
+							information.Cpu.Name =info;
+						}
+					}
+
+					try
+					{
+						var memInfo = new List<string>();
+
+						using (var p = Process.Start("dmidecode", "-t 17"))
+						{
+							using (var sr = p.StandardOutput)
+							{
+								p.WaitForExit();
+
+								while (!sr.EndOfStream)
+								{
+									memInfo.Add(sr.ReadLine());
+								}
+							}
+						}
+
+						foreach (var s in memInfo)
+						{
+							if (s.Trim().StartsWith("Speed"))
+							{
+								var value = long.Parse(s.Replace("Speed:", "").Replace("MHz", "").Trim());
+
+								information.Ram.Speed = value;
+							}
+							else if (s.Trim().StartsWith("Manufacturer"))
+							{
+								var value = s.Replace("Manufacturer:", "").Trim();
+
+								information.Ram.Manfucturer = value;
+							}
+						}
+					}
+					catch (Exception)
+					{
+						// Intentionally left blank
+					}
+
+					try
+					{
+						var memInfo = new List<string>();
+
+						using (var p = Process.Start("dmidecode", "-t processor"))
+						{
+							using (var sr = p.StandardOutput)
+							{
+								p.WaitForExit();
+
+								while (!sr.EndOfStream)
+								{
+									memInfo.Add(sr.ReadLine());
+								}
+							}
+						}
+
+						foreach (var s in memInfo)
+						{
+							if (s.Trim().StartsWith("Max Speed"))
+							{
+								var value = int.Parse(s.Replace("Max Speed:", "").Replace("MHz", "").Trim());
+
+								information.Cpu.MaxClockSpeed = value;
+							}
+							else if (s.Trim().StartsWith("Socket Designation"))
+							{
+								var value = s.Replace("Socket Designation:", "").Trim();
+
+								information.Cpu.Socket = value;
+							}
+						}
+					}
+					catch (Exception)
+					{
+						// Intentionally left blank
+					}
+				}
 			}
 			catch (Exception e)
 			{
 				Console.WriteLine(e.Message);
+			}
+
+			try
+			{
+				information.Ram.CapacityHRF = FormatBytes(information.Ram.Capacity);
+			}
+			catch (Exception)
+			{
+				// Intentionally left blank
 			}
 
 			return information;

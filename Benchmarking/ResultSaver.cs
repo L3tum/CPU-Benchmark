@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using Benchmarking;
 using Newtonsoft.Json;
 
@@ -30,6 +31,7 @@ namespace Benchmarker
 			}
 
 			save.MachineInformation = MachineInformationGatherer.GatherInformation();
+			save.Version = Assembly.GetExecutingAssembly().GetName().Version;
 
 			AppDomain.CurrentDomain.ProcessExit += CurrentDomainOnProcessExit;
 		}
@@ -78,6 +80,7 @@ namespace Benchmarker
 		{
 			public MachineInformation MachineInformation;
 			public List<Result> Results;
+			public Version Version;
 
 			public Save()
 			{
