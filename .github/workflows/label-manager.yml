@@ -6,14 +6,14 @@ on:
       - master
 
 jobs:
-  touched:
-    uses: "docker://cdssnc/touched-github-action"
-    args: "{.github/labels.json}"
-  labels:
+  label-manager:
+    name: Manage labels
     runs-on: ubuntu-18.04
-    name: Setup Labels
     steps:
-      - name: "Check & Modify Labels"
+      - name: Touched?
+        uses: groupninemedia/filter-git-diff@master
+        args: regex ^./github/labels.json$
+      - name: Setup Labels
         uses: lannonbr/issue-label-manager-action@2.0.0
-        env:
+        env: 
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
