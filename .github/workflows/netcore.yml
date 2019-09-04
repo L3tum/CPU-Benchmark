@@ -17,7 +17,8 @@ jobs:
       - uses: actions/checkout@v1
       - name: Touched?
         uses: groupninemedia/filter-git-diff@master
-        args: regex ^(Benchmarking.sln|Benchmarker|Benchmarking)
+        with:
+          args: regex ^(Benchmarking.sln|Benchmarker|Benchmarking)
       - name: Setup dotnet
         uses: actions/setup-dotnet@v1
         with:
