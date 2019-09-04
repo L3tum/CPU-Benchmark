@@ -14,6 +14,9 @@ jobs:
         target: ['win-x64', 'win-x86', 'linux-arm', 'win-arm', 'win-arm64', 'linux-x64', 'debian-x64', 'ubuntu-x64', 'osx-x64']
     name: Dotnet ${{ matrix.dotnet }} build
     steps:
+      - name: Touched?
+        uses: groupninemedia/filter-git-diff@master
+        args: regex ^(Benchmarking.sln|Benchmarker|Benchmarking)
       - uses: actions/checkout@v1
       - name: Setup dotnet
         uses: actions/setup-dotnet@v1
