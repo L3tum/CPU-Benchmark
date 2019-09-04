@@ -1,4 +1,10 @@
-﻿namespace Benchmarking
+﻿#region using
+
+using Newtonsoft.Json;
+
+#endregion
+
+namespace Benchmarking
 {
 	public class Result
 	{
@@ -11,10 +17,18 @@
 			ReferencePoints = referencePoints;
 		}
 
-		public string Benchmark { get; }
-		public double Points { get; }
-		public double ReferencePoints { get; }
-		public double ReferenceTiming { get; }
-		public double Timing { get; }
+		public Result()
+		{
+			// Stupid JSON
+		}
+
+		public string Benchmark { get; set; }
+		public double Points { get; set; }
+
+		[JsonIgnore] public double ReferencePoints { get; set; }
+
+		[JsonIgnore] public double ReferenceTiming { get; set; }
+
+		public double Timing { get; set; }
 	}
 }
