@@ -12,6 +12,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Dockerfile.alpine = Dockerfile.alpine
 		Dockerfile.arm32v7 = Dockerfile.arm32v7
 		Dockerfile.arm64 = Dockerfile.arm64
+		.github\workflows\label-manager.yml = .github\workflows\label-manager.yml
+		.github\labels.json = .github\labels.json
+		.github\workflows\netcore.yml = .github\workflows\netcore.yml
+		Readme.md = Readme.md
+		.github\workflows\secrets-checker.yml = .github\workflows\secrets-checker.yml
 	EndProjectSection
 EndProject
 Global
