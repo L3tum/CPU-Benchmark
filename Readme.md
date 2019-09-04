@@ -1,5 +1,7 @@
 # CPU Benchmark
 
+[![Build](https://action-badges.now.sh/L3tum/CPU-Benchmark?action=.NET%20Core%20CI)](https://action-badges.now.sh/L3tum/CPU-Benchmark?action=.NET%20Core%20CI)
+
 ## Usage
 
 Download the tool on the Releases tab.
