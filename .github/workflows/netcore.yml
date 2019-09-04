@@ -1,0 +1,22 @@
+name: ASP.NET Core CI
+
+on: 
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        dotnet: [ '3.0.100-preview8-013656' ]
+        target: ['win-x64', 'win-x86', 'linux-arm', 'win-arm', 'win-arm64', 'linux-x64', 'debian-x64', 'ubuntu-x64', 'osx-x64']
+    name: Dotnet ${{ matrix.dotnet }} build
+    steps:
+      - uses: actions/checkout@v1
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ matrix.dotnet }}
+      - run: dotnet publish /p:PublishSingleFile=true /p:PublishTrimmed=true -c Release -r ${{ matrix.target }} ./Benchmarker/Benchmarker.csproj
