@@ -19,7 +19,7 @@ namespace Benchmarker
 			var options = new Options();
       
 #if RELEASE
-			Parser.Default.ParseArguments<Options>(args).WithParsed<Options>(opts =>
+			Parser.Default.ParseArguments<Options>(args).WithParsed(opts =>
 			{
 				options = opts;
 
@@ -40,6 +40,11 @@ namespace Benchmarker
 					}
 				}
 			});
+
+			if (options.ListBenchmarks)
+			{
+				Console.WriteLine(string.Join(", ", BenchmarkRunner.AvailableBenchmarks));
+			}
 
 			if (options?.Benchmark == null)
 			{
