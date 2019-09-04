@@ -17,6 +17,8 @@ jobs:
       - uses: actions/checkout@v1
       - name: Touched?
         uses: docker://cdssnc/touched-github-action
+        env:
+          GITHUB_EVENT_NAME: push
         with:
           args: ^{Benchmarking.sln,Benchmarker,Benchmarking}
       - name: Setup dotnet
