@@ -1,0 +1,21 @@
+name: Label Manager
+
+on: 
+  push:
+    branches:
+      - master
+
+jobs:
+  label-manager:
+    name: Manage labels
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Touched?
+        uses: groupninemedia/filter-git-diff@master
+        with:
+          args: regex ^./github/labels.json$
+      - name: Setup Labels
+        uses: lannonbr/issue-label-manager-action@2.0.0
+        env: 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
