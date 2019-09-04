@@ -19,4 +19,4 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: ${{ matrix.dotnet }}
-      - run: dotnet publish /p:PublishSingleFile=true /p:PublishTrimmed=true -c Release -r ${{ matrix.target }} ./Benchmarker/Benchmarker.csproj
+      - run: dotnet publish --framework netcoreapp3.0 /p:PublishSingleFile=true /p:PublishTrimmed=true -c Release -r ${{ matrix.target }} ./Benchmarker/Benchmarker.csproj
