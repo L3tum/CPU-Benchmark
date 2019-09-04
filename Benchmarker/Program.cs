@@ -17,7 +17,37 @@ namespace Benchmarker
 		private static void Main(string[] args)
 		{
 			var options = new Options();
+      
+#if RELEASE
+			Parser.Default.ParseArguments<Options>(args).WithParsed<Options>(opts =>
+			{
+				options = opts;
 
+				if (opts == null)
+				{
+					return;
+				}
+
+				if (opts.Threads == 0)
+				{
+					if (opts.Multithreaded)
+					{
+						options.Threads = Environment.ProcessorCount;
+					}
+					else
+					{
+						options.Threads = 1;
+					}
+				}
+			});
+
+			if (options?.Benchmark == null)
+			{
+				return;
+			}
+#else
+			options = new Options {Benchmark = "encryption", Threads = 1, Runs = 1};
+#endif
 			Console.WriteLine("Gathing hardware information...");
 
 			var information = MachineInformationGatherer.GatherInformation();
@@ -36,26 +66,6 @@ namespace Benchmarker
 
 			ResultSaver.Init();
 
-#if RELEASE
-			Parser.Default.ParseArguments<Options>(args).WithParsed<Options>(opts =>
-			{
-				options = opts;
-
-				if (opts.Threads == 0)
-				{
-					if (opts.Multithreaded)
-					{
-						options.Threads = Environment.ProcessorCount;
-					}
-					else
-					{
-						options.Threads = 1;
-					}
-				}
-			});
-#else
-			options = new Options {Benchmark = "encryption", Threads = 1, Runs = 1};
-#endif
 			var runner = new BenchmarkRunner(options);
 
 			Console.WriteLine(

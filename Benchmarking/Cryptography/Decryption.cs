@@ -14,17 +14,22 @@ namespace Benchmarking.Cryptography
 	internal class Decryption : Benchmark
 	{
 		private readonly string[] datas;
-		private readonly string[] datasAES;
+		private readonly byte[][] datasAES;
 		private readonly string[] datasSHA;
-		private byte[] aesIV;
 		private byte[] aesKey;
+		private byte[] aesNonce;
+		private readonly byte[][] aesPlaintext;
+		private readonly byte[][] aesTag;
 		private byte[] sha512Key;
 
 		public Decryption(Options options) : base(options)
 		{
 			datas = new string[options.Threads];
 			datasSHA = new string[options.Threads];
-			datasAES = new string[options.Threads];
+			datasAES = new byte[options.Threads][];
+
+			aesTag = new byte[options.Threads][];
+			aesPlaintext = new byte[options.Threads][];
 		}
 
 		public override void Run()
@@ -58,33 +63,9 @@ namespace Benchmarking.Cryptography
 						}
 					}
 
-					using (Stream s = new MemoryStream())
+					using (var aes = new AesGcm(aesKey))
 					{
-						using (var aes = new AesManaged())
-						{
-							aes.Mode = CipherMode.CBC;
-							aes.KeySize = 256;
-							aes.IV = aesIV;
-							aes.Key = aesKey;
-
-							using (var stream = new CryptoStream(s, aes.CreateDecryptor(), CryptoStreamMode.Read))
-							{
-								using (var sw = new StreamWriter(s))
-								{
-									sw.Write(datasAES[i1]);
-									sw.Flush();
-									stream.Flush();
-									stream.FlushFinalBlock();
-
-									s.Seek(0, SeekOrigin.Begin);
-
-									using (var sr = new StreamReader(stream))
-									{
-										datasAES[i1] = sr.ReadToEnd();
-									}
-								}
-							}
-						}
+						aes.Decrypt(aesNonce, datasAES[i1], aesTag[i1], aesPlaintext[i1]);
 					}
 
 					BenchmarkRunner.ReportProgress();
@@ -96,11 +77,17 @@ namespace Benchmarking.Cryptography
 
 		public override string GetDescription()
 		{
-			return "Decrypting 1 GB of data with HMACSHA512 and AES26";
+			return "Decrypting 1 GB of data with HMACSHA512 and AES-GCM";
 		}
 
 		public override void Initialize()
 		{
+			aesNonce = new byte[12];
+			aesKey = new byte[32];
+
+			RandomNumberGenerator.Fill(aesNonce);
+			RandomNumberGenerator.Fill(aesKey);
+
 			var tasks = new Task[options.Threads];
 
 			// 500 "MB" string -> 2 bytes per character -> 1 GB String
@@ -124,34 +111,15 @@ namespace Benchmarking.Cryptography
 
 					datasSHA[i1] = Encoding.Default.GetString(hmac.ComputeHash(Encoding.Default.GetBytes(datas[i1])));
 
-					using (var s = new MemoryStream())
+					aesPlaintext[i1] = new byte[Encoding.UTF8.GetBytes(datas[i1]).Length];
+
+					using (var aes = new AesGcm(aesKey))
 					{
-						using (var aes = new AesManaged())
-						{
-							aes.Mode = CipherMode.CBC;
-							aes.KeySize = 256;
-							aes.GenerateIV();
-							aes.GenerateKey();
+						datasAES[i1] = new byte[datas[i1].Length];
+						aesTag[i1] = new byte[16];
 
-							aesIV = aes.IV;
-							aesKey = aes.Key;
-
-							using (var stream = new CryptoStream(s, aes.CreateEncryptor(), CryptoStreamMode.Write))
-							{
-								using (var sw = new StreamWriter(stream))
-								{
-									sw.Write(datas[i1]);
-									sw.Flush();
-									stream.Flush();
-									stream.FlushFinalBlock();
-
-									datasAES[i1] = Encoding.Default.GetString(s.GetBuffer(), 0, (int) s.Length);
-								}
-							}
-						}
+						aes.Encrypt(aesNonce, Encoding.UTF8.GetBytes(datas[i1]), datasAES[i1], aesTag[i1]);
 					}
-
-					datas[i1] = null;
 				});
 			}
 
@@ -162,10 +130,10 @@ namespace Benchmarking.Cryptography
 		{
 			if (options.Threads == 1)
 			{
-				return 930.0d;
+				return 225.0d;
 			}
 
-			return 170.0d;
+			return 64.0d;
 		}
 	}
 }

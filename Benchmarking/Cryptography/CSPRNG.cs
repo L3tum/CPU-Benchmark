@@ -1,6 +1,5 @@
 ﻿#region using
 
-using System;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 
@@ -8,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Benchmarking.Cryptography
 {
-	internal class CSRPNG : Benchmark
+	internal class CSPRNG : Benchmark
 	{
-		public CSRPNG(Options options) : base(options)
+		public CSPRNG(Options options) : base(options)
 		{
 		}
 
@@ -25,7 +24,7 @@ namespace Benchmarking.Cryptography
 					var data = new byte[1000000000 / options.Threads];
 					var csrpng = RandomNumberGenerator.Create();
 
-					for (int j = 0; j < 64; j++)
+					for (var j = 0; j < 64; j++)
 					{
 						csrpng.GetBytes(data);
 					}

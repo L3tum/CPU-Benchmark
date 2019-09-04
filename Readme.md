@@ -1,8 +1,12 @@
 # CPU Benchmark
 
+[![Build](https://action-badges.now.sh/L3tum/CPU-Benchmark?action=.NET%20Core%20CI)](https://action-badges.now.sh/L3tum/CPU-Benchmark?action=.NET%20Core%20CI)
+
 ## Usage
 
-Download the tool here.
+Download the tool on the Releases tab.
+
+You can download a pre-packaged version for your system or choose the "general" system. You'll need to install .NET Core 3 (or compatible) yourself in that case.
 
 Execute it :)
 
@@ -40,6 +44,7 @@ To combine the above
 * COMPRESSION (runs all compression benchmarks)
 * ARITHMETIC (runs all arithmetic benchmarks)
 * EXTENSION (runs all instruction extension benchmarks)
+* CRYPTOGRAPHY (runs all cryptography benchmarks)
 * INT (runs all integer-related benchmarks)
 * FLOAT (runs all float-related benchmarks)
 
@@ -61,6 +66,12 @@ To combine the above
 
 * AVX
 * SSE
+
+### Cryptography
+
+* Encryption
+* Decryption
+* CSPRNG (cryptographically secure pseudo-random number generator)
 
 More will be added in the future :)
 
