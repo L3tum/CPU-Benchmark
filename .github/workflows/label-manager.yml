@@ -13,7 +13,8 @@ jobs:
       - uses: actions/checkout@v1
       - name: Touched?
         uses: groupninemedia/filter-git-diff@master
-        args: regex ^./github/labels.json$
+        with:
+          args: regex ^./github/labels.json$
       - name: Setup Labels
         uses: lannonbr/issue-label-manager-action@2.0.0
         env: 
