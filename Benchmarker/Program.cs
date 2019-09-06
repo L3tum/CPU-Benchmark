@@ -17,7 +17,7 @@ namespace Benchmarker
 		private static void Main(string[] args)
 		{
 			var options = new Options();
-      
+
 #if RELEASE
 			Parser.Default.ParseArguments<Options>(args).WithParsed(opts =>
 			{
@@ -43,10 +43,11 @@ namespace Benchmarker
 
 			if (options.ListBenchmarks)
 			{
-				Console.WriteLine(string.Join(", ", BenchmarkRunner.AvailableBenchmarks));
+				Console.WriteLine(string.Join(", ", BenchmarkRunner.GetAvailableBenchmarks()));
 			}
 
-			if (options?.Benchmark == null)
+			if (options?.Benchmark == null || !BenchmarkRunner.GetAvailableBenchmarks()
+				    .Any(a => a.ToLower().Equals(options.Benchmark)))
 			{
 				return;
 			}

@@ -16,14 +16,9 @@ namespace Benchmarking.Cryptography
 		private byte[] aesNonce;
 		private byte[] aesKey;
 
-		public Encryption(Options options, string[] data = null) : base(options)
+		public Encryption(Options options) : base(options)
 		{
 			datas = new string[options.Threads];
-
-			if (data != null)
-			{
-				datas = data;
-			}
 		}
 
 		public override void Run()
@@ -98,6 +93,10 @@ namespace Benchmarking.Cryptography
 			}
 
 			return 548.0d;
+		}
+		public override string GetCategory()
+		{
+			return "cryptography";
 		}
 	}
 }
