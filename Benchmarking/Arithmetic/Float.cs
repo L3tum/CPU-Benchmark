@@ -109,5 +109,15 @@ namespace Benchmarking.Arithmetic
 		{
 			floatArray = new float[LENGTH];
 		}
+
+		public override string GetName()
+		{
+			return "arithmetic_float";
+		}
+
+		public override string GetCategory()
+		{
+			return "float";
+		}
 	}
 }

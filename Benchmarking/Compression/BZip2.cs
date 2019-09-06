@@ -13,14 +13,9 @@ namespace Benchmarking.Compression
 	{
 		private readonly string[] datas;
 
-		public BZip2(Options options, string[] data = null) : base(options)
+		public BZip2(Options options) : base(options)
 		{
 			datas = new string[options.Threads];
-
-			if (data != null)
-			{
-				datas = data;
-			}
 		}
 
 		public override void Run()
@@ -80,6 +75,10 @@ namespace Benchmarking.Compression
 			}
 
 			return 7938.0d;
+		}
+		public override string GetCategory()
+		{
+			return "compression";
 		}
 	}
 }

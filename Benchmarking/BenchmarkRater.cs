@@ -8,6 +8,8 @@ namespace Benchmarking
 {
 	public static class BenchmarkRater
 	{
+		public delegate double RateMethod(double timeInMillis, double referenceTimeInMillis);
+
 		// Maybe replace with linear rating?
 		public static double RateBenchmark(double timeInMillis, double referenceTimeInMillis)
 		{

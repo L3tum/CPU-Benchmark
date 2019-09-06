@@ -147,5 +147,9 @@ namespace Benchmarking.Extension
 			}
 		}
 #endif
+		public override string GetCategory()
+		{
+			return "extension";
+		}
 	}
 }

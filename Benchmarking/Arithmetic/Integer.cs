@@ -225,5 +225,15 @@ namespace Benchmarking.Arithmetic
 			resultLongArray = new long[LENGTH];
 			resultShortArray = new short[LENGTH];
 		}
+
+		public override string GetName()
+		{
+			return "arithmetic_int";
+		}
+
+		public override string GetCategory()
+		{
+			return "int";
+		}
 	}
 }

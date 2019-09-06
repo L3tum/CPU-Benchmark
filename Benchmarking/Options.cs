@@ -18,5 +18,8 @@ namespace Benchmarking
 
 		[Option('l', "list-benchmarks", Default = false, HelpText = "List available benchmarks")]
 		public bool ListBenchmarks { get; set; }
+
+		[Option('m', "memory-efficient", Default = false, HelpText = "Runs benchmarks in a memory efficient mode. May be slower.")]
+		public bool MemoryEfficient { get; set; }
 	}
 }

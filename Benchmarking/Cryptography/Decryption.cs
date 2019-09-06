@@ -13,13 +13,13 @@ namespace Benchmarking.Cryptography
 {
 	internal class Decryption : Benchmark
 	{
+		private readonly byte[][] aesPlaintext;
+		private readonly byte[][] aesTag;
 		private readonly string[] datas;
 		private readonly byte[][] datasAES;
 		private readonly string[] datasSHA;
 		private byte[] aesKey;
 		private byte[] aesNonce;
-		private readonly byte[][] aesPlaintext;
-		private readonly byte[][] aesTag;
 		private byte[] sha512Key;
 
 		public Decryption(Options options) : base(options)
@@ -134,6 +134,10 @@ namespace Benchmarking.Cryptography
 			}
 
 			return 64.0d;
+		}
+		public override string GetCategory()
+		{
+			return "cryptography";
 		}
 	}
 }

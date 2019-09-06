@@ -3,11 +3,7 @@
 using System.IO;
 using System.Threading.Tasks;
 using Benchmarking.Util;
-using ICSharpCode.SharpZipLib.BZip2;
-using ICSharpCode.SharpZipLib.GZip;
 using ICSharpCode.SharpZipLib.Zip;
-using ICSharpCode.SharpZipLib.Zip.Compression;
-using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
 
 #endregion
 
@@ -17,14 +13,9 @@ namespace Benchmarking.Compression
 	{
 		private readonly string[] datas;
 
-		public ZIP(Options options, string[] data = null) : base(options)
+		public ZIP(Options options) : base(options)
 		{
 			datas = new string[options.Threads];
-
-			if (data != null)
-			{
-				datas = data;
-			}
 		}
 
 		public override void Run()
@@ -88,6 +79,11 @@ namespace Benchmarking.Compression
 			}
 
 			return 2675.0d;
+		}
+
+		public override string GetCategory()
+		{
+			return "compression";
 		}
 	}
 }
