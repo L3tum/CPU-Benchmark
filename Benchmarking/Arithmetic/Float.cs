@@ -83,7 +83,7 @@ namespace Benchmarking.Arithmetic
 						floatArray[j] %= randomFloat;
 					}
 
-					BenchmarkRunner.ReportProgress();
+					BenchmarkRunner.ReportProgress(GetName());
 				});
 			}
 

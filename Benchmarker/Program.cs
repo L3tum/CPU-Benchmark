@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Benchmarking;
 using CommandLine;
+using ShellProgressBar;
 
 #endregion
 
@@ -17,7 +18,7 @@ namespace Benchmarker
 		private static void Main(string[] args)
 		{
 			var options = new Options();
-      
+
 #if RELEASE
 			Parser.Default.ParseArguments<Options>(args).WithParsed(opts =>
 			{
@@ -43,7 +44,16 @@ namespace Benchmarker
 
 			if (options.ListBenchmarks)
 			{
-				Console.WriteLine(string.Join(", ", BenchmarkRunner.AvailableBenchmarks));
+				Console.WriteLine(string.Join(", ", BenchmarkRunner.GetAvailableBenchmarks()));
+			}
+
+			if (!BenchmarkRunner.GetAvailableBenchmarks()
+				.Any(a => a.ToLower().Equals(options.Benchmark)))
+			{
+				Console.WriteLine("Benchmark name not recognized!");
+				Console.ReadLine();
+
+				return;
 			}
 
 			if (options?.Benchmark == null)
@@ -73,20 +83,76 @@ namespace Benchmarker
 
 			var runner = new BenchmarkRunner(options);
 
-			Console.WriteLine(
-				$"Running Benchmark {options.Benchmark} on {options.Threads} threads {options.Runs} times");
+			runner.Prepare();
 
-			using (var progress = new ProgressBar())
+			var poptions = new ProgressBarOptions
+			{
+				ForegroundColor = ConsoleColor.Yellow,
+				BackgroundColor = ConsoleColor.DarkYellow,
+				ProgressCharacter = '─',
+				ProgressBarOnBottom = true,
+				CollapseWhenFinished = false
+			};
+			var childOptions = new ProgressBarOptions
+			{
+				ForegroundColor = ConsoleColor.Green,
+				BackgroundColor = ConsoleColor.DarkGreen,
+				ProgressCharacter = '─',
+				ProgressBarOnBottom = true,
+				//CollapseWhenFinished = false
+			};
+
+			using (var pbar = new ProgressBar(BenchmarkRunner.TotalOverall,
+				$"Running Benchmark {options.Benchmark} on {options.Threads} threads {options.Runs} times", poptions))
 			{
 				var ct = new CancellationTokenSource();
 				var t = Task.Run(() =>
 				{
+					ChildProgressBar childProgressBar = null;
+					var lastBenchmark = string.Empty;
+
 					while (!ct.IsCancellationRequested)
 					{
-						progress.Report(BenchmarkRunner.CurrentProgress);
+						lock (BenchmarkRunner.CurrentRunningBenchmark)
+						{
+							pbar.Tick(BenchmarkRunner.FinishedOverall, $"Overall. Currently running {BenchmarkRunner.CurrentRunningBenchmark} on {options.Threads} threads {options.Runs} times");
 
-						Thread.Sleep(20);
+#if FALSE == TRUE
+							if (childProgressBar == null &&
+							    !string.IsNullOrEmpty(BenchmarkRunner.CurrentRunningBenchmark) && !string.Equals(
+								    BenchmarkRunner.CurrentRunningBenchmark,
+								    options.Benchmark,
+								    StringComparison.CurrentCultureIgnoreCase))
+							{
+								childProgressBar = pbar.Spawn(BenchmarkRunner.SingleBenchmarkTotal,
+									BenchmarkRunner.CurrentRunningBenchmark,
+									childOptions);
+								lastBenchmark = BenchmarkRunner.CurrentRunningBenchmark;
+							}
+
+							if (childProgressBar != null)
+							{
+								if (lastBenchmark != BenchmarkRunner.CurrentRunningBenchmark)
+								{
+									childProgressBar.Tick(BenchmarkRunner.SingleBenchmarkTotal);
+									childProgressBar.Dispose();
+
+									childProgressBar = pbar.Spawn(BenchmarkRunner.SingleBenchmarkTotal,
+										BenchmarkRunner.CurrentRunningBenchmark,
+										childOptions);
+									lastBenchmark = BenchmarkRunner.CurrentRunningBenchmark;
+								}
+
+								childProgressBar.Tick(BenchmarkRunner.CurrentBenchmarkFinished);
+							}
+#endif
+						}
+
+						Thread.Sleep(200);
 					}
+
+					childProgressBar?.Tick(BenchmarkRunner.SingleBenchmarkTotal);
+					childProgressBar?.Dispose();
 				}, ct.Token);
 
 				try
@@ -100,7 +166,7 @@ namespace Benchmarker
 					return;
 				}
 
-				progress.Report(1.0d);
+				pbar.Tick(100);
 
 				ct.Cancel();
 				t.GetAwaiter().GetResult();

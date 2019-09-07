@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime;
+using System.Runtime.CompilerServices;
 using Benchmarking.Arithmetic;
 using Benchmarking.Compression;
 using Benchmarking.Cryptography;
@@ -15,17 +17,22 @@ namespace Benchmarking
 {
 	public class BenchmarkRunner
 	{
-		public static readonly string[] AvailableBenchmarks =
+		private static readonly List<Type> AvailableBenchmarks = new List<Type>
 		{
-			"ZIP", "GZIP", "BZIP2", "DEFLATE", "BROTLI", "ARITHMETIC_INT", "ARITHMETIC_FLOAT", "AVX", "SSE",
-			"ENCRYPTION", "DECRYPTION", "CSPRNG",
-			"ALL", "COMPRESSION", "ARITHMETIC", "EXTENSION", "CRYPTOGRAPHY",
-			"INT", "FLOAT"
+			typeof(ZIP),
+			typeof(GZip),
+			typeof(BZip2),
+			typeof(Deflate),
+//			typeof(Brotli),
+			typeof(Integer),
+			typeof(Float),
+			typeof(AVX),
+			typeof(SSE),
+			typeof(Encryption),
+			typeof(Decryption),
+			typeof(CSPRNG)
 		};
 
-		private static int finished;
-		private static int total;
-		private static readonly object _lock = new object();
 		private readonly List<Benchmark> benchmarksToRun = new List<Benchmark>();
 		private readonly Options options;
 		public readonly List<Result> Results = new List<Result>();
@@ -36,135 +43,55 @@ namespace Benchmarking
 			this.options = options;
 			timings = new long[options.Runs];
 
-			total = options.Runs * options.Threads;
+			TotalOverall = options.Runs * options.Threads;
+			SingleBenchmarkTotal = options.Runs * options.Threads;
 		}
 
-		public static double CurrentProgress { get; private set; }
+		public static int CurrentBenchmarkFinished { get; private set; }
 
-		public void RunBenchmark()
+		public static int FinishedOverall { get; private set; }
+		public static int TotalOverall { get; private set; }
+		public static int SingleBenchmarkTotal { get; private set; }
+
+		public static string CurrentRunningBenchmark { get; private set; } = string.Empty;
+
+		public static List<string> GetAvailableBenchmarks()
+		{
+			var available = new List<string> {"ALL"};
+			var opts = new Options();
+
+			foreach (var bench in AvailableBenchmarks)
+			{
+				var benchmark = (Benchmark) Activator.CreateInstance(bench, opts);
+
+				if (!available.Contains(benchmark.GetCategory().ToUpper()))
+				{
+					available.Add(benchmark.GetCategory().ToUpper());
+				}
+			}
+
+			foreach (var bench in AvailableBenchmarks)
+			{
+				var benchmark = (Benchmark) Activator.CreateInstance(bench, opts);
+
+				if (!available.Contains(benchmark.GetName().ToUpper()) &&
+				    !available.Contains(benchmark.GetName().ToLower()))
+				{
+					available.Add(benchmark.GetName().ToLower());
+				}
+			}
+
+			available = available.Distinct().ToList();
+
+			available.Remove("none");
+
+			return available;
+		}
+
+		public void Prepare()
 		{
 			switch (options.Benchmark.ToUpper())
 			{
-				case "ZIP":
-				{
-					benchmarksToRun.Add(new ZIP(options));
-
-					break;
-				}
-
-				case "GZIP":
-				{
-					benchmarksToRun.Add(new GZip(options));
-
-					break;
-				}
-
-				case "BZIP2":
-				{
-					benchmarksToRun.Add(new BZip2(options));
-
-					break;
-				}
-
-				case "DEFLATE":
-				{
-					benchmarksToRun.Add(new Deflate(options));
-
-					break;
-				}
-
-				case "BROTLI":
-				{
-					benchmarksToRun.Add(new Brotli(options));
-
-					break;
-				}
-
-				case "ARITHMETIC_INT":
-				{
-					benchmarksToRun.Add(new Integer(options));
-
-					break;
-				}
-
-				case "ARITHMETIC_FLOAT":
-				{
-					benchmarksToRun.Add(new Float(options));
-
-					break;
-				}
-
-				case "AVX":
-				{
-					benchmarksToRun.Add(new AVX(options));
-
-					break;
-				}
-
-				case "SSE":
-				{
-					benchmarksToRun.Add(new SSE(options));
-
-					break;
-				}
-
-				case "ENCRYPTION":
-				{
-					benchmarksToRun.Add(new Encryption(options));
-
-					break;
-				}
-
-				case "DECRYPTION":
-				{
-					benchmarksToRun.Add(new Decryption(options));
-
-					break;
-				}
-
-				case "CSPRNG":
-				{
-					benchmarksToRun.Add(new CSPRNG(options));
-
-					break;
-				}
-
-				case "COMPRESSION":
-				{
-					benchmarksToRun.Add(new ZIP(options));
-					benchmarksToRun.Add(new GZip(options));
-					benchmarksToRun.Add(new BZip2(options));
-					benchmarksToRun.Add(new Deflate(options));
-					benchmarksToRun.Add(new Brotli(options));
-
-					break;
-				}
-
-				case "ARITHMETIC":
-				{
-					benchmarksToRun.Add(new Integer(options));
-					benchmarksToRun.Add(new Float(options));
-
-					break;
-				}
-
-				case "EXTENSION":
-				{
-					benchmarksToRun.Add(new AVX(options));
-					benchmarksToRun.Add(new SSE(options));
-
-					break;
-				}
-
-				case "CRYPTOGRAPHY":
-				{
-					benchmarksToRun.Add(new Encryption(options));
-					benchmarksToRun.Add(new Decryption(options));
-					benchmarksToRun.Add(new CSPRNG(options));
-
-					break;
-				}
-
 				case "INT":
 				{
 					benchmarksToRun.Add(new Integer(options));
@@ -178,63 +105,170 @@ namespace Benchmarking
 				case "FLOAT":
 				{
 					benchmarksToRun.Add(new Float(options));
-
-					break;
-				}
-
-				case "ALL":
-				{
-					benchmarksToRun.Add(new ZIP(options));
-					benchmarksToRun.Add(new GZip(options));
-					benchmarksToRun.Add(new BZip2(options));
-					benchmarksToRun.Add(new Deflate(options));
-					benchmarksToRun.Add(new Brotli(options));
-					benchmarksToRun.Add(new Integer(options));
-					benchmarksToRun.Add(new Encryption(options));
-					benchmarksToRun.Add(new Decryption(options));
-					benchmarksToRun.Add(new CSPRNG(options));
-					benchmarksToRun.Add(new Float(options));
 					benchmarksToRun.Add(new AVX(options));
 					benchmarksToRun.Add(new SSE(options));
 
 					break;
 				}
 
-				default:
+				case "ALL":
 				{
-					throw new ArgumentException($"Benchmark {options.Benchmark} not recognized!");
+					foreach (var availableBenchmark in AvailableBenchmarks)
+					{
+						var benchmark = (Benchmark) Activator.CreateInstance(availableBenchmark, options);
+
+						benchmarksToRun.Add(benchmark);
+					}
+
+					break;
 				}
 			}
 
-			total *= benchmarksToRun.Count;
+			if (benchmarksToRun.Count == 0)
+			{
+				foreach (var availableBenchmark in AvailableBenchmarks)
+				{
+					var benchmark = (Benchmark) Activator.CreateInstance(availableBenchmark, options);
 
-			RunGenericBenchmark();
+					if (string.Equals(benchmark.GetName(), options.Benchmark,
+						    StringComparison.CurrentCultureIgnoreCase) ||
+					    string.Equals(benchmark.GetCategory(), options.Benchmark,
+						    StringComparison.CurrentCultureIgnoreCase))
+					{
+						benchmarksToRun.Add(benchmark);
+					}
+				}
+			}
+
+			TotalOverall *= benchmarksToRun.Count;
 		}
 
-		internal static void ReportProgress()
+		public void RunBenchmark()
 		{
-			lock (_lock)
+			RunGenericBenchmark();
+			benchmarksToRun.Clear();
+			GC.Collect();
+		}
+
+		internal static void ReportProgress(string benchmark)
+		{
+			lock (CurrentRunningBenchmark)
 			{
-				finished++;
-				CurrentProgress = (double) finished / total;
+				FinishedOverall++;
+
+				if (CurrentRunningBenchmark != benchmark)
+				{
+					CurrentBenchmarkFinished = 0;
+					CurrentRunningBenchmark = benchmark;
+				}
+
+				CurrentBenchmarkFinished++;
 			}
 		}
 
 		private void RunGenericBenchmark()
 		{
+			var categories = new Dictionary<string, List<Tuple<double, double>>>();
+
 			while (benchmarksToRun.Count > 0)
 			{
+				lock (CurrentRunningBenchmark)
+				{
+					CurrentRunningBenchmark = benchmarksToRun[0].GetName();
+					CurrentBenchmarkFinished = 0;
+				}
+
 				benchmarksToRun[0].Initialize();
 				var timing = ExecuteBenchmark();
 
-				Results.Add(new Result(benchmarksToRun[0].GetDescription(), timing,
-					BenchmarkRater.RateBenchmark(timing, benchmarksToRun[0].GetReferenceValue()),
-					benchmarksToRun[0].GetReferenceValue(),
-					BenchmarkRater.RateBenchmark(benchmarksToRun[0].GetReferenceValue(),
-						benchmarksToRun[0].GetReferenceValue())));
+				Results.Add(
+					new Result(
+						benchmarksToRun[0].GetName(),
+						timing,
+						benchmarksToRun[0].GetRatingMethod().Invoke(timing, benchmarksToRun[0].GetReferenceValue()),
+						benchmarksToRun[0].GetReferenceValue(),
+						benchmarksToRun[0].GetRatingMethod().Invoke(benchmarksToRun[0].GetReferenceValue(),
+							benchmarksToRun[0].GetReferenceValue())
+					));
+
+				if (!categories.ContainsKey(benchmarksToRun[0].GetCategory()))
+				{
+					categories.Add(benchmarksToRun[0].GetCategory(), new List<Tuple<double, double>>());
+				}
+
+				categories[benchmarksToRun[0].GetCategory()]
+					.Add(Tuple.Create(Results.Last().Timing, Results.Last().ReferenceTiming));
 
 				benchmarksToRun.RemoveAt(0);
 				GC.Collect();
+			}
+
+			if (Results.Count > 1)
+			{
+				if (options.Benchmark.ToUpper() == "ALL")
+				{
+					var timings = new List<double>();
+					var refTimings = new List<double>();
+
+					foreach (var keyValuePair in categories)
+					{
+						var timing = 0.0d;
+						var refTiming = 0.0d;
+
+						foreach (var tuple in keyValuePair.Value)
+						{
+							timing += tuple.Item1;
+							refTiming += tuple.Item2;
+						}
+
+						var points = BenchmarkRater.RateBenchmark(timing, refTiming);
+						var refPoints = BenchmarkRater.RateBenchmark(refTiming, refTiming);
+
+						Results.Add(new Result("Category: " + keyValuePair.Key, timing, points, refTiming,
+							refPoints));
+
+						timings.Add(timing);
+						refTimings.Add(refTiming);
+					}
+
+					var time = timings.Sum();
+					var refTime = refTimings.Sum();
+
+					var totalPoints = BenchmarkRater.RateBenchmark(time, refTime);
+					var totalRefPoints = BenchmarkRater.RateBenchmark(refTime, refTime);
+
+					Results.Add(new Result("Category: " + options.Benchmark, time, totalPoints, refTime,
+						totalRefPoints));
+				}
+				else
+				{
+					var timings = new List<double>();
+					var refTimings = new List<double>();
+
+					foreach (var keyValuePair in categories)
+					{
+						var timing = 0.0d;
+						var refTiming = 0.0d;
+
+						foreach (var tuple in keyValuePair.Value)
+						{
+							timing += tuple.Item1;
+							refTiming += tuple.Item2;
+						}
+
+						timings.Add(timing);
+						refTimings.Add(refTiming);
+					}
+
+					var time = timings.Sum();
+					var refTime = refTimings.Sum();
+
+					var points = BenchmarkRater.RateBenchmark(time, refTime);
+					var refPoints = BenchmarkRater.RateBenchmark(refTime, refTime);
+
+					Results.Add(new Result("Category: " + options.Benchmark, time, points, refTime,
+						refPoints));
+				}
 			}
 		}
 
@@ -244,9 +278,38 @@ namespace Benchmarking
 
 			for (var i = 0; i < options.Runs; i++)
 			{
-				sw.Start();
-				benchmarksToRun[0].Run();
-				sw.Stop();
+				if (options.MemoryEfficient)
+				{
+					sw.Start();
+					benchmarksToRun[0].Run();
+					sw.Stop();
+				}
+				else
+				{
+					var oldMode = GCSettings.LatencyMode;
+
+					// Make sure we can always go to the catch block, 
+					// so we can set the latency mode back to `oldMode`
+					RuntimeHelpers.PrepareConstrainedRegions();
+
+					try
+					{
+						GCSettings.LatencyMode = GCLatencyMode.LowLatency;
+
+						// Generation 2 garbage collection is now
+						// deferred, except in extremely low-memory situations
+						sw.Start();
+						benchmarksToRun[0].Run();
+						sw.Stop();
+					}
+					finally
+					{
+						// ALWAYS set the latency mode back
+						GCSettings.LatencyMode = oldMode;
+					}
+				}
+
+				GC.Collect();
 
 				timings[i] = sw.ElapsedMilliseconds;
 				sw.Reset();

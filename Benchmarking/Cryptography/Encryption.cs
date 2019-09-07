@@ -56,7 +56,7 @@ namespace Benchmarking.Cryptography
 						aes.Encrypt(aesNonce, Encoding.UTF8.GetBytes(datas[i1]), cipher, tag);
 					}
 
-					BenchmarkRunner.ReportProgress();
+					BenchmarkRunner.ReportProgress(GetName());
 				});
 			}
 

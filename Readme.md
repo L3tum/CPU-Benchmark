@@ -31,6 +31,15 @@ Run the benchmark `X` times and average out the results. By default the benchmar
 
 `\.benchmarker.exe --runs=5`
 
+List all available benchmarks
+
+`\.benchmarker.exe --list-benchmrks`
+
+
+Run the benchmarks in a memory efficient manner (on low-memory devices for example)
+
+`\.benchmarker.exe --memory-efficient`
+
 
 To combine the above
 

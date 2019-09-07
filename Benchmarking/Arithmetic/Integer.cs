@@ -189,7 +189,7 @@ namespace Benchmarking.Arithmetic
 						resultLongArray[j] = Math.BigMul(randomInt, randomInt);
 					}
 
-					BenchmarkRunner.ReportProgress();
+					BenchmarkRunner.ReportProgress(GetName());
 				});
 			}
 

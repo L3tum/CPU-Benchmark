@@ -20,12 +20,26 @@
 
 		public virtual void Initialize()
 		{
-
 		}
 
 		public virtual double GetReferenceValue()
 		{
 			return 0.0d;
+		}
+
+		public virtual BenchmarkRater.RateMethod GetRatingMethod()
+		{
+			return BenchmarkRater.RateBenchmark;
+		}
+
+		public virtual string GetCategory()
+		{
+			return "none";
+		}
+
+		public virtual string GetName()
+		{
+			return this.GetType().Name;
 		}
 	}
 }
