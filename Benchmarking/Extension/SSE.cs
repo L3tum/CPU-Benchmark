@@ -50,7 +50,7 @@ namespace Benchmarking.Extension
 						MultiplyScalarU(randomFloatingSpan, dst);
 					}
 
-					BenchmarkRunner.ReportProgress();
+					BenchmarkRunner.ReportProgress(GetName());
 				});
 			}
 
@@ -80,7 +80,7 @@ namespace Benchmarking.Extension
 		{
 			if (options.Threads == 1)
 			{
-				return 306293.0d;
+				return 423293.0d;
 			}
 
 			return 49363.0d;

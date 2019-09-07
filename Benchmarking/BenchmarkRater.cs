@@ -15,10 +15,10 @@ namespace Benchmarking
 		{
 			const int baseline = 50000;
 
-			// if time is higher, subtract reference time and get value on a linear function
+			// if time is higher, subtract reference time and get value on an exponential function
 			if (timeInMillis > referenceTimeInMillis)
 			{
-				return Math.Round(-0.5 * (timeInMillis - referenceTimeInMillis) + baseline, 0);
+				return Math.Round(baseline * Math.Pow(0.5, 0.00001 * timeInMillis), 0);
 			}
 
 			// Calculate the graph going through (0, 50000) and (referenceTimeInMillis, 0) (y = mx+b)

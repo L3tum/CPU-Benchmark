@@ -17,17 +17,13 @@ namespace Benchmarking
 {
 	public class BenchmarkRunner
 	{
-		private static int finished;
-		private static int total;
-		private static readonly object _lock = new object();
-
 		private static readonly List<Type> AvailableBenchmarks = new List<Type>
 		{
 			typeof(ZIP),
 			typeof(GZip),
 			typeof(BZip2),
 			typeof(Deflate),
-			typeof(Brotli),
+//			typeof(Brotli),
 			typeof(Integer),
 			typeof(Float),
 			typeof(AVX),
@@ -47,14 +43,21 @@ namespace Benchmarking
 			this.options = options;
 			timings = new long[options.Runs];
 
-			total = options.Runs * options.Threads;
+			TotalOverall = options.Runs * options.Threads;
+			SingleBenchmarkTotal = options.Runs * options.Threads;
 		}
 
-		public static double CurrentProgress { get; private set; }
+		public static int CurrentBenchmarkFinished { get; private set; }
+
+		public static int FinishedOverall { get; private set; }
+		public static int TotalOverall { get; private set; }
+		public static int SingleBenchmarkTotal { get; private set; }
+
+		public static string CurrentRunningBenchmark { get; private set; } = string.Empty;
 
 		public static List<string> GetAvailableBenchmarks()
 		{
-			var available = new List<string>();
+			var available = new List<string> {"ALL"};
 			var opts = new Options();
 
 			foreach (var bench in AvailableBenchmarks)
@@ -85,24 +88,13 @@ namespace Benchmarking
 			return available;
 		}
 
-		public void RunBenchmark()
+		public void Prepare()
 		{
-			foreach (var availableBenchmark in AvailableBenchmarks)
-			{
-				var benchmark = (Benchmark) Activator.CreateInstance(availableBenchmark, options);
-
-				if (string.Equals(benchmark.GetName(), options.Benchmark, StringComparison.CurrentCultureIgnoreCase) ||
-				    string.Equals(benchmark.GetCategory(), options.Benchmark,
-					    StringComparison.CurrentCultureIgnoreCase))
-				{
-					benchmarksToRun.Add(benchmark);
-				}
-			}
-
 			switch (options.Benchmark.ToUpper())
 			{
 				case "INT":
 				{
+					benchmarksToRun.Add(new Integer(options));
 					benchmarksToRun.Add(new Encryption(options));
 					benchmarksToRun.Add(new Decryption(options));
 					benchmarksToRun.Add(new CSPRNG(options));
@@ -112,26 +104,65 @@ namespace Benchmarking
 
 				case "FLOAT":
 				{
+					benchmarksToRun.Add(new Float(options));
 					benchmarksToRun.Add(new AVX(options));
 					benchmarksToRun.Add(new SSE(options));
 
 					break;
 				}
+
+				case "ALL":
+				{
+					foreach (var availableBenchmark in AvailableBenchmarks)
+					{
+						var benchmark = (Benchmark) Activator.CreateInstance(availableBenchmark, options);
+
+						benchmarksToRun.Add(benchmark);
+					}
+
+					break;
+				}
 			}
 
-			total *= benchmarksToRun.Count;
+			if (benchmarksToRun.Count == 0)
+			{
+				foreach (var availableBenchmark in AvailableBenchmarks)
+				{
+					var benchmark = (Benchmark) Activator.CreateInstance(availableBenchmark, options);
 
+					if (string.Equals(benchmark.GetName(), options.Benchmark,
+						    StringComparison.CurrentCultureIgnoreCase) ||
+					    string.Equals(benchmark.GetCategory(), options.Benchmark,
+						    StringComparison.CurrentCultureIgnoreCase))
+					{
+						benchmarksToRun.Add(benchmark);
+					}
+				}
+			}
+
+			TotalOverall *= benchmarksToRun.Count;
+		}
+
+		public void RunBenchmark()
+		{
 			RunGenericBenchmark();
 			benchmarksToRun.Clear();
 			GC.Collect();
 		}
 
-		internal static void ReportProgress()
+		internal static void ReportProgress(string benchmark)
 		{
-			lock (_lock)
+			lock (CurrentRunningBenchmark)
 			{
-				finished++;
-				CurrentProgress = (double) finished / total;
+				FinishedOverall++;
+
+				if (CurrentRunningBenchmark != benchmark)
+				{
+					CurrentBenchmarkFinished = 0;
+					CurrentRunningBenchmark = benchmark;
+				}
+
+				CurrentBenchmarkFinished++;
 			}
 		}
 
@@ -141,6 +172,12 @@ namespace Benchmarking
 
 			while (benchmarksToRun.Count > 0)
 			{
+				lock (CurrentRunningBenchmark)
+				{
+					CurrentRunningBenchmark = benchmarksToRun[0].GetName();
+					CurrentBenchmarkFinished = 0;
+				}
+
 				benchmarksToRun[0].Initialize();
 				var timing = ExecuteBenchmark();
 
@@ -170,30 +207,38 @@ namespace Benchmarking
 			{
 				if (options.Benchmark.ToUpper() == "ALL")
 				{
+					var timings = new List<double>();
+					var refTimings = new List<double>();
+
 					foreach (var keyValuePair in categories)
 					{
-						if (string.Equals(keyValuePair.Key, options.Benchmark,
-							StringComparison.CurrentCultureIgnoreCase))
+						var timing = 0.0d;
+						var refTiming = 0.0d;
+
+						foreach (var tuple in keyValuePair.Value)
 						{
-							var timing = 0.0d;
-							var refTiming = 0.0d;
-
-							foreach (var tuple in keyValuePair.Value)
-							{
-								timing += tuple.Item1;
-								refTiming += tuple.Item2;
-							}
-
-							timing /= keyValuePair.Value.Count;
-							refTiming /= keyValuePair.Value.Count;
-
-							var points = BenchmarkRater.RateBenchmark(timing, refTiming);
-							var refPoints = BenchmarkRater.RateBenchmark(refTiming, refTiming);
-
-							Results.Add(new Result("Category: " + keyValuePair.Key, timing, points, refTiming,
-								refPoints));
+							timing += tuple.Item1;
+							refTiming += tuple.Item2;
 						}
+
+						var points = BenchmarkRater.RateBenchmark(timing, refTiming);
+						var refPoints = BenchmarkRater.RateBenchmark(refTiming, refTiming);
+
+						Results.Add(new Result("Category: " + keyValuePair.Key, timing, points, refTiming,
+							refPoints));
+
+						timings.Add(timing);
+						refTimings.Add(refTiming);
 					}
+
+					var time = timings.Sum();
+					var refTime = refTimings.Sum();
+
+					var totalPoints = BenchmarkRater.RateBenchmark(time, refTime);
+					var totalRefPoints = BenchmarkRater.RateBenchmark(refTime, refTime);
+
+					Results.Add(new Result("Category: " + options.Benchmark, time, totalPoints, refTime,
+						totalRefPoints));
 				}
 				else
 				{
@@ -211,15 +256,12 @@ namespace Benchmarking
 							refTiming += tuple.Item2;
 						}
 
-						timing /= keyValuePair.Value.Count;
-						refTiming /= keyValuePair.Value.Count;
-
 						timings.Add(timing);
 						refTimings.Add(refTiming);
 					}
 
-					var time = timings.Sum() / timings.Count;
-					var refTime = refTimings.Sum() / refTimings.Count;
+					var time = timings.Sum();
+					var refTime = refTimings.Sum();
 
 					var points = BenchmarkRater.RateBenchmark(time, refTime);
 					var refPoints = BenchmarkRater.RateBenchmark(refTime, refTime);

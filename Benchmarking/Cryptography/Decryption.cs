@@ -68,7 +68,7 @@ namespace Benchmarking.Cryptography
 						aes.Decrypt(aesNonce, datasAES[i1], aesTag[i1], aesPlaintext[i1]);
 					}
 
-					BenchmarkRunner.ReportProgress();
+					BenchmarkRunner.ReportProgress(GetName());
 				});
 			}
 
