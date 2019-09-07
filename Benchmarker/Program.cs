@@ -56,8 +56,7 @@ namespace Benchmarker
 				return;
 			}
 
-			if (options?.Benchmark == null || !BenchmarkRunner.GetAvailableBenchmarks()
-				    .Any(a => a.ToLower().Equals(options.Benchmark)))
+			if (options?.Benchmark == null)
 			{
 				return;
 			}

@@ -161,7 +161,6 @@ namespace Benchmarking
 					CurrentBenchmarkFinished = 0;
 					CurrentRunningBenchmark = benchmark;
 				}
-			}
 
 				CurrentBenchmarkFinished++;
 			}
@@ -178,7 +177,6 @@ namespace Benchmarking
 					CurrentRunningBenchmark = benchmarksToRun[0].GetName();
 					CurrentBenchmarkFinished = 0;
 				}
-			}
 
 				benchmarksToRun[0].Initialize();
 				var timing = ExecuteBenchmark();
@@ -264,69 +262,6 @@ namespace Benchmarking
 
 					var time = timings.Sum();
 					var refTime = refTimings.Sum();
-
-					var points = BenchmarkRater.RateBenchmark(time, refTime);
-					var refPoints = BenchmarkRater.RateBenchmark(refTime, refTime);
-
-					Results.Add(new Result("Category: " + options.Benchmark, time, points, refTime,
-						refPoints));
-				}
-			}
-
-			if (Results.Count > 1)
-			{
-				if (options.Benchmark.ToUpper() == "ALL")
-				{
-					foreach (var keyValuePair in categories)
-					{
-						if (string.Equals(keyValuePair.Key, options.Benchmark,
-							StringComparison.CurrentCultureIgnoreCase))
-						{
-							var timing = 0.0d;
-							var refTiming = 0.0d;
-
-							foreach (var tuple in keyValuePair.Value)
-							{
-								timing += tuple.Item1;
-								refTiming += tuple.Item2;
-							}
-
-							timing /= keyValuePair.Value.Count;
-							refTiming /= keyValuePair.Value.Count;
-
-							var points = BenchmarkRater.RateBenchmark(timing, refTiming);
-							var refPoints = BenchmarkRater.RateBenchmark(refTiming, refTiming);
-
-							Results.Add(new Result("Category: " + keyValuePair.Key, timing, points, refTiming,
-								refPoints));
-						}
-					}
-				}
-				else
-				{
-					var timings = new List<double>();
-					var refTimings = new List<double>();
-
-					foreach (var keyValuePair in categories)
-					{
-						var timing = 0.0d;
-						var refTiming = 0.0d;
-
-						foreach (var tuple in keyValuePair.Value)
-						{
-							timing += tuple.Item1;
-							refTiming += tuple.Item2;
-						}
-
-						timing /= keyValuePair.Value.Count;
-						refTiming /= keyValuePair.Value.Count;
-
-						timings.Add(timing);
-						refTimings.Add(refTiming);
-					}
-
-					var time = timings.Sum() / timings.Count;
-					var refTime = refTimings.Sum() / refTimings.Count;
 
 					var points = BenchmarkRater.RateBenchmark(time, refTime);
 					var refPoints = BenchmarkRater.RateBenchmark(refTime, refTime);
