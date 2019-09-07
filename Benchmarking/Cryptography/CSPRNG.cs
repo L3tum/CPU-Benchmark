@@ -48,5 +48,10 @@ namespace Benchmarking.Cryptography
 
 			return 4004.0d;
 		}
+
+		public override string GetCategory()
+		{
+			return "cryptography";
+		}
 	}
 }

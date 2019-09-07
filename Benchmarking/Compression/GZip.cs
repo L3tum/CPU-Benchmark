@@ -13,14 +13,9 @@ namespace Benchmarking.Compression
 	{
 		private readonly string[] datas;
 
-		public GZip(Options options, string[] data = null) : base(options)
+		public GZip(Options options) : base(options)
 		{
 			datas = new string[options.Threads];
-
-			if (data != null)
-			{
-				datas = data;
-			}
 		}
 
 		public override void Run()
@@ -82,6 +77,10 @@ namespace Benchmarking.Compression
 			}
 
 			return 2673.0d;
+		}
+		public override string GetCategory()
+		{
+			return "compression";
 		}
 	}
 }
