@@ -10,6 +10,7 @@ using Benchmarking.Arithmetic;
 using Benchmarking.Compression;
 using Benchmarking.Cryptography;
 using Benchmarking.Extension;
+using Benchmarking.Parsing;
 
 #endregion
 
@@ -30,7 +31,8 @@ namespace Benchmarking
 			typeof(SSE),
 			typeof(Encryption),
 			typeof(Decryption),
-			typeof(CSPRNG)
+			typeof(CSPRNG),
+			typeof(HTMLParser)
 		};
 
 		private readonly List<Benchmark> benchmarksToRun = new List<Benchmark>();
