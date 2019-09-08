@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Benchmarking;
+using HardwareInformation;
 using Newtonsoft.Json;
 
 #endregion

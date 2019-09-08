@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Benchmarking;
 using CommandLine;
+using HardwareInformation;
 using ShellProgressBar;
 
 #endregion

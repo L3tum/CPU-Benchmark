@@ -10,6 +10,7 @@ using Benchmarking.Arithmetic;
 using Benchmarking.Compression;
 using Benchmarking.Cryptography;
 using Benchmarking.Extension;
+using Benchmarking.Parsing;
 
 #endregion
 
@@ -30,7 +31,9 @@ namespace Benchmarking
 			typeof(SSE),
 			typeof(Encryption),
 			typeof(Decryption),
-			typeof(CSPRNG)
+			typeof(CSPRNG),
+			typeof(HTMLParser),
+			typeof(JSONParser)
 		};
 
 		private readonly List<Benchmark> benchmarksToRun = new List<Benchmark>();
@@ -98,6 +101,8 @@ namespace Benchmarking
 					benchmarksToRun.Add(new Encryption(options));
 					benchmarksToRun.Add(new Decryption(options));
 					benchmarksToRun.Add(new CSPRNG(options));
+					benchmarksToRun.Add(new HTMLParser(options));
+					benchmarksToRun.Add(new JSONParser(options));
 
 					break;
 				}
