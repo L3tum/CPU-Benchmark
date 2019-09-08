@@ -32,7 +32,8 @@ namespace Benchmarking
 			typeof(Encryption),
 			typeof(Decryption),
 			typeof(CSPRNG),
-			typeof(HTMLParser)
+			typeof(HTMLParser),
+			typeof(JSONParser)
 		};
 
 		private readonly List<Benchmark> benchmarksToRun = new List<Benchmark>();
