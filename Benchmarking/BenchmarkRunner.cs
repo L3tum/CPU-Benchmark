@@ -101,6 +101,8 @@ namespace Benchmarking
 					benchmarksToRun.Add(new Encryption(options));
 					benchmarksToRun.Add(new Decryption(options));
 					benchmarksToRun.Add(new CSPRNG(options));
+					benchmarksToRun.Add(new HTMLParser(options));
+					benchmarksToRun.Add(new JSONParser(options));
 
 					break;
 				}
