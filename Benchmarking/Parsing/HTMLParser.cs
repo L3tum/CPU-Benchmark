@@ -30,6 +30,8 @@ namespace Benchmarking.Parsing
 
 					doc.LoadHtml(datas[i1]);
 					datas[i1] = doc.DocumentNode.OuterHtml;
+
+					BenchmarkRunner.ReportProgress(GetName());
 				});
 			}
 
