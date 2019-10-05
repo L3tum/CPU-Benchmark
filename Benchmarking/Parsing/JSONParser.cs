@@ -30,6 +30,8 @@ namespace Benchmarking.Parsing
 					var doc = JsonConvert.DeserializeObject<Dictionary<string, Options>>(datas[i1]);
 
 					options = doc["options0"];
+
+					BenchmarkRunner.ReportProgress(GetName());
 				});
 			}
 

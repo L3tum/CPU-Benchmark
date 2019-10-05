@@ -1,11 +1,13 @@
 ﻿#region using
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Benchmarking;
+using Benchmarking.Results;
 using CommandLine;
 using HardwareInformation;
 using ShellProgressBar;
@@ -45,7 +47,29 @@ namespace Benchmarker
 
 			if (options.ListBenchmarks)
 			{
-				Console.WriteLine(string.Join(", ", BenchmarkRunner.GetAvailableBenchmarks()));
+				Console.WriteLine(string.Join(Environment.NewLine, BenchmarkRunner.GetAvailableBenchmarks()));
+
+				Console.ReadLine();
+
+				return;
+			}
+
+			if (options.ListResults)
+			{
+				ResultSaver.Init();
+				Console.WriteLine();
+				Console.WriteLine(FormatResults(ResultSaver.GetResults()));
+
+				Console.ReadLine();
+
+				return;
+			}
+
+			if (options?.Benchmark == null)
+			{
+				Console.ReadLine();
+
+				return;
 			}
 
 			if (!BenchmarkRunner.GetAvailableBenchmarks()
@@ -54,11 +78,6 @@ namespace Benchmarker
 				Console.WriteLine("Benchmark name not recognized!");
 				Console.ReadLine();
 
-				return;
-			}
-
-			if (options?.Benchmark == null)
-			{
 				return;
 			}
 #else
@@ -99,7 +118,7 @@ namespace Benchmarker
 				ForegroundColor = ConsoleColor.Green,
 				BackgroundColor = ConsoleColor.DarkGreen,
 				ProgressCharacter = '─',
-				ProgressBarOnBottom = true,
+				ProgressBarOnBottom = true
 				//CollapseWhenFinished = false
 			};
 
@@ -116,7 +135,8 @@ namespace Benchmarker
 					{
 						lock (BenchmarkRunner.CurrentRunningBenchmark)
 						{
-							pbar.Tick(BenchmarkRunner.FinishedOverall, $"Overall. Currently running {BenchmarkRunner.CurrentRunningBenchmark} on {options.Threads} threads {options.Runs} times");
+							pbar.Tick(BenchmarkRunner.FinishedOverall,
+								$"Overall. Currently running {BenchmarkRunner.CurrentRunningBenchmark} on {options.Threads} threads {options.Runs} times");
 
 #if FALSE == TRUE
 							if (childProgressBar == null &&
@@ -175,20 +195,37 @@ namespace Benchmarker
 
 			Console.WriteLine();
 
-			Console.WriteLine(runner.Results.ToStringTable(
-				new[] {"Benchmark", "Time", "Reference (3900x)", "Points", "Reference(3900x)"},
-				r => r.Benchmark,
-				r => FormatTime(r.Timing),
-				r => FormatTime(r.ReferenceTiming),
-				r => r.Points,
-				r => r.ReferencePoints));
+			Console.WriteLine(FormatResults(runner.Results));
 
 			foreach (var runnerResult in runner.Results)
 			{
 				ResultSaver.SaveResult(runnerResult);
 			}
 
+			Console.WriteLine();
+			Console.WriteLine("Uploading results...");
+
+			if (ResultSaver.UploadResults().Result)
+			{
+				Console.WriteLine("Done!");
+			}
+			else
+			{
+				Console.WriteLine("Failed uploading results!");
+			}
+
 			Console.ReadLine();
+		}
+
+		private static string FormatResults(List<Result> results)
+		{
+			return results.ToStringTable(
+				new[] {"Benchmark", "Time", "Reference (3900x)", "Points", "Reference(3900x)"},
+				r => r.Benchmark,
+				r => FormatTime(r.Timing),
+				r => FormatTime(r.ReferenceTiming),
+				r => r.Points,
+				r => r.ReferencePoints);
 		}
 
 		private static string FormatTime(double time)
