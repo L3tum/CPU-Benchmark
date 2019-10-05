@@ -45,7 +45,12 @@ namespace Benchmarker
 
 			if (options.ListBenchmarks)
 			{
-				Console.WriteLine(string.Join(", ", BenchmarkRunner.GetAvailableBenchmarks()));
+				Console.WriteLine(string.Join(Environment.NewLine, BenchmarkRunner.GetAvailableBenchmarks()));
+			}
+
+			if (options.ListBenchmarks || options?.Benchmark == null)
+			{
+				return;
 			}
 
 			if (!BenchmarkRunner.GetAvailableBenchmarks()
@@ -54,11 +59,6 @@ namespace Benchmarker
 				Console.WriteLine("Benchmark name not recognized!");
 				Console.ReadLine();
 
-				return;
-			}
-
-			if (options?.Benchmark == null)
-			{
 				return;
 			}
 #else
