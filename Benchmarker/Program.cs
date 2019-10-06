@@ -205,13 +205,16 @@ namespace Benchmarker
 			Console.WriteLine();
 			Console.WriteLine("Uploading results...");
 
-			if (ResultSaver.UploadResults().Result)
+			var result = ResultSaver.UploadResults().Result;
+
+			if (result == "OK")
 			{
 				Console.WriteLine("Done!");
 			}
 			else
 			{
 				Console.WriteLine("Failed uploading results!");
+				Console.WriteLine(result);
 			}
 
 			Console.ReadLine();

@@ -72,7 +72,7 @@ namespace Benchmarking.Results
 			return save.Results;
 		}
 
-		public static async Task<bool> UploadResults()
+		public static async Task<string> UploadResults()
 		{
 			try
 			{
@@ -80,12 +80,12 @@ namespace Benchmarking.Results
 
 				save.UUID = uuid;
 			}
-			catch (HttpRequestException)
+			catch (HttpRequestException e)
 			{
-				return false;
+				return e.Message;
 			}
 
-			return true;
+			return "OK";
 		}
 
 		private static void SaveResults()
