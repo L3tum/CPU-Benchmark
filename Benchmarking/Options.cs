@@ -4,11 +4,11 @@ namespace Benchmarking
 {
 	public class Options
 	{
-		[Option('t', "threads", Required = false, Default = 0, HelpText = "Manually set the number of threads to use (overrides multithreaded)")]
-		public int Threads { get; set; } = 1;
+		[Option('t', "threads", Required = false, Default = 0u, HelpText = "Manually set the number of threads to use (overrides multithreaded)")]
+		public uint Threads { get; set; } = 1u;
 
-		[Option('r', "runs", Default = 3, HelpText = "Times to run the benchmark and average the result")]
-		public int Runs { get; set; } = 3;
+		[Option('r', "runs", Default = 3u, HelpText = "Times to run the benchmark and average the result")]
+		public uint Runs { get; set; } = 3u;
 
 		[Option('m', "multithreaded", Default = false, HelpText = "Run benchmarks multithreaded (automatically uses all logical processors)")]
 		public bool Multithreaded { get; set; } = false;
@@ -24,5 +24,8 @@ namespace Benchmarking
 
 		[Option('m', "memory-efficient", Default = false, HelpText = "Runs benchmarks in a memory efficient mode. May be slower.")]
 		public bool MemoryEfficient { get; set; }
+
+		[Option('q', "quick", Default = false, HelpText = "Skips a few additional checks and routines. Exempts you from uploading to the benchmark database.")]
+		public bool QuickRun { get; set; }
 	}
 }
