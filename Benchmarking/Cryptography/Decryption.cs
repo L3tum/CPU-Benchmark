@@ -97,7 +97,7 @@ namespace Benchmarking.Cryptography
 
 				tasks[i1] = Task.Run(() =>
 				{
-					datas[i1] = DataGenerator.GenerateString(500000000 / options.Threads);
+					datas[i1] = DataGenerator.GenerateString((int) (500000000 / options.Threads));
 					var rand = new Random();
 					sha512Key = new byte[64];
 

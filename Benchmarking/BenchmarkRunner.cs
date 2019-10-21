@@ -53,8 +53,8 @@ namespace Benchmarking
 		public static int CurrentBenchmarkFinished { get; private set; }
 
 		public static int FinishedOverall { get; private set; }
-		public static int TotalOverall { get; private set; }
-		public static int SingleBenchmarkTotal { get; private set; }
+		public static uint TotalOverall { get; private set; }
+		public static uint SingleBenchmarkTotal { get; private set; }
 
 		public static string CurrentRunningBenchmark { get; private set; } = string.Empty;
 
@@ -145,7 +145,7 @@ namespace Benchmarking
 				}
 			}
 
-			TotalOverall *= benchmarksToRun.Count;
+			TotalOverall *= (uint)benchmarksToRun.Count;
 		}
 
 		public void RunBenchmark()
@@ -198,7 +198,8 @@ namespace Benchmarking
 
 				if (!categories.ContainsKey(benchmarksToRun[0].GetCategory()))
 				{
-					categories.Add(benchmarksToRun[0].GetCategory(), new List<Tuple<double, double>>());
+					categories.Add(benchmarksToRun[0].GetCategory(),
+						new List<Tuple<double, double>>());
 				}
 
 				categories[benchmarksToRun[0].GetCategory()]

@@ -72,7 +72,7 @@ namespace Benchmarking.Cryptography
 			{
 				var i1 = i;
 
-				tasks[i1] = Task.Run(() => { datas[i1] = DataGenerator.GenerateString(500000000 / options.Threads); });
+				tasks[i1] = Task.Run(() => { datas[i1] = DataGenerator.GenerateString((int) (500000000 / options.Threads)); });
 			}
 
 			Task.WaitAll(tasks);
