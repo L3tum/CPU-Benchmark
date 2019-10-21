@@ -3,6 +3,7 @@
 using System;
 using System.IO;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Bson;
@@ -20,7 +21,7 @@ namespace Benchmarking.Results
 				save.UUID = "placeholder";
 			}
 
-			var client = new HttpClient();
+			using var client = new HttpClient();
 
 			var response = await client.PostAsync("https://cpu-benchmark-server.herokuapp.com/uploadSave",
 				new StringContent(Convert.ToBase64String(ToByteArray(save)))).ConfigureAwait(false);
@@ -37,16 +38,7 @@ namespace Benchmarking.Results
 
 		private static byte[] ToByteArray(Save save)
 		{
-			using (var stream = new MemoryStream())
-			{
-				using (var writer = new BsonDataWriter(stream))
-				{
-					var serializer = new JsonSerializer();
-					serializer.Serialize(writer, save);
-
-					return stream.ToArray();
-				}
-			}
+			return Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(save));
 		}
 	}
 }

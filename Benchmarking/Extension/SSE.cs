@@ -67,7 +67,7 @@ namespace Benchmarking.Extension
 		{
 			randomFloatingNumber = float.Epsilon;
 
-			datas = new List<float[]>(options.Threads);
+			datas = new List<float[]>((int) options.Threads);
 
 			for (var i = 0; i < options.Threads; i++)
 			{

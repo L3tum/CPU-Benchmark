@@ -36,7 +36,7 @@ namespace Benchmarker
 				{
 					if (opts.Multithreaded)
 					{
-						options.Threads = Environment.ProcessorCount;
+						options.Threads = (uint) Environment.ProcessorCount;
 					}
 					else
 					{
@@ -56,7 +56,8 @@ namespace Benchmarker
 
 			if (options.ListResults)
 			{
-				ResultSaver.Init();
+				options.QuickRun = true;
+				ResultSaver.Init(options);
 				Console.WriteLine();
 				Console.WriteLine(FormatResults(ResultSaver.GetResults()));
 
@@ -65,8 +66,9 @@ namespace Benchmarker
 				return;
 			}
 
-			if (options?.Benchmark == null)
+			if (options?.Benchmark == null || string.IsNullOrWhiteSpace(options.Benchmark))
 			{
+				Console.WriteLine("Please specify a benchmark!");
 				Console.ReadLine();
 
 				return;
@@ -99,7 +101,7 @@ namespace Benchmarker
 
 			Console.WriteLine();
 
-			ResultSaver.Init();
+			ResultSaver.Init(options);
 
 			var runner = new BenchmarkRunner(options);
 
@@ -113,67 +115,23 @@ namespace Benchmarker
 				ProgressBarOnBottom = true,
 				CollapseWhenFinished = false
 			};
-			var childOptions = new ProgressBarOptions
-			{
-				ForegroundColor = ConsoleColor.Green,
-				BackgroundColor = ConsoleColor.DarkGreen,
-				ProgressCharacter = '─',
-				ProgressBarOnBottom = true
-				//CollapseWhenFinished = false
-			};
 
-			using (var pbar = new ProgressBar(BenchmarkRunner.TotalOverall,
+			using (var pbar = new ProgressBar((int) BenchmarkRunner.TotalOverall,
 				$"Running Benchmark {options.Benchmark} on {options.Threads} threads {options.Runs} times", poptions))
 			{
-				var ct = new CancellationTokenSource();
+				using var ct = new CancellationTokenSource();
 				var t = Task.Run(() =>
 				{
-					ChildProgressBar childProgressBar = null;
-					var lastBenchmark = string.Empty;
-
 					while (!ct.IsCancellationRequested)
 					{
 						lock (BenchmarkRunner.CurrentRunningBenchmark)
 						{
 							pbar.Tick(BenchmarkRunner.FinishedOverall,
 								$"Overall. Currently running {BenchmarkRunner.CurrentRunningBenchmark} on {options.Threads} threads {options.Runs} times");
-
-#if FALSE == TRUE
-							if (childProgressBar == null &&
-							    !string.IsNullOrEmpty(BenchmarkRunner.CurrentRunningBenchmark) && !string.Equals(
-								    BenchmarkRunner.CurrentRunningBenchmark,
-								    options.Benchmark,
-								    StringComparison.CurrentCultureIgnoreCase))
-							{
-								childProgressBar = pbar.Spawn(BenchmarkRunner.SingleBenchmarkTotal,
-									BenchmarkRunner.CurrentRunningBenchmark,
-									childOptions);
-								lastBenchmark = BenchmarkRunner.CurrentRunningBenchmark;
-							}
-
-							if (childProgressBar != null)
-							{
-								if (lastBenchmark != BenchmarkRunner.CurrentRunningBenchmark)
-								{
-									childProgressBar.Tick(BenchmarkRunner.SingleBenchmarkTotal);
-									childProgressBar.Dispose();
-
-									childProgressBar = pbar.Spawn(BenchmarkRunner.SingleBenchmarkTotal,
-										BenchmarkRunner.CurrentRunningBenchmark,
-										childOptions);
-									lastBenchmark = BenchmarkRunner.CurrentRunningBenchmark;
-								}
-
-								childProgressBar.Tick(BenchmarkRunner.CurrentBenchmarkFinished);
-							}
-#endif
 						}
 
 						Thread.Sleep(200);
 					}
-
-					childProgressBar?.Tick(BenchmarkRunner.SingleBenchmarkTotal);
-					childProgressBar?.Dispose();
 				}, ct.Token);
 
 				try
@@ -195,40 +153,49 @@ namespace Benchmarker
 
 			Console.WriteLine();
 
-			Console.WriteLine(FormatResults(runner.Results));
+			Console.WriteLine(FormatResults(new Dictionary<uint, List<Result>> {{options.Threads, runner.Results}}));
 
 			foreach (var runnerResult in runner.Results)
 			{
-				ResultSaver.SaveResult(runnerResult);
+				ResultSaver.SaveResult(options.Threads, runnerResult);
 			}
 
-			Console.WriteLine();
-			Console.WriteLine("Uploading results...");
-
-			var result = ResultSaver.UploadResults().Result;
-
-			if (result == "OK")
+			if (ResultSaver.IsAllowedToUpload(options))
 			{
-				Console.WriteLine("Done!");
-			}
-			else
-			{
-				Console.WriteLine("Failed uploading results!");
-				Console.WriteLine(result);
+				Console.WriteLine();
+				Console.WriteLine("Uploading results...");
+
+				if (ResultSaver.UploadResults().Result)
+				{
+					Console.WriteLine("Done!");
+				}
+				else
+				{
+					Console.WriteLine("Failed uploading results!");
+				}
 			}
 
 			Console.ReadLine();
 		}
 
-		private static string FormatResults(List<Result> results)
+		private static string FormatResults(Dictionary<uint, List<Result>> results)
 		{
-			return results.ToStringTable(
-				new[] {"Benchmark", "Time", "Reference (3900x)", "Points", "Reference(3900x)"},
-				r => r.Benchmark,
-				r => FormatTime(r.Timing),
-				r => FormatTime(r.ReferenceTiming),
-				r => r.Points,
-				r => r.ReferencePoints);
+			var s = string.Empty;
+
+			foreach (var keyValuePair in results)
+			{
+				s += $"Benchmarked on {keyValuePair.Key} Threads\n";
+
+				s += keyValuePair.Value.ToStringTable(
+					new[] {"Benchmark", "Time", "Reference (3900x)", "Points", "Reference(3900x)"},
+					r => r.Benchmark,
+					r => FormatTime(r.Timing),
+					r => FormatTime(r.ReferenceTiming),
+					r => r.Points,
+					r => r.ReferencePoints);
+			}
+
+			return s;
 		}
 
 		private static string FormatTime(double time)

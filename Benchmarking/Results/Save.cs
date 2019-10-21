@@ -12,13 +12,13 @@ namespace Benchmarking.Results
 	{
 		public string DotNetVersion;
 		public MachineInformation MachineInformation;
-		public List<Result> Results;
+		public Dictionary<uint, List<Result>> Results;
 		public string UUID;
 		public Version Version;
 
 		public Save()
 		{
-			Results = new List<Result>();
+			Results = new Dictionary<uint, List<Result>>();
 		}
 	}
 }
