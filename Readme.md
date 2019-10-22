@@ -35,6 +35,13 @@ List all available benchmarks
 
 `\.benchmarker.exe --list-benchmrks`
 
+List all past results
+
+`\.benchmarker.exe --list-results`
+
+Make a quick run (disables some functionality and exempts the benchmark from being verified)
+
+`\.benchmarker.exe --quick`
 
 Run the benchmarks in a memory efficient manner (on low-memory devices for example)
 
