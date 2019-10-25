@@ -83,7 +83,7 @@ namespace Benchmarker
 				return;
 			}
 #else
-			options = new Options {Benchmark = "encryption", Threads = 1, Runs = 1};
+			options = new Options {Benchmark = "gzip-decompression", Threads = 1, Runs = 1, QuickRun = true};
 #endif
 			Console.WriteLine("Gathing hardware information...");
 

@@ -51,11 +51,44 @@ namespace Benchmarking.Results
 				save = new Save();
 			}
 
-			save.MachineInformation = MachineInformationGatherer.GatherInformation(options.QuickRun);
+			var machineInformation = MachineInformationGatherer.GatherInformation(options.QuickRun);
+
+			if (save != null && save.MachineInformation != null)
+			{
+				if (machineInformation.Platform != save.MachineInformation.Platform ||
+				    machineInformation.Cpu.Family != save.MachineInformation.Cpu.Family ||
+				    machineInformation.Cpu.Model != save.MachineInformation.Cpu.Model ||
+				    machineInformation.Cpu.Stepping != save.MachineInformation.Cpu.Stepping ||
+				    machineInformation.RAMSticks.Count != save.MachineInformation.RAMSticks.Count ||
+				    Assembly.GetExecutingAssembly().GetName().Version != save.Version ||
+				    RuntimeInformation.FrameworkDescription != save.DotNetVersion ||
+				    machineInformation.SmBios.BIOSCodename !=
+				    save.MachineInformation.SmBios.BIOSCodename ||
+				    machineInformation.SmBios.BoardName != save.MachineInformation.SmBios.BoardName ||
+				    machineInformation.SmBios.BoardVersion !=
+				    save.MachineInformation.SmBios.BoardVersion)
+				{
+					save.Results.Clear();
+				}
+
+				foreach (var ram in machineInformation.RAMSticks)
+				{
+					if (save.MachineInformation.RAMSticks.FirstOrDefault(r =>
+						    r.Capacity == ram.Capacity && r.FormFactor == ram.FormFactor &&
+						    r.Manfucturer == ram.Manfucturer && r.PartNumber == ram.PartNumber &&
+						    r.Speed == ram.Speed) == null)
+					{
+						save.Results.Clear();
+						break;
+					}
+				}
+			}
+
+			save.MachineInformation = machineInformation;
 			save.Version = Assembly.GetExecutingAssembly().GetName().Version;
 			save.DotNetVersion = RuntimeInformation.FrameworkDescription;
 
-			foreach (List<Result> resultsValue in save.Results.Values)
+			foreach (var resultsValue in save.Results.Values)
 			{
 				resultsValue.RemoveAll(item => item == null);
 			}
@@ -76,6 +109,11 @@ namespace Benchmarking.Results
 
 				if (saved != null)
 				{
+					if (saved.Points > result.Points)
+					{
+						return;
+					}
+
 					save.Results[threads].Remove(saved);
 				}
 
