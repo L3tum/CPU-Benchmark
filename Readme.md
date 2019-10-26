@@ -58,6 +58,7 @@ To combine the above
 
 * ALL (runs all of the below benchmarks)
 * COMPRESSION (runs all compression benchmarks)
+* DECOMPRESSION (runs all decompression benchmarks)
 * ARITHMETIC (runs all arithmetic benchmarks)
 * EXTENSION (runs all instruction extension benchmarks)
 * CRYPTOGRAPHY (runs all cryptography benchmarks)
@@ -72,6 +73,15 @@ To combine the above
 * GZip
 * BZip2
 * Deflate
+
+### Decompression
+
+`Note: All compression/decompression algorithms are run with the highest compression level (if applicable).`
+
+* ZIP
+* GZip
+* BZip2
+* Deflate/Inflate
 
 ### Arithmetic
 * Arithmetic_Int (Simple Integer Benchmark for byte, short, int and long performance)

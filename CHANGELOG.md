@@ -1,10 +1,21 @@
 # Change Log
 
+## [v0.3.0](https://github.com/L3tum/CPU-Benchmark/tree/v0.3.0) (2019-10-26)
+[Full Changelog](https://github.com/L3tum/CPU-Benchmark/compare/v0.2.0...v0.3.0)
+
+**Updates:**
+
+- Add decompression benchmarks [\#81](https://github.com/L3tum/CPU-Benchmark/pull/81) ([L3tum](https://github.com/L3tum))
+- Update for uploading results to the benchmark database [\#78](https://github.com/L3tum/CPU-Benchmark/pull/78) ([L3tum](https://github.com/L3tum))
+- ResultUploader + ResultLister + Bugfixes + Dependency Updates [\#73](https://github.com/L3tum/CPU-Benchmark/pull/73) ([L3tum](https://github.com/L3tum))
+- Bump HtmlAgilityPack from 1.11.12 to 1.11.15 [\#71](https://github.com/L3tum/CPU-Benchmark/pull/71) ([dependabot-preview[bot]](https://github.com/apps/dependabot-preview))
+
 ## [v0.2.0](https://github.com/L3tum/CPU-Benchmark/tree/v0.2.0) (2019-09-14)
 [Full Changelog](https://github.com/L3tum/CPU-Benchmark/compare/v0.1.1...v0.2.0)
 
 **Updates:**
 
+- Updated changelog [\#65](https://github.com/L3tum/CPU-Benchmark/pull/65) ([L3tum](https://github.com/L3tum))
 - Feature/prerelease [\#64](https://github.com/L3tum/CPU-Benchmark/pull/64) ([L3tum](https://github.com/L3tum))
 - Switch to external lib [\#63](https://github.com/L3tum/CPU-Benchmark/pull/63) ([L3tum](https://github.com/L3tum))
 - Update netcore.yml [\#62](https://github.com/L3tum/CPU-Benchmark/pull/62) ([L3tum](https://github.com/L3tum))
