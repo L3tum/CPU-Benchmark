@@ -1,4 +1,4 @@
-$version="0.2.0"
+$version="0.3.0"
 
 cd Benchmarker
 Remove-Item -Path bin/Release -Recurse
