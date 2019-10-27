@@ -4,7 +4,7 @@
 
 ## Usage
 
-Download the tool on the Releases tab.
+Download the tool [from here](https://github.com/L3tum/CPU-Benchmark/releases/latest).
 
 You can download a pre-packaged version for your system or choose the "general" system. You'll need to install .NET Core 3 (or compatible) yourself in that case.
 
