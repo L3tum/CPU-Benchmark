@@ -39,8 +39,9 @@ namespace Benchmarking.Decompression
 							s.Seek(0, SeekOrigin.Begin);
 
 							using var stream = new ZipInputStream(s);
-							datas[i1] = stream.GetNextEntry().ToString();
-							stream.IsStreamOwner = false;
+							var zipEntry = stream.GetNextEntry();
+
+							zipEntry.DateTime = DateTime.Now;
 						}
 					}
 
@@ -99,6 +100,8 @@ namespace Benchmarking.Decompression
 						using var sr = new StreamReader(s);
 						datas[i1] = sr.ReadToEnd();
 					}
+
+					BenchmarkRunner.ReportProgress(GetName());
 				});
 			}
 
