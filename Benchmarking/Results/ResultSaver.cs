@@ -53,21 +53,20 @@ namespace Benchmarking.Results
 
 			var machineInformation = MachineInformationGatherer.GatherInformation(options.QuickRun);
 
-			if (save != null && save.MachineInformation != null)
+			if (save?.MachineInformation != null)
 			{
 				if (machineInformation.Platform != save.MachineInformation.Platform ||
 				    machineInformation.Cpu.Family != save.MachineInformation.Cpu.Family ||
 				    machineInformation.Cpu.Model != save.MachineInformation.Cpu.Model ||
 				    machineInformation.Cpu.Stepping != save.MachineInformation.Cpu.Stepping ||
 				    machineInformation.RAMSticks.Count != save.MachineInformation.RAMSticks.Count ||
-				    Assembly.GetExecutingAssembly().GetName().Version != save.Version ||
-				    RuntimeInformation.FrameworkDescription != save.DotNetVersion ||
 				    machineInformation.SmBios.BIOSCodename !=
 				    save.MachineInformation.SmBios.BIOSCodename ||
 				    machineInformation.SmBios.BoardName != save.MachineInformation.SmBios.BoardName ||
 				    machineInformation.SmBios.BoardVersion !=
 				    save.MachineInformation.SmBios.BoardVersion)
 				{
+					SaveResults("save.old.benchmark");
 					save.Results.Clear();
 				}
 
@@ -78,6 +77,7 @@ namespace Benchmarking.Results
 						    r.Manfucturer == ram.Manfucturer && r.PartNumber == ram.PartNumber &&
 						    r.Speed == ram.Speed) == null)
 					{
+						SaveResults("save.old.benchmark");
 						save.Results.Clear();
 						break;
 					}
@@ -147,16 +147,16 @@ namespace Benchmarking.Results
 			return true;
 		}
 
-		private static void SaveResults()
+		private static void SaveResults(string filename = "save.benchmark")
 		{
 			if (save != null)
 			{
-				if (File.Exists("./save.benchmark"))
+				if (File.Exists($"./{filename}"))
 				{
-					File.Delete("./save.benchmark");
+					File.Delete($"./{filename}");
 				}
 
-				using var stream = File.OpenWrite("./save.benchmark");
+				using var stream = File.OpenWrite($"./{filename}");
 				using var writer = new StreamWriter(stream);
 				var json = JsonConvert.SerializeObject(save);
 
