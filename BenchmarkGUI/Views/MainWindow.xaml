@@ -1,0 +1,50 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:BenchmarkGUI.ViewModels;assembly=BenchmarkGUI"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        xmlns:local="clr-namespace:BenchmarkGUI"
+        x:Class="BenchmarkGUI.Views.MainWindow"
+        Title="BenchmarkGUI">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+  <TabControl>
+    <TabItem Header="Benchmarking" VerticalContentAlignment="Center">
+      <StackPanel Margin="20">
+        <Expander Header="Options" Background="LightGray">
+          <StackPanel>
+            <CheckBox Margin="10" IsDefault="False" IsChecked="{Binding Path=QuickRun, Mode=TwoWay}">Quick Run (disables verification and uploading)</CheckBox>
+            <CheckBox Margin="10" IsDefault="False" IsChecked="{Binding Path=MemoryEfficient, Mode=TwoWay}">Run memory efficient (slight impact on performance)</CheckBox>
+            <CheckBox Margin="10" IsDefault="False" IsChecked="{Binding Path=Multithreaded, Mode=TwoWay}">Multithreaded</CheckBox>
+            <StackPanel Margin="10" IsVisible="{Binding Path=NotMultithreaded, Mode=OneWay}">
+              <TextBlock >Threads</TextBlock>
+              <TextBox ToolTip.Tip="Threads" MinHeight="20" Text="{Binding Path=Threads}" AcceptsReturn="False" AcceptsTab="False" Watermark="Threads"></TextBox>
+            </StackPanel>
+            <StackPanel Margin="10">
+              <TextBlock >Runs</TextBlock>
+              <TextBox ToolTip.Tip="Runs" MinHeight="20" Text="{Binding Path=Runs}" AcceptsReturn="False" AcceptsTab="False" Watermark="Runs"></TextBox>
+            </StackPanel>
+            </StackPanel>
+        </Expander>
+        <TextBlock Text="I am in the circle page !" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+      </StackPanel>
+    </TabItem>
+    <TabItem Header="Results" VerticalContentAlignment="Center">
+      <StackPanel>
+        <TextBlock Text="I am in the triangle page ! I'll put a button to show you that each page contains what you want." HorizontalAlignment="Left" VerticalAlignment="Center"/>
+        <Button>A button in the triangle page !</Button>
+      </StackPanel>
+    </TabItem>
+    <TabItem Header="Machine Information" VerticalContentAlignment="Center">
+      <StackPanel Orientation="Horizontal">
+        <TextBlock Text="Square : " HorizontalAlignment="Left" VerticalAlignment="Center"/>
+        <Rectangle Fill="Blue" Width="63" Height="41"/>
+      </StackPanel>
+    </TabItem>
+  </TabControl>
+
+</Window>
