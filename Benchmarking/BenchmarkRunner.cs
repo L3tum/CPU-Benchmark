@@ -285,6 +285,7 @@ namespace Benchmarking
 		private double ExecuteBenchmark()
 		{
 			var sw = new Stopwatch();
+			Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.High;
 
 			for (var i = 0; i < options.Runs; i++)
 			{
@@ -324,6 +325,8 @@ namespace Benchmarking
 				timings[i] = sw.ElapsedMilliseconds;
 				sw.Reset();
 			}
+
+			Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.Normal;
 
 			return timings.Average();
 		}

@@ -110,8 +110,6 @@ namespace Benchmarking.Results
 				    machineInformation.Cpu.Model != save.MachineInformation.Cpu.Model ||
 				    machineInformation.Cpu.Stepping != save.MachineInformation.Cpu.Stepping ||
 				    machineInformation.RAMSticks.Count != save.MachineInformation.RAMSticks.Count ||
-				    Assembly.GetExecutingAssembly().GetName().Version != save.Version ||
-				    RuntimeInformation.FrameworkDescription != save.DotNetVersion ||
 				    machineInformation.SmBios.BIOSCodename !=
 				    save.MachineInformation.SmBios.BIOSCodename ||
 				    machineInformation.SmBios.BoardName != save.MachineInformation.SmBios.BoardName ||
@@ -209,16 +207,16 @@ namespace Benchmarking.Results
 			return DateTime.MinValue;
 		}
 
-		private static void SaveResults()
+		private static void SaveResults(string filename = "save.benchmark")
 		{
 			if (save != null)
 			{
-				if (File.Exists("./save.benchmark"))
+				if (File.Exists($"./{filename}"))
 				{
-					File.Delete("./save.benchmark");
+					File.Delete($"./{filename}");
 				}
 
-				using var stream = File.OpenWrite("./save.benchmark");
+				using var stream = File.OpenWrite($"./{filename}");
 				using var writer = new StreamWriter(stream);
 				var json = JsonConvert.SerializeObject(save);
 
