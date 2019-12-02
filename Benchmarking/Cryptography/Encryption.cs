@@ -87,11 +87,6 @@ namespace Benchmarking.Cryptography
 
 		public override double GetReferenceValue()
 		{
-			if (options.Threads == 1)
-			{
-				return 2028.0d;
-			}
-
 			return 548.0d;
 		}
 		public override string GetCategory()

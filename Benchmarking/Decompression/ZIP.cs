@@ -30,19 +30,16 @@ namespace Benchmarking.Decompression
 				{
 					using (Stream s = new MemoryStream())
 					{
-						using (var sw = new StreamWriter(s))
-						{
+						using var sw = new StreamWriter(s);
+						sw.Write(datas[i1]);
+						sw.Flush();
 
-							sw.Write(datas[i1]);
-							sw.Flush();
+						s.Seek(0, SeekOrigin.Begin);
 
-							s.Seek(0, SeekOrigin.Begin);
+						using var stream = new ZipInputStream(s);
+						var zipEntry = stream.GetNextEntry();
 
-							using var stream = new ZipInputStream(s);
-							var zipEntry = stream.GetNextEntry();
-
-							zipEntry.DateTime = DateTime.Now;
-						}
+						zipEntry.DateTime = DateTime.Now;
 					}
 
 					BenchmarkRunner.ReportProgress(GetName());
@@ -80,7 +77,6 @@ namespace Benchmarking.Decompression
 					{
 						using (var stream = new ZipOutputStream(s))
 						{
-
 							stream.SetLevel(9);
 
 							var entry = new ZipEntry("test.txt") {DateTime = DateTime.Now};
@@ -110,11 +106,6 @@ namespace Benchmarking.Decompression
 
 		public override double GetReferenceValue()
 		{
-			if (options.Threads == 1)
-			{
-				return 1864.0d;
-			}
-
 			return 256.0d;
 		}
 

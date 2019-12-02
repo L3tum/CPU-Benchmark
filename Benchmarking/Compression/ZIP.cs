@@ -73,11 +73,6 @@ namespace Benchmarking.Compression
 
 		public override double GetReferenceValue()
 		{
-			if (options.Threads == 1)
-			{
-				return 24878.0d;
-			}
-
 			return 2675.0d;
 		}
 

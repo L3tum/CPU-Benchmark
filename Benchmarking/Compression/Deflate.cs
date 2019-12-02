@@ -30,15 +30,12 @@ namespace Benchmarking.Compression
 				{
 					using (Stream s = new MemoryStream())
 					{
-						using (var stream = new DeflaterOutputStream(s, new Deflater(Deflater.BEST_COMPRESSION)))
-						{
-							using (var sw = new StreamWriter(stream))
-							{
-								sw.Write(datas[i1]);
-								sw.Flush();
-								stream.Finish();
-							}
-						}
+						using var stream = new DeflaterOutputStream(s, new Deflater(Deflater.BEST_COMPRESSION));
+						using var sw = new StreamWriter(stream);
+
+						sw.Write(datas[i1]);
+						sw.Flush();
+						stream.Finish();
 					}
 
 					BenchmarkRunner.ReportProgress(GetName());
@@ -70,12 +67,7 @@ namespace Benchmarking.Compression
 
 		public override double GetReferenceValue()
 		{
-			if (options.Threads == 1)
-			{
-				return 23083.0d;
-			}
-
-			return 2556.0d;
+			return 3700.0d;
 		}
 		public override string GetCategory()
 		{

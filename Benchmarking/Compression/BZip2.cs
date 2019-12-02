@@ -29,15 +29,12 @@ namespace Benchmarking.Compression
 				{
 					using (Stream s = new MemoryStream())
 					{
-						using (var stream = new BZip2OutputStream(s))
-						{
-							using (var sw = new StreamWriter(stream))
-							{
-								sw.Write(datas[i1]);
-								sw.Flush();
-								stream.Flush();
-							}
-						}
+						using var stream = new BZip2OutputStream(s);
+						using var sw = new StreamWriter(stream);
+
+						sw.Write(datas[i1]);
+						sw.Flush();
+						stream.Flush();
 					}
 
 					BenchmarkRunner.ReportProgress(GetName());
@@ -49,19 +46,19 @@ namespace Benchmarking.Compression
 
 		public override string GetDescription()
 		{
-			return "Compressing 1 GB of data with BZip2";
+			return "Compressing 128 MB of data with BZip2";
 		}
 
 		public override void Initialize()
 		{
 			var tasks = new Task[options.Threads];
 
-			// 500 "MB" string -> 2 bytes per character -> 1 GB String
+			// 64 "MB" string -> 2 bytes per character -> 128 MB String
 			for (var i = 0; i < options.Threads; i++)
 			{
 				var i1 = i;
-
-				tasks[i1] = Task.Run(() => { datas[i1] = DataGenerator.GenerateString((int) (500000000 / options.Threads)); });
+				// 500000000
+				tasks[i1] = Task.Run(() => { datas[i1] = DataGenerator.GenerateString((int) (64000000 / options.Threads)); });
 			}
 
 			Task.WaitAll(tasks);
@@ -69,12 +66,7 @@ namespace Benchmarking.Compression
 
 		public override double GetReferenceValue()
 		{
-			if (options.Threads == 1)
-			{
-				return 58569.0d;
-			}
-
-			return 7938.0d;
+			return 5727.0d;
 		}
 		public override string GetCategory()
 		{

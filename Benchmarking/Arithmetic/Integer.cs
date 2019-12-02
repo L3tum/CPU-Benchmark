@@ -10,8 +10,8 @@ namespace Benchmarking.Arithmetic
 {
 	internal class Integer : Benchmark
 	{
-		// 200 "MB"
-		private const int LENGTH = 200000000;
+		// 100 "MB"
+		private const int LENGTH = 100000000;
 		private byte[] resultByteArray;
 		private int[] resultIntArray;
 		private long[] resultLongArray;
@@ -198,12 +198,7 @@ namespace Benchmarking.Arithmetic
 
 		public override double GetReferenceValue()
 		{
-			if (options.Threads == 1)
-			{
-				return 27743.0d;
-			}
-
-			return 1083.0d;
+			return 596.0d;
 		}
 
 		public override string GetDescription()

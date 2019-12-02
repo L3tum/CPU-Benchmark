@@ -1,6 +1,5 @@
 ﻿#region using
 
-using System;
 using System.IO;
 using System.Threading.Tasks;
 using Benchmarking.Util;
@@ -66,24 +65,22 @@ namespace Benchmarking.Decompression
 					// 500000000
 					var data = DataGenerator.GenerateString((int) (500000000 / options.Threads));
 
-					using (var s = new MemoryStream())
+					using var s = new MemoryStream();
+					using (var stream = new GZipOutputStream(s))
 					{
-						using (var stream = new GZipOutputStream(s))
-						{
-							stream.SetLevel(9);
+						stream.SetLevel(9);
 
-							using var sw = new StreamWriter(stream);
-							sw.Write(data);
-							sw.Flush();
-							stream.Finish();
+						using var sw = new StreamWriter(stream);
+						sw.Write(data);
+						sw.Flush();
+						stream.Finish();
 
-							stream.IsStreamOwner = false;
-						}
-
-						s.Seek(0, SeekOrigin.Begin);
-
-						datas[i1] = s.ToArray();
+						stream.IsStreamOwner = false;
 					}
+
+					s.Seek(0, SeekOrigin.Begin);
+
+					datas[i1] = s.ToArray();
 				});
 			}
 
@@ -92,11 +89,6 @@ namespace Benchmarking.Decompression
 
 		public override double GetReferenceValue()
 		{
-			if (options.Threads == 1)
-			{
-				return 7279.0d;
-			}
-
 			return 3598.0d;
 		}
 

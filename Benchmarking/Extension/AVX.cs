@@ -60,7 +60,7 @@ namespace Benchmarking.Extension
 
 		public override string GetDescription()
 		{
-			return "AVX benchmark with big vectors";
+			return "AVX benchmark of addition and multiplication on 512 floats (2048 bits)";
 		}
 
 		public override void Initialize()
@@ -72,18 +72,13 @@ namespace Benchmarking.Extension
 			for (var i = 0; i < options.Threads; i++)
 			{
 				// Multiple of 256 to test AVX only
-				datas.Add(new float[1024]);
+				datas.Add(new float[512]);
 			}
 		}
 
 		public override double GetReferenceValue()
 		{
-			if (options.Threads == 1)
-			{
-				return 164184.0d;
-			}
-
-			return 24795.0d;
+			return 14306.0d;
 		}
 
 #if NETCOREAPP3_0

@@ -92,11 +92,6 @@ namespace Benchmarking.Arithmetic
 
 		public override double GetReferenceValue()
 		{
-			if (options.Threads == 1)
-			{
-				return 7780.0d;
-			}
-
 			return 308.0d;
 		}
 

@@ -40,12 +40,7 @@ namespace Benchmarking.Parsing
 
 		public override double GetReferenceValue()
 		{
-			if (options.Threads == 1)
-			{
-				return 1538.0d;
-			}
-
-			return 702.0d;
+			return 1141.0d;
 		}
 
 		public override string GetCategory()
