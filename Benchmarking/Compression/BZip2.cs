@@ -29,15 +29,11 @@ namespace Benchmarking.Compression
 				{
 					using (Stream s = new MemoryStream())
 					{
-						using (var stream = new BZip2OutputStream(s))
-						{
-							using (var sw = new StreamWriter(stream))
-							{
-								sw.Write(datas[i1]);
-								sw.Flush();
-								stream.Flush();
-							}
-						}
+						using var stream = new BZip2OutputStream(s);
+						using var sw = new StreamWriter(stream);
+						sw.Write(datas[i1]);
+						sw.Flush();
+						stream.Flush();
 					}
 
 					BenchmarkRunner.ReportProgress(GetName());
@@ -61,7 +57,10 @@ namespace Benchmarking.Compression
 			{
 				var i1 = i;
 
-				tasks[i1] = Task.Run(() => { datas[i1] = DataGenerator.GenerateString((int) (500000000 / options.Threads)); });
+				tasks[i1] = Task.Run(() =>
+				{
+					datas[i1] = DataGenerator.GenerateString((int) (500000000 / options.Threads));
+				});
 			}
 
 			Task.WaitAll(tasks);
@@ -71,11 +70,12 @@ namespace Benchmarking.Compression
 		{
 			if (options.Threads == 1)
 			{
-				return 58569.0d;
+				return 59542.0d;
 			}
 
-			return 7938.0d;
+			return 36712.0d;
 		}
+
 		public override string GetCategory()
 		{
 			return "compression";
