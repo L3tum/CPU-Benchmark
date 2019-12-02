@@ -30,6 +30,7 @@ namespace Benchmarking.Results
 
 			if (!CheckValidSave(machineInformation))
 			{
+				SaveResults("save.old.benchmark");
 				save.Results.Clear();
 			}
 
