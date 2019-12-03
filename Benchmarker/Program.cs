@@ -45,10 +45,19 @@ namespace Benchmarker
 				}
 			});
 
+			if (args.Contains("--help") || args.Contains("-h"))
+			{
+				return;
+			}
+
+#else
+			options = new Options { Benchmark = "zip-decompression", Threads = 1, Runs = 2, QuickRun = true, ListResults
+ = true };
+#endif
+
 			if (options.ListBenchmarks)
 			{
 				Console.WriteLine(string.Join(Environment.NewLine, BenchmarkRunner.GetAvailableBenchmarks()));
-
 				Console.ReadLine();
 
 				return;
@@ -56,17 +65,53 @@ namespace Benchmarker
 
 			if (options.ListResults)
 			{
-				options.QuickRun = true;
 				ResultSaver.Init(options);
 				Console.WriteLine();
 				Console.WriteLine(FormatResults(ResultSaver.GetResults()));
+				Console.ReadLine();
+
+				return;
+			}
+
+			if (options.Upload)
+			{
+				if (!ResultSaver.Init(options))
+				{
+					Console.WriteLine(
+						"A restart or hardware change has been detected. Please redo the benchmark and upload it without restarting.");
+					Console.ReadLine();
+
+					return;
+				}
+
+				if (!ResultSaver.IsAllowedToUpload(options))
+				{
+					Console.WriteLine("You can only upload your results on a Windows machine.");
+					Console.ReadLine();
+
+					return;
+				}
+
+				Console.WriteLine();
+				Console.WriteLine("Uploading results...");
+
+				if (ResultSaver.UploadResults().Result)
+				{
+					Console.WriteLine("Done!");
+					Console.WriteLine("You can view your raw save here: {0}",
+						$"https://raw.githubusercontent.com/L3tum/CPU-Benchmark-Database/master/saves/{ResultSaver.GetUUID()}.json");
+				}
+				else
+				{
+					Console.WriteLine("Failed uploading results!");
+				}
 
 				Console.ReadLine();
 
 				return;
 			}
 
-			if (options?.Benchmark == null || string.IsNullOrWhiteSpace(options.Benchmark))
+			if (options.Benchmark == null || string.IsNullOrWhiteSpace(options.Benchmark))
 			{
 				Console.WriteLine("Please specify a benchmark!");
 				Console.ReadLine();
@@ -82,9 +127,7 @@ namespace Benchmarker
 
 				return;
 			}
-#else
-			options = new Options {Benchmark = "zip-decompression", Threads = 1, Runs = 2, QuickRun = true};
-#endif
+
 			Console.WriteLine("Gathing hardware information...");
 
 			var information = MachineInformationGatherer.GatherInformation();
@@ -158,21 +201,6 @@ namespace Benchmarker
 			foreach (var runnerResult in runner.Results)
 			{
 				ResultSaver.SaveResult(options.Threads, runnerResult);
-			}
-
-			if (ResultSaver.IsAllowedToUpload(options))
-			{
-				Console.WriteLine();
-				Console.WriteLine("Uploading results...");
-
-				if (ResultSaver.UploadResults().Result)
-				{
-					Console.WriteLine("Done!");
-				}
-				else
-				{
-					Console.WriteLine("Failed uploading results!");
-				}
 			}
 
 			Console.ReadLine();

@@ -39,9 +39,9 @@ List all past results
 
 `\.benchmarker.exe --list-results`
 
-Make a quick run (disables some functionality and exempts the benchmark from being verified)
+Upload your results
 
-`\.benchmarker.exe --quick`
+`\.benchmarker.exe --upload`
 
 Run the benchmarks in a memory efficient manner (on low-memory devices for example)
 
