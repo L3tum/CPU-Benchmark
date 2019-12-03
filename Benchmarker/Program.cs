@@ -75,8 +75,18 @@ namespace Benchmarker
 
 			if (options.Upload)
 			{
-				if (!ResultSaver.Init(options) || !ResultSaver.IsAllowedToUpload(options))
+				if (!ResultSaver.Init(options))
 				{
+					Console.WriteLine(
+						"A restart or hardware change has been detected. Please redo the benchmark and upload it without restarting.");
+					Console.ReadLine();
+
+					return;
+				}
+
+				if (!ResultSaver.IsAllowedToUpload(options))
+				{
+					Console.WriteLine("You can only upload your results on a Windows machine.");
 					Console.ReadLine();
 
 					return;

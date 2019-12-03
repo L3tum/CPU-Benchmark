@@ -86,14 +86,7 @@ namespace Benchmarking.Results
 
 		public static bool IsAllowedToUpload(Options options)
 		{
-			if (save.MachineInformation.Platform == MachineInformation.Platforms.Windows && options.Upload)
-			{
-				return true;
-			}
-
-			Console.WriteLine("You can only upload your results on a Windows machine.");
-
-			return false;
+			return save.MachineInformation.Platform == MachineInformation.Platforms.Windows && options.Upload;
 		}
 
 		public static async Task<bool> UploadResults()
