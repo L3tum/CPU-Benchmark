@@ -41,6 +41,21 @@ namespace Benchmarking.Cryptography
 			return "Generates 1GB of cryptographically secure random data 64 times";
 		}
 
+		public override double GetComparison()
+		{
+			switch (options.Threads)
+			{
+				case 1:
+				{
+					return 17329.0d;
+				}
+				default:
+				{
+					return base.GetComparison();
+				}
+			}
+		}
+
 		public override double GetReferenceValue()
 		{
 			return 4004.0d;

@@ -67,9 +67,13 @@ namespace Benchmarking.Compression
 		{
 			switch (options.Threads)
 			{
+				case 1:
+				{
+					return 8590.0d;
+				}
 				default:
 				{
-					return GetReferenceValue();
+					return base.GetComparison();
 				}
 			}
 		}

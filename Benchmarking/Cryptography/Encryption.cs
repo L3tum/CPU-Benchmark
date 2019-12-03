@@ -85,6 +85,21 @@ namespace Benchmarking.Cryptography
 			RandomNumberGenerator.Fill(aesKey);
 		}
 
+		public override double GetComparison()
+		{
+			switch (options.Threads)
+			{
+				case 1:
+				{
+					return 2004.0d;
+				}
+				default:
+				{
+					return base.GetComparison();
+				}
+			}
+		}
+
 		public override double GetReferenceValue()
 		{
 			return 548.0d;
