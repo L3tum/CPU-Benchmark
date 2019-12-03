@@ -22,28 +22,36 @@ namespace Benchmarking.Results
 	{
 		private static Save save;
 
-		public static void Init(Options options)
+		public static bool Init(Options options)
 		{
 			LoadSave();
 
-			var machineInformation = MachineInformationGatherer.GatherInformation(options.QuickRun && !options.Upload);
-
-			if (!CheckValidSave(machineInformation))
-			{
-				SaveResults("save.old.benchmark");
-				save.Results.Clear();
-			}
-
-			save.MachineInformation = machineInformation;
-			save.Version = Assembly.GetExecutingAssembly().GetName().Version;
-			save.DotNetVersion = RuntimeInformation.FrameworkDescription;
-
+			// Prune invalid results
 			foreach (var resultsValue in save.Results.Values)
 			{
 				resultsValue.RemoveAll(item => item == null);
 			}
 
 			AppDomain.CurrentDomain.ProcessExit += CurrentDomainOnProcessExit;
+
+			// Skip checks if they only want to view their results
+			if (!options.ListResults)
+			{
+				var machineInformation = MachineInformationGatherer.GatherInformation(false);
+
+				if (!CheckValidSave(machineInformation))
+				{
+					SaveResults($"save-{GetBootTime()}.old.benchmark");
+					save.Results.Clear();
+					save.MachineInformation = machineInformation;
+					save.Version = Assembly.GetExecutingAssembly().GetName().Version;
+					save.DotNetVersion = RuntimeInformation.FrameworkDescription;
+
+					return false;
+				}
+			}
+
+			return true;
 		}
 
 		public static void SaveResult(uint threads, Result result)
@@ -78,7 +86,14 @@ namespace Benchmarking.Results
 
 		public static bool IsAllowedToUpload(Options options)
 		{
-			return save.MachineInformation.Platform == MachineInformation.Platforms.Windows && options.Upload;
+			if (save.MachineInformation.Platform == MachineInformation.Platforms.Windows && options.Upload)
+			{
+				return true;
+			}
+
+			Console.WriteLine("You can only upload your results on a Windows machine.");
+
+			return false;
 		}
 
 		public static async Task<bool> UploadResults()
@@ -104,31 +119,35 @@ namespace Benchmarking.Results
 
 		private static bool CheckValidSave(MachineInformation machineInformation)
 		{
-			if (save != null && save.MachineInformation != null)
+			if (save == null || save.MachineInformation == null)
 			{
-				if (machineInformation.Platform != save.MachineInformation.Platform ||
-				    machineInformation.Cpu.Family != save.MachineInformation.Cpu.Family ||
-				    machineInformation.Cpu.Model != save.MachineInformation.Cpu.Model ||
-				    machineInformation.Cpu.Stepping != save.MachineInformation.Cpu.Stepping ||
-				    machineInformation.RAMSticks.Count != save.MachineInformation.RAMSticks.Count ||
-				    machineInformation.SmBios.BIOSCodename !=
-				    save.MachineInformation.SmBios.BIOSCodename ||
-				    machineInformation.SmBios.BoardName != save.MachineInformation.SmBios.BoardName ||
-				    machineInformation.SmBios.BoardVersion !=
-				    save.MachineInformation.SmBios.BoardVersion)
+				return false;
+			}
+
+			if (machineInformation.Platform != save.MachineInformation.Platform ||
+			    machineInformation.Cpu.Family != save.MachineInformation.Cpu.Family ||
+			    machineInformation.Cpu.Model != save.MachineInformation.Cpu.Model ||
+			    machineInformation.Cpu.Stepping != save.MachineInformation.Cpu.Stepping ||
+			    machineInformation.RAMSticks.Count != save.MachineInformation.RAMSticks.Count ||
+			    machineInformation.SmBios.BIOSCodename !=
+			    save.MachineInformation.SmBios.BIOSCodename ||
+			    machineInformation.SmBios.BoardName != save.MachineInformation.SmBios.BoardName ||
+			    machineInformation.SmBios.BoardVersion !=
+			    save.MachineInformation.SmBios.BoardVersion ||
+			    machineInformation.Cpu.Cores.Count != save.MachineInformation.Cpu.Cores.Count ||
+			    machineInformation.Cpu.Caches.Count != save.MachineInformation.Cpu.Caches.Count)
+			{
+				return false;
+			}
+
+			foreach (var ram in machineInformation.RAMSticks)
+			{
+				if (save.MachineInformation.RAMSticks.FirstOrDefault(r =>
+					    r.Capacity == ram.Capacity && r.FormFactor == ram.FormFactor &&
+					    r.Manfucturer == ram.Manfucturer && r.PartNumber == ram.PartNumber &&
+					    r.Speed == ram.Speed) == null)
 				{
 					return false;
-				}
-
-				foreach (var ram in machineInformation.RAMSticks)
-				{
-					if (save.MachineInformation.RAMSticks.FirstOrDefault(r =>
-						    r.Capacity == ram.Capacity && r.FormFactor == ram.FormFactor &&
-						    r.Manfucturer == ram.Manfucturer && r.PartNumber == ram.PartNumber &&
-						    r.Speed == ram.Speed) == null)
-					{
-						return false;
-					}
 				}
 			}
 
@@ -175,7 +194,12 @@ namespace Benchmarking.Results
 
 			if (save == null)
 			{
-				save = new Save();
+				save = new Save
+				{
+					MachineInformation = MachineInformationGatherer.GatherInformation(),
+					Version = Assembly.GetExecutingAssembly().GetName().Version,
+					DotNetVersion = RuntimeInformation.FrameworkDescription
+				};
 			}
 		}
 

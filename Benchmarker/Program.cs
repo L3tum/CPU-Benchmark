@@ -75,11 +75,8 @@ namespace Benchmarker
 
 			if (options.Upload)
 			{
-				ResultSaver.Init(options);
-
-				if (!ResultSaver.IsAllowedToUpload(options))
+				if (!ResultSaver.Init(options) || !ResultSaver.IsAllowedToUpload(options))
 				{
-					Console.WriteLine("You can only upload & verify your saves on a Windows machine!");
 					Console.ReadLine();
 
 					return;
