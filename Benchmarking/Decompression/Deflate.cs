@@ -1,6 +1,5 @@
 ﻿#region using
 
-using System;
 using System.IO;
 using System.Threading.Tasks;
 using Benchmarking.Util;
@@ -67,35 +66,43 @@ namespace Benchmarking.Decompression
 					// 500000000
 					var data = DataGenerator.GenerateString((int) (500000000 / options.Threads));
 
-					using (var s = new MemoryStream())
+					using var s = new MemoryStream();
+					using (var stream = new DeflaterOutputStream(s, new Deflater(Deflater.BEST_COMPRESSION)))
 					{
-						using (var stream = new DeflaterOutputStream(s, new Deflater(Deflater.BEST_COMPRESSION)))
-						{
-							using var sw = new StreamWriter(stream);
-							sw.Write(data);
-							sw.Flush();
-							stream.Finish();
+						using var sw = new StreamWriter(stream);
+						sw.Write(data);
+						sw.Flush();
+						stream.Finish();
 
-							stream.IsStreamOwner = false;
-						}
-
-						s.Seek(0, SeekOrigin.Begin);
-
-						datas[i1] = s.ToArray();
+						stream.IsStreamOwner = false;
 					}
+
+					s.Seek(0, SeekOrigin.Begin);
+
+					datas[i1] = s.ToArray();
 				});
 			}
 
 			Task.WaitAll(tasks);
 		}
 
+		public override double GetComparison()
+		{
+			switch (options.Threads)
+			{
+				case 1:
+				{
+					return 6666.0d;
+				}
+				default:
+				{
+					return base.GetComparison();
+				}
+			}
+		}
+
 		public override double GetReferenceValue()
 		{
-			if (options.Threads == 1)
-			{
-				return 5866.0d;
-			}
-
 			return 3463.0d;
 		}
 

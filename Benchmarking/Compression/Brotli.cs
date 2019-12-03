@@ -1,5 +1,6 @@
 ﻿#region using
 
+using System;
 using System.IO;
 using System.IO.Compression;
 using System.Threading.Tasks;
@@ -9,6 +10,7 @@ using Benchmarking.Util;
 
 namespace Benchmarking.Compression
 {
+	[Obsolete]
 	internal class Brotli : Benchmark
 	{
 		private readonly string[] datas;

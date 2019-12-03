@@ -48,14 +48,14 @@ namespace Benchmarking.Decompression
 
 		public override string GetDescription()
 		{
-			return "Decompressing 1 GB of data with BZip2";
+			return "Decompressing 512 MB of data with BZip2";
 		}
 
 		public override void Initialize()
 		{
 			var tasks = new Task[options.Threads];
 
-			// 500 "MB" string -> 2 bytes per character -> 1 GB String
+			// 256 "MB" string -> 2 bytes per character -> 512 MB String
 			for (var i = 0; i < options.Threads; i++)
 			{
 				var i1 = i;
@@ -63,37 +63,45 @@ namespace Benchmarking.Decompression
 				tasks[i1] = Task.Run(() =>
 				{
 					// 500000000
-					var data = DataGenerator.GenerateString((int) (500000000 / options.Threads));
+					var data = DataGenerator.GenerateString((int) (256000000 / options.Threads));
 
-					using (var s = new MemoryStream())
+					using var s = new MemoryStream();
+					using (var stream = new BZip2OutputStream(s))
 					{
-						using (var stream = new BZip2OutputStream(s))
-						{
-							using var sw = new StreamWriter(stream);
-							sw.Write(data);
-							sw.Flush();
+						using var sw = new StreamWriter(stream);
+						sw.Write(data);
+						sw.Flush();
 
-							stream.IsStreamOwner = false;
-						}
-
-						s.Seek(0, SeekOrigin.Begin);
-
-						datas[i1] = s.ToArray();
+						stream.IsStreamOwner = false;
 					}
+
+					s.Seek(0, SeekOrigin.Begin);
+
+					datas[i1] = s.ToArray();
 				});
 			}
 
 			Task.WaitAll(tasks);
 		}
 
+		public override double GetComparison()
+		{
+			switch (options.Threads)
+			{
+				case 1:
+				{
+					return 19389.0d;
+				}
+				default:
+				{
+					return base.GetComparison();
+				}
+			}
+		}
+
 		public override double GetReferenceValue()
 		{
-			if (options.Threads == 1)
-			{
-				return 32432.0d;
-			}
-
-			return 9355.0d;
+			return 5104.0d;
 		}
 
 		public override string GetCategory()

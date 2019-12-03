@@ -42,7 +42,7 @@ namespace Benchmarking.Extension
 					var randomFloatingSpan = new Span<float>(new[] { randomFloatingNumber });
 					var dst = new Span<float>(datas[i1]);
 
-					var iterations = 1000000000 / options.Threads;
+					var iterations = 100000000 / options.Threads;
 
 					for (var j = 0; j < iterations; j++)
 					{
@@ -60,7 +60,7 @@ namespace Benchmarking.Extension
 
 		public override string GetDescription()
 		{
-			return "SSE benchmark by adding two vectors of 128 bit (4 floats) from a big vector of 512 floats";
+			return "SSE benchmark of addition and multiplication on 256 floats (1024 bits) 100.000.000 times.";
 		}
 
 		public override void Initialize()
@@ -71,19 +71,29 @@ namespace Benchmarking.Extension
 
 			for (var i = 0; i < options.Threads; i++)
 			{
-				// Multiple of 256 to test AVX only
-				datas.Add(new float[512]);
+				// Multiple of 128 to test SSE only
+				datas.Add(new float[256]);
+			}
+		}
+
+		public override double GetComparison()
+		{
+			switch (options.Threads)
+			{
+				case 1:
+				{
+					return 17154.0d;
+				}
+				default:
+				{
+					return base.GetComparison();
+				}
 			}
 		}
 
 		public override double GetReferenceValue()
 		{
-			if (options.Threads == 1)
-			{
-				return 423293.0d;
-			}
-
-			return 49363.0d;
+			return 3440.0d;
 		}
 
 #if NETCOREAPP3_0

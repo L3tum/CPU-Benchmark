@@ -43,24 +43,19 @@ namespace Benchmarking.Cryptography
 				{
 					using (Stream s = new MemoryStream())
 					{
-						using (var stream = new CryptoStream(s, new HMACSHA512(sha512Key),
-							CryptoStreamMode.Read))
-						{
-							using (var sw = new StreamWriter(s))
-							{
-								sw.Write(datasSHA[i1]);
-								sw.Flush();
-								stream.Flush();
-								stream.FlushFinalBlock();
+						using var stream = new CryptoStream(s, new HMACSHA512(sha512Key),
+							CryptoStreamMode.Read);
+						using var sw = new StreamWriter(s);
 
-								s.Seek(0, SeekOrigin.Begin);
+						sw.Write(datasSHA[i1]);
+						sw.Flush();
+						stream.Flush();
+						stream.FlushFinalBlock();
 
-								using (var sr = new StreamReader(stream))
-								{
-									datasSHA[i1] = sr.ReadToEnd();
-								}
-							}
-						}
+						s.Seek(0, SeekOrigin.Begin);
+
+						using var sr = new StreamReader(stream);
+						datasSHA[i1] = sr.ReadToEnd();
 					}
 
 					using (var aes = new AesGcm(aesKey))
@@ -113,28 +108,37 @@ namespace Benchmarking.Cryptography
 
 					aesPlaintext[i1] = new byte[Encoding.UTF8.GetBytes(datas[i1]).Length];
 
-					using (var aes = new AesGcm(aesKey))
-					{
-						datasAES[i1] = new byte[datas[i1].Length];
-						aesTag[i1] = new byte[16];
+					using var aes = new AesGcm(aesKey);
+					datasAES[i1] = new byte[datas[i1].Length];
+					aesTag[i1] = new byte[16];
 
-						aes.Encrypt(aesNonce, Encoding.UTF8.GetBytes(datas[i1]), datasAES[i1], aesTag[i1]);
-					}
+					aes.Encrypt(aesNonce, Encoding.UTF8.GetBytes(datas[i1]), datasAES[i1], aesTag[i1]);
 				});
 			}
 
 			Task.WaitAll(tasks);
 		}
 
+		public override double GetComparison()
+		{
+			switch (options.Threads)
+			{
+				case 1:
+				{
+					return 270.0d;
+				}
+				default:
+				{
+					return base.GetComparison();
+				}
+			}
+		}
+
 		public override double GetReferenceValue()
 		{
-			if (options.Threads == 1)
-			{
-				return 225.0d;
-			}
-
 			return 64.0d;
 		}
+
 		public override string GetCategory()
 		{
 			return "cryptography";

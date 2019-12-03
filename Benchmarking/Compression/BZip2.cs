@@ -45,35 +45,42 @@ namespace Benchmarking.Compression
 
 		public override string GetDescription()
 		{
-			return "Compressing 1 GB of data with BZip2";
+			return "Compressing 128 MB of data with BZip2";
 		}
 
 		public override void Initialize()
 		{
 			var tasks = new Task[options.Threads];
 
-			// 500 "MB" string -> 2 bytes per character -> 1 GB String
+			// 64 "MB" string -> 2 bytes per character -> 128 MB String
 			for (var i = 0; i < options.Threads; i++)
 			{
 				var i1 = i;
-
-				tasks[i1] = Task.Run(() =>
-				{
-					datas[i1] = DataGenerator.GenerateString((int) (500000000 / options.Threads));
-				});
+				// 500000000
+				tasks[i1] = Task.Run(() => { datas[i1] = DataGenerator.GenerateString((int) (64000000 / options.Threads)); });
 			}
 
 			Task.WaitAll(tasks);
 		}
 
+		public override double GetComparison()
+		{
+			switch (options.Threads)
+			{
+				case 1:
+				{
+					return 8590.0d;
+				}
+				default:
+				{
+					return base.GetComparison();
+				}
+			}
+		}
+
 		public override double GetReferenceValue()
 		{
-			if (options.Threads == 1)
-			{
-				return 59542.0d;
-			}
-
-			return 36712.0d;
+			return 5727.0d;
 		}
 
 		public override string GetCategory()

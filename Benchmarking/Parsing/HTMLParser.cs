@@ -38,14 +38,24 @@ namespace Benchmarking.Parsing
 			Task.WaitAll(threads);
 		}
 
+		public override double GetComparison()
+		{
+			switch (options.Threads)
+			{
+				case 1:
+				{
+					return 1027.0d;
+				}
+				default:
+				{
+					return base.GetComparison();
+				}
+			}
+		}
+
 		public override double GetReferenceValue()
 		{
-			if (options.Threads == 1)
-			{
-				return 7371.0d;
-			}
-
-			return 7776.0d;
+			return 1266.0d;
 		}
 
 		public override string GetCategory()
@@ -65,7 +75,7 @@ namespace Benchmarking.Parsing
 				{
 					var document = new HtmlDocument();
 
-					for (var j = 0; j < 500000 / options.Threads; j++)
+					for (var j = 0; j < 100000 / options.Threads; j++)
 					{
 						document.DocumentNode.AppendChild(document.CreateElement("input"));
 						document.DocumentNode.AppendChild(document.CreateElement("div").AppendChild(document

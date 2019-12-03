@@ -37,7 +37,7 @@ namespace Benchmarking.Results
 			// Skip checks if they only want to view their results
 			if (!options.ListResults)
 			{
-				var machineInformation = MachineInformationGatherer.GatherInformation(false);
+				var machineInformation = MachineInformationGatherer.GatherInformation();
 
 				if (!CheckValidSave(machineInformation))
 				{
@@ -93,6 +93,15 @@ namespace Benchmarking.Results
 		{
 			try
 			{
+				var machineInformation = MachineInformationGatherer.GatherInformation(false);
+
+				if (!CheckValidSave(machineInformation))
+				{
+					return false;
+				}
+
+				save.MachineInformation = machineInformation;
+
 				var uuid = await ResultUploader.UploadResult(save).ConfigureAwait(false);
 
 				save.UUID = uuid;

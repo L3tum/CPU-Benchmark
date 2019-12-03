@@ -38,16 +38,26 @@ namespace Benchmarking.Cryptography
 
 		public override string GetDescription()
 		{
-			return "Generates 1GB of secure random data 64 times";
+			return "Generates 1GB of cryptographically secure random data 64 times";
+		}
+
+		public override double GetComparison()
+		{
+			switch (options.Threads)
+			{
+				case 1:
+				{
+					return 17329.0d;
+				}
+				default:
+				{
+					return base.GetComparison();
+				}
+			}
 		}
 
 		public override double GetReferenceValue()
 		{
-			if (options.Threads == 1)
-			{
-				return 17563.0d;
-			}
-
 			return 4004.0d;
 		}
 

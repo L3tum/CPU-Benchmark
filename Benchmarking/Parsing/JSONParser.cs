@@ -38,14 +38,24 @@ namespace Benchmarking.Parsing
 			Task.WaitAll(threads);
 		}
 
+		public override double GetComparison()
+		{
+			switch (options.Threads)
+			{
+				case 1:
+				{
+					return 2095.0d;
+				}
+				default:
+				{
+					return base.GetComparison();
+				}
+			}
+		}
+
 		public override double GetReferenceValue()
 		{
-			if (options.Threads == 1)
-			{
-				return 1538.0d;
-			}
-
-			return 702.0d;
+			return 1141.0d;
 		}
 
 		public override string GetCategory()
