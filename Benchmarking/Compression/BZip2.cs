@@ -31,7 +31,6 @@ namespace Benchmarking.Compression
 					{
 						using var stream = new BZip2OutputStream(s);
 						using var sw = new StreamWriter(stream);
-
 						sw.Write(datas[i1]);
 						sw.Flush();
 						stream.Flush();
@@ -68,6 +67,7 @@ namespace Benchmarking.Compression
 		{
 			return 5727.0d;
 		}
+
 		public override string GetCategory()
 		{
 			return "compression";
