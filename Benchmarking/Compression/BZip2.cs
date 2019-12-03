@@ -63,6 +63,17 @@ namespace Benchmarking.Compression
 			Task.WaitAll(tasks);
 		}
 
+		public override double GetComparison()
+		{
+			switch (options.Threads)
+			{
+				default:
+				{
+					return GetReferenceValue();
+				}
+			}
+		}
+
 		public override double GetReferenceValue()
 		{
 			return 5727.0d;

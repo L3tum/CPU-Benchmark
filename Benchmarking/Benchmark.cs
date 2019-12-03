@@ -22,6 +22,11 @@
 		{
 		}
 
+		public virtual double GetComparison()
+		{
+			return GetReferenceValue();
+		}
+
 		public virtual double GetReferenceValue()
 		{
 			return 0.0d;
@@ -39,7 +44,7 @@
 
 		public virtual string GetName()
 		{
-			return this.GetType().Name;
+			return GetType().Name;
 		}
 	}
 }

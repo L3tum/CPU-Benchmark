@@ -149,7 +149,7 @@ namespace Benchmarking
 				}
 			}
 
-			TotalOverall *= (uint)benchmarksToRun.Count;
+			TotalOverall *= (uint) benchmarksToRun.Count;
 		}
 
 		public void RunBenchmark()
@@ -177,7 +177,7 @@ namespace Benchmarking
 
 		private void RunGenericBenchmark()
 		{
-			var categories = new Dictionary<string, List<Tuple<double, double>>>();
+			var categories = new Dictionary<string, List<Result>>();
 
 			while (benchmarksToRun.Count > 0)
 			{
@@ -187,99 +187,33 @@ namespace Benchmarking
 					CurrentBenchmarkFinished = 0;
 				}
 
+				if (!categories.ContainsKey(benchmarksToRun[0].GetCategory()))
+				{
+					categories.Add(benchmarksToRun[0].GetCategory(), new List<Result>());
+				}
+
+				// Execute
 				benchmarksToRun[0].Initialize();
 				var timing = ExecuteBenchmark();
 
-				Results.Add(
-					new Result(
-						benchmarksToRun[0].GetName(),
-						timing,
-						benchmarksToRun[0].GetRatingMethod().Invoke(timing, benchmarksToRun[0].GetReferenceValue()),
-						benchmarksToRun[0].GetReferenceValue(),
-						benchmarksToRun[0].GetRatingMethod().Invoke(benchmarksToRun[0].GetReferenceValue(),
-							benchmarksToRun[0].GetReferenceValue())
-					));
+				var result = new Result(
+					benchmarksToRun[0].GetName(),
+					timing,
+					benchmarksToRun[0].GetRatingMethod().Invoke(timing, benchmarksToRun[0].GetReferenceValue()),
+					benchmarksToRun[0].GetComparison(),
+					benchmarksToRun[0].GetRatingMethod().Invoke(benchmarksToRun[0].GetComparison(),
+						benchmarksToRun[0].GetReferenceValue())
+				);
 
-				if (!categories.ContainsKey(benchmarksToRun[0].GetCategory()))
-				{
-					categories.Add(benchmarksToRun[0].GetCategory(),
-						new List<Tuple<double, double>>());
-				}
+				Results.Add(result);
 
-				categories[benchmarksToRun[0].GetCategory()]
-					.Add(Tuple.Create(Results.Last().Timing, Results.Last().ReferenceTiming));
+				categories[benchmarksToRun[0].GetCategory()].Add(result);
 
 				benchmarksToRun.RemoveAt(0);
 				GC.Collect();
 			}
 
-			if (Results.Count > 1)
-			{
-				if (options.Benchmark.ToUpper() == "ALL")
-				{
-					var timings = new List<double>();
-					var refTimings = new List<double>();
-
-					foreach (var keyValuePair in categories)
-					{
-						var timing = 0.0d;
-						var refTiming = 0.0d;
-
-						foreach (var tuple in keyValuePair.Value)
-						{
-							timing += tuple.Item1;
-							refTiming += tuple.Item2;
-						}
-
-						var points = BenchmarkRater.RateBenchmark(timing, refTiming);
-						var refPoints = BenchmarkRater.RateBenchmark(refTiming, refTiming);
-
-						Results.Add(new Result("Category: " + keyValuePair.Key, timing, points, refTiming,
-							refPoints));
-
-						timings.Add(timing);
-						refTimings.Add(refTiming);
-					}
-
-					var time = timings.Sum();
-					var refTime = refTimings.Sum();
-
-					var totalPoints = BenchmarkRater.RateBenchmark(time, refTime);
-					var totalRefPoints = BenchmarkRater.RateBenchmark(refTime, refTime);
-
-					Results.Add(new Result("Category: " + options.Benchmark, time, totalPoints, refTime,
-						totalRefPoints));
-				}
-				else
-				{
-					var timings = new List<double>();
-					var refTimings = new List<double>();
-
-					foreach (var keyValuePair in categories)
-					{
-						var timing = 0.0d;
-						var refTiming = 0.0d;
-
-						foreach (var tuple in keyValuePair.Value)
-						{
-							timing += tuple.Item1;
-							refTiming += tuple.Item2;
-						}
-
-						timings.Add(timing);
-						refTimings.Add(refTiming);
-					}
-
-					var time = timings.Sum();
-					var refTime = refTimings.Sum();
-
-					var points = BenchmarkRater.RateBenchmark(time, refTime);
-					var refPoints = BenchmarkRater.RateBenchmark(refTime, refTime);
-
-					Results.Add(new Result("Category: " + options.Benchmark, time, points, refTime,
-						refPoints));
-				}
-			}
+			ProcessCategories(categories);
 		}
 
 		private double ExecuteBenchmark()
@@ -329,6 +263,81 @@ namespace Benchmarking
 			Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.Normal;
 
 			return timings.Average();
+		}
+
+		private void ProcessCategories(Dictionary<string, List<Result>> categories)
+		{
+			if (categories.Count > 0)
+			{
+				var pointss = new List<double>();
+				var timingss = new List<double>();
+				var refPointss = new List<double>();
+				var refTimings = new List<double>();
+
+				foreach (var keyValuePair in categories)
+				{
+					// Check if we got all benchmarks for that category
+					var skip = false;
+
+					foreach (var availableBenchmark in AvailableBenchmarks)
+					{
+						var benchmark = (Benchmark)Activator.CreateInstance(availableBenchmark, options);
+
+						if (benchmark.GetCategory() == keyValuePair.Key)
+						{
+							if (keyValuePair.Value.All(r => r.Benchmark != benchmark.GetName()))
+							{
+								skip = true;
+								break;
+							}
+						}
+					}
+
+					if (skip)
+					{
+						continue;
+					}
+
+					var points = 0.0d;
+					var timing = 0.0d;
+					var refTiming = 0.0d;
+					var refPoints = 0.0d;
+
+					foreach (var tuple in keyValuePair.Value)
+					{
+						points += tuple.Points;
+						timing += tuple.Timing;
+						refTiming += tuple.ReferenceTiming;
+						refPoints += tuple.ReferencePoints;
+					}
+
+					points /= keyValuePair.Value.Count;
+					refPoints /= keyValuePair.Value.Count;
+
+					points = Math.Round(points, 0);
+					refPoints = Math.Round(refPoints, 0);
+
+					Console.WriteLine("Adding {0}", keyValuePair.Key);
+
+					Results.Add(new Result("Category: " + keyValuePair.Key, timing, points, refTiming,
+						refPoints));
+
+					pointss.Add(points);
+					timingss.Add(timing);
+					refPointss.Add(refPoints);
+					refTimings.Add(refTiming);
+				}
+
+				if (options.Benchmark.ToUpper() == "ALL")
+				{
+					var totalPoints = Math.Round(pointss.Average(), 0);
+					var totalRefPoints = Math.Round(refPointss.Average(), 0);
+
+					Results.Add(new Result("Category: " + options.Benchmark, timingss.Sum(), totalPoints,
+						refTimings.Sum(),
+						totalRefPoints));
+				}
+			}
 		}
 	}
 }
