@@ -2,6 +2,8 @@
 
 [![Build](https://action-badges.now.sh/L3tum/CPU-Benchmark?action=.NET%20Core%20CI)](https://action-badges.now.sh/L3tum/CPU-Benchmark?action=.NET%20Core%20CI)
 
+WIP Website is here [Website](https://l3tum.github.io/CPU-Benchmark/)
+
 ## Usage
 
 Download the tool [from here](https://github.com/L3tum/CPU-Benchmark/releases/latest).
