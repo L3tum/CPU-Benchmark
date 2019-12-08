@@ -3,9 +3,9 @@ name: .NET Core CI
 on: 
   pull_request:
     paths: 
-      - .github
-      - Benchmarker
-      - Benchmarking
+      - .github/*
+      - Benchmarker/*
+      - Benchmarking/*
       - Benchmarking.sln
       - .gitignore
     branches:
@@ -14,9 +14,9 @@ on:
     branches:
       - master
     paths: 
-      - .github
-      - Benchmarker
-      - Benchmarking
+      - .github/*
+      - Benchmarker/*
+      - Benchmarking/*
       - Benchmarking.sln
       - .gitignore
 
