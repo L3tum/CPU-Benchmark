@@ -2,11 +2,23 @@ name: .NET Core CI
 
 on: 
   pull_request:
+    paths: 
+      - '.github/**'
+      - 'Benchmarker/**'
+      - 'Benchmarking/**'
+      - 'Benchmarking.sln'
+      - '.gitignore'
     branches:
       - master
   push:
     branches:
       - master
+    paths: 
+      - '.github/**'
+      - 'Benchmarker/**'
+      - 'Benchmarking/**'
+      - 'Benchmarking.sln'
+      - '.gitignore'
 
 jobs:
   build:
