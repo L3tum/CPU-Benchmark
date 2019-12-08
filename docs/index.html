@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>CPU-Benchmark</title>
+</head>
+<body>
+<nav class="navbar navbar-light navbar-background">
+    <div class="container">
+        <a class="navbar-brand mb-0 h1" href="/">CPU-Benchmarks</a>
+    </div>
+</nav>
+<div class="container">
+    <div class="row d-flex justify-content-end" style="margin-top: 50px; margin-bottom: 20px">
+        <select id="sorting" class="btn btn-primary d-none">
+            <option value="random" selected>Random</option>
+            <option value="score-asc">Score ASC</option>
+            <option value="score-desc">Score DESC</option>
+        </select>
+    </div>
+    <div class="row" id="main">
+        <div class="row" id="accordion">
+        </div>
+    </div>
+    <div class="row">
+        <button class="btn" id="prev">Prev</button>
+        <button class="btn" id="current" disabled="disabled">Current</button>
+        <button class="btn" id="next">Next</button>
+    </div>
+</div>
+<script src="main.js"></script>
+</body>
+</html>
