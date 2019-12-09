@@ -49,7 +49,7 @@ jobs:
             git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
             git checkout "${GITHUB_REF:11}"
             git add -A
-            git commit -am "Automated aggregation"
+            git commit -am "Updated docs"
             git push
           fi
         
