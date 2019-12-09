@@ -28,6 +28,8 @@ jobs:
         cd CPU-Benchmark-Website
     - name: npm install, build, and test
       run: |
+        cd docs
+        cd CPU-Benchmark-Website
         npm install
         npm run build --if-present
         npm test --if-present
@@ -35,10 +37,8 @@ jobs:
         CI: true
     - name: Move website to docs
       run: |
-        cp dist/* ../../docs/
-        cd ..
-        rm -rf CPU-Benchmark-Website
-        cd ..
+        cp docs/CPU-Benchmark-Website/dist/* docs/
+        rm -rf docs/CPU-Benchmark-Website
     - name: push back
       run: |
           date +%s > docs/VERSION
