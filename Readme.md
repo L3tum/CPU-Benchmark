@@ -12,6 +12,11 @@ You can download a pre-packaged version for your system or choose the "general" 
 
 Execute it :)
 
+## Building it yourself
+
+The master branch always has the "bleeding edge" changes and should, but may not, be able to be compiled and run.
+If you want to get the latest changes then clone the repo and open it in your favourite .NET IDE. Compile the "Benchmarker" project which contains the CLI and then run the resulting executable.
+
 ## Available Options
 
 Choose the benchmark to execute (replace BENCHMARK with the name of one of the benchmarks down below):
