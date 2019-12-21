@@ -1,5 +1,24 @@
 # Change Log
 
+## [v0.4.0](https://github.com/L3tum/CPU-Benchmark/tree/v0.4.0) (2019-12-21)
+[Full Changelog](https://github.com/L3tum/CPU-Benchmark/compare/v0.3.0...v0.4.0)
+
+- Added clear option to clear all (locally) saved data
+- Added upload option to upload last (valid) benchmark run instead of uploading regardless of situation
+- Deprecated the `-q / --quick` option in favor of the upload option
+- Moved save data to hidden directory "_save" to make it easier managable
+- Switched to only allow uploading once "category:all" (`--benchmark all`) has been run
+- Added option to view uploaded results in browser
+- Simplified progress reporting
+- Switched reference values to always refer to the all-core performance of the stock 3900X to simplify and unify the point system
+- Reworked the categorization logic to clean up the code and fix some bugs
+- Adjusted volumes of several benchmarks to make the run faster yet still comparable. A full benchmark run now takes ~60 seconds on the 3900X.
+- Added comparisons to benchmarks. These serve as the new "reference" value that is only printed to the user rather than used in calculating the points. These can be easily expanded to more than SC/AC references.
+- Reworked result saving logic to be more concise and easier on the user, while also being stricter and more secure against tampering done on the save
+- Added better error messages
+- Fixed some minor bugs that could pop up in specific situations
+- Fixed memory leak that occurs when saving the results (which should only happen immediately before closing the program, but you never know)
+
 ## [v0.3.0](https://github.com/L3tum/CPU-Benchmark/tree/v0.3.0) (2019-10-26)
 [Full Changelog](https://github.com/L3tum/CPU-Benchmark/compare/v0.2.0...v0.3.0)
 
