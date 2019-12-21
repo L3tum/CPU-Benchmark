@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Benchmarking.Util;
@@ -20,10 +21,22 @@ namespace Benchmarking.Results
 {
 	public static class ResultSaver
 	{
+		private const string SAVE_DIRECTORY = "_save";
+		private static readonly string SAVE_FILE = $"{SAVE_DIRECTORY}/save.benchmark";
+		private static readonly string TIME_FILE = $"{SAVE_DIRECTORY}/time.benchmark";
+		private static readonly string HASH_FILE = $"{SAVE_DIRECTORY}/check.benchmark";
+
 		private static Save save;
 
 		public static bool Init(Options options)
 		{
+			if (!Directory.Exists(SAVE_DIRECTORY))
+			{
+				var directory = Directory.CreateDirectory(SAVE_DIRECTORY);
+
+				directory.Attributes |= FileAttributes.Hidden;
+			}
+
 			LoadSave();
 
 			// Prune invalid results
@@ -41,7 +54,7 @@ namespace Benchmarking.Results
 
 				if (!CheckValidSave(machineInformation))
 				{
-					SaveResults($"save-{GetBootTime()}.old.benchmark");
+					SaveResults($"save-{GetBootTime().ToBinary()}.old.benchmark");
 					save.Results.Clear();
 					save.MachineInformation = machineInformation;
 					save.Version = Assembly.GetExecutingAssembly().GetName().Version;
@@ -84,12 +97,23 @@ namespace Benchmarking.Results
 			return save.Results;
 		}
 
-		public static bool IsAllowedToUpload(Options options)
+		public static ErrorCode IsAllowedToUpload(Options options)
 		{
-			return save.MachineInformation.Platform == MachineInformation.Platforms.Windows && options.Upload;
+			if (save.MachineInformation.Platform != MachineInformation.Platforms.Windows)
+			{
+				return ErrorCode.NOT_WINDOWS;
+			}
+
+			if (!save.Results.All(r =>
+				r.Value.Any(v => v.Benchmark.ToLowerInvariant().Replace(" ", "") == "category:all")))
+			{
+				return ErrorCode.NO_CATEGORY_ALL;
+			}
+
+			return ErrorCode.OK;
 		}
 
-		public static async Task<bool> UploadResults()
+		public static async Task<UploadedResponse> UploadResults()
 		{
 			try
 			{
@@ -97,26 +121,23 @@ namespace Benchmarking.Results
 
 				if (!CheckValidSave(machineInformation))
 				{
-					return false;
+					return null;
 				}
 
 				save.MachineInformation = machineInformation;
 
-				var uuid = await ResultUploader.UploadResult(save).ConfigureAwait(false);
+				var response = await ResultUploader.UploadResult(save).ConfigureAwait(false);
 
-				save.UUID = uuid;
+				save.UUID = response.UUID;
+
+				return response;
 			}
 			catch (HttpRequestException)
 			{
-				return false;
+				// Intentionally left empty
 			}
 
-			return true;
-		}
-
-		public static string GetUUID()
-		{
-			return save.UUID;
+			return null;
 		}
 
 		private static bool CheckValidSave(MachineInformation machineInformation)
@@ -146,7 +167,7 @@ namespace Benchmarking.Results
 			{
 				if (save.MachineInformation.RAMSticks.FirstOrDefault(r =>
 					    r.Capacity == ram.Capacity && r.FormFactor == ram.FormFactor &&
-					    r.Manfucturer == ram.Manfucturer && r.PartNumber == ram.PartNumber &&
+					    r.Manufacturer == ram.Manufacturer && r.PartNumber == ram.PartNumber &&
 					    r.Speed == ram.Speed) == null)
 				{
 					return false;
@@ -167,6 +188,20 @@ namespace Benchmarking.Results
 				return false;
 			}
 
+			var lastHash = GetLastHash();
+
+			if (lastHash.Length == 0)
+			{
+				return false;
+			}
+
+			var currentHash = ComputeHash();
+
+			if (!lastHash.SequenceEqual(currentHash))
+			{
+				return false;
+			}
+
 			return true;
 		}
 
@@ -179,19 +214,29 @@ namespace Benchmarking.Results
 					save = JsonConvert.DeserializeObject<Save>(File.ReadAllText("./save.json"));
 
 					File.Delete("./save.json");
+
+					SaveResults();
 				}
 
 				if (File.Exists("./save.benchmark"))
 				{
-					using var stream = File.OpenRead("./save.benchmark");
-					using var reader = new StreamReader(stream);
 					save = JsonConvert.DeserializeObject<Save>(
-						Encoding.UTF8.GetString(Convert.FromBase64String(reader.ReadToEnd())));
+						Encoding.UTF8.GetString(Convert.FromBase64String(File.ReadAllText("./save.benchmark"))));
+
+					File.Delete("./save.benchmark");
+
+					SaveResults();
+				}
+
+				if (File.Exists(SAVE_FILE))
+				{
+					save = JsonConvert.DeserializeObject<Save>(
+						Encoding.UTF8.GetString(Convert.FromBase64String(File.ReadAllText(SAVE_FILE))));
 				}
 			}
 			catch
 			{
-				Console.WriteLine("Your save was invalid! Creating new one...");
+				Console.WriteLine("Exception occured accessing your save. Repairing....");
 			}
 
 			if (save == null)
@@ -221,9 +266,9 @@ namespace Benchmarking.Results
 		{
 			try
 			{
-				if (File.Exists("./time.benchmark"))
+				if (File.Exists(TIME_FILE))
 				{
-					return DateTime.FromBinary(long.Parse(File.ReadAllText("./time.benchmark")));
+					return DateTime.FromBinary(long.Parse(File.ReadAllText(TIME_FILE)));
 				}
 			}
 			catch
@@ -238,26 +283,78 @@ namespace Benchmarking.Results
 		{
 			if (save != null)
 			{
-				if (File.Exists($"./{filename}"))
+				if (File.Exists($"{SAVE_DIRECTORY}/{filename}"))
 				{
-					File.Delete($"./{filename}");
+					File.Delete($"{SAVE_DIRECTORY}/{filename}");
 				}
 
-				using var stream = File.OpenWrite($"./{filename}");
-				using var writer = new StreamWriter(stream);
 				var json = JsonConvert.SerializeObject(save);
 
-				writer.Write(Convert.ToBase64String(Encoding.UTF8.GetBytes(json)));
-				writer.Flush();
-				stream.Flush();
+				File.AppendAllText($"{SAVE_DIRECTORY}/{filename}",
+					Convert.ToBase64String(Encoding.UTF8.GetBytes(json)));
 
-				if (File.Exists("./time.benchmark"))
+				if (File.Exists(TIME_FILE))
 				{
-					File.Delete("./time.benchmark");
+					File.Delete(TIME_FILE);
 				}
 
-				File.AppendAllText("./time.benchmark", GetBootTime().ToBinary().ToString());
+				File.AppendAllText(TIME_FILE, GetBootTime().ToBinary().ToString());
+
+				SaveHash();
 			}
+		}
+
+		private static byte[] GetLastHash()
+		{
+			if (!File.Exists(HASH_FILE))
+			{
+				return Array.Empty<byte>();
+			}
+
+			using var stream = File.OpenRead(HASH_FILE);
+			using var reader = new BinaryReader(stream);
+			return reader.ReadAllBytes();
+		}
+
+		private static byte[] ComputeHash()
+		{
+			var combinedHash = new List<byte>();
+
+			using var sha1 = HashAlgorithm.Create("SHA1");
+			using (var stream = File.OpenRead(SAVE_FILE))
+			{
+				combinedHash.AddRange(sha1.ComputeHash(stream));
+			}
+
+			using (var stream = File.OpenRead(TIME_FILE))
+			{
+				combinedHash.AddRange(sha1.ComputeHash(stream));
+			}
+
+			combinedHash.AddRange(Encoding.UTF8.GetBytes(GetBootTime().ToBinary().ToString()));
+
+			return sha1.ComputeHash(combinedHash.ToArray());
+		}
+
+		private static void SaveHash()
+		{
+			if (File.Exists(HASH_FILE))
+			{
+				File.Delete(HASH_FILE);
+			}
+
+			using var stream = File.OpenWrite(HASH_FILE);
+			using var writer = new BinaryWriter(stream, Encoding.UTF8, false);
+			writer.Write(ComputeHash());
+			writer.Close();
+		}
+
+		/// <summary>
+		///     Only works if ResultSaver.Init hasn't been called yet!
+		/// </summary>
+		public static void Clear()
+		{
+			Directory.Delete(SAVE_DIRECTORY, true);
 		}
 
 		private static void CurrentDomainOnProcessExit(object sender, EventArgs e)

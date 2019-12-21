@@ -2,12 +2,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Benchmarking;
 using Benchmarking.Results;
+using Benchmarking.Util;
 using CommandLine;
 using HardwareInformation;
 using ShellProgressBar;
@@ -50,6 +52,16 @@ namespace Benchmarker
 				return;
 			}
 
+			if (options.ClearSave)
+			{
+				ResultSaver.Clear();
+
+				Console.WriteLine("Successfully cleared all saved data!");
+				Console.ReadLine();
+
+				return;
+			}
+
 #else
 			options = new Options { Benchmark = "zip-decompression", Threads = 1, Runs = 2, QuickRun = true, ListResults
  = true };
@@ -84,9 +96,19 @@ namespace Benchmarker
 					return;
 				}
 
-				if (!ResultSaver.IsAllowedToUpload(options))
+				var result = ResultSaver.IsAllowedToUpload(options);
+
+				if (result == ErrorCode.NOT_WINDOWS)
 				{
 					Console.WriteLine("You can only upload your results on a Windows machine.");
+					Console.ReadLine();
+
+					return;
+				}
+
+				if (result == ErrorCode.NO_CATEGORY_ALL)
+				{
+					Console.WriteLine("You can only upload your results after having completed all benchmarks.");
 					Console.ReadLine();
 
 					return;
@@ -95,11 +117,34 @@ namespace Benchmarker
 				Console.WriteLine();
 				Console.WriteLine("Uploading results...");
 
-				if (ResultSaver.UploadResults().Result)
+				var response = ResultSaver.UploadResults().Result;
+
+				if (response != null)
 				{
 					Console.WriteLine("Done!");
-					Console.WriteLine("You can view your raw save here: {0}",
-						$"https://raw.githubusercontent.com/L3tum/CPU-Benchmark-Database/master/saves/{ResultSaver.GetUUID()}.json");
+					Console.WriteLine("You can view your raw save here: {0}", response.RawPath);
+					Console.WriteLine("You can view your parsed save here: {0}", response.WebsitePath);
+
+					Console.WriteLine(
+						"Click 'a' to open raw, 'b' to open parsed or any other key to close the program!");
+
+					while (true)
+					{
+						var key = Console.ReadKey(true);
+
+						if (key.Key == ConsoleKey.A)
+						{
+							Helper.OpenBrowser(response.RawPath);
+						}
+						else if (key.Key == ConsoleKey.B)
+						{
+							Helper.OpenBrowser(response.WebsitePath);
+						}
+						else
+						{
+							return;
+						}
+					}
 				}
 				else
 				{
@@ -128,7 +173,7 @@ namespace Benchmarker
 				return;
 			}
 
-			Console.WriteLine("Gathing hardware information...");
+			Console.WriteLine("Gathering hardware information...");
 
 			var information = MachineInformationGatherer.GatherInformation();
 

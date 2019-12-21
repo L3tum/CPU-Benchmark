@@ -42,5 +42,8 @@ namespace Benchmarking
 
 		[Option('u', "upload", Default = false, HelpText = "Uploads your results to the benchmark database.")]
 		public bool Upload { get; set; }
+
+		[Option('c', "clear", Default = false, HelpText = "Clears all saved data.")]
+		public bool ClearSave { get; set; }
 	}
 }
