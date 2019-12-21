@@ -236,6 +236,7 @@ namespace Benchmarker
 				pbar.Tick(100);
 
 				ct.Cancel();
+				pbar.Tick(100);
 				t.GetAwaiter().GetResult();
 			}
 

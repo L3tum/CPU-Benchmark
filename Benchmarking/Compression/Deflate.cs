@@ -38,7 +38,7 @@ namespace Benchmarking.Compression
 						stream.Finish();
 					}
 
-					BenchmarkRunner.ReportProgress(GetName());
+					BenchmarkRunner.ReportProgress();
 				});
 			}
 

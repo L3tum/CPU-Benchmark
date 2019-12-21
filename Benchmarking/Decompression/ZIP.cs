@@ -42,7 +42,7 @@ namespace Benchmarking.Decompression
 						zipEntry.DateTime = DateTime.Now;
 					}
 
-					BenchmarkRunner.ReportProgress(GetName());
+					BenchmarkRunner.ReportProgress();
 				});
 			}
 
@@ -97,7 +97,7 @@ namespace Benchmarking.Decompression
 						datas[i1] = sr.ReadToEnd();
 					}
 
-					BenchmarkRunner.ReportProgress(GetName());
+					BenchmarkRunner.ReportProgress();
 				});
 			}
 

@@ -31,7 +31,7 @@ namespace Benchmarking.Parsing
 
 					options = doc["options0"];
 
-					BenchmarkRunner.ReportProgress(GetName());
+					BenchmarkRunner.ReportProgress();
 				});
 			}
 

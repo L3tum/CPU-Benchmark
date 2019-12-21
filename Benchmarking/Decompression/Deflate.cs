@@ -35,7 +35,7 @@ namespace Benchmarking.Decompression
 						sr.ReadToEnd();
 					}
 
-					BenchmarkRunner.ReportProgress(GetName());
+					BenchmarkRunner.ReportProgress();
 				});
 			}
 

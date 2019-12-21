@@ -29,7 +29,7 @@ namespace Benchmarking.Cryptography
 						csrpng.GetBytes(data);
 					}
 
-					BenchmarkRunner.ReportProgress(GetName());
+					BenchmarkRunner.ReportProgress();
 				});
 			}
 

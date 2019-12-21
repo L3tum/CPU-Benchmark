@@ -50,7 +50,7 @@ namespace Benchmarking.Extension
 						MultiplyScalarU(randomFloatingSpan, dst);
 					}
 
-					BenchmarkRunner.ReportProgress(GetName());
+					BenchmarkRunner.ReportProgress();
 				});
 			}
 

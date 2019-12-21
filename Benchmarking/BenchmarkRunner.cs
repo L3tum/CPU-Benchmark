@@ -159,18 +159,11 @@ namespace Benchmarking
 			GC.Collect();
 		}
 
-		internal static void ReportProgress(string benchmark)
+		internal static void ReportProgress()
 		{
 			lock (CurrentRunningBenchmark)
 			{
 				FinishedOverall++;
-
-				if (CurrentRunningBenchmark != benchmark)
-				{
-					CurrentBenchmarkFinished = 0;
-					CurrentRunningBenchmark = benchmark;
-				}
-
 				CurrentBenchmarkFinished++;
 			}
 		}
@@ -194,6 +187,8 @@ namespace Benchmarking
 
 				// Execute
 				benchmarksToRun[0].Initialize();
+				CurrentBenchmarkFinished = 0;
+				CurrentRunningBenchmark = benchmarksToRun[0].GetName();
 				var timing = ExecuteBenchmark();
 
 				var result = new Result(
@@ -316,8 +311,6 @@ namespace Benchmarking
 
 					points = Math.Round(points, 0);
 					refPoints = Math.Round(refPoints, 0);
-
-					Console.WriteLine("Adding {0}", keyValuePair.Key);
 
 					Results.Add(new Result("Category: " + keyValuePair.Key, timing, points, refTiming,
 						refPoints));
