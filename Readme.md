@@ -23,20 +23,21 @@ Choose the benchmark to execute (replace BENCHMARK with the name of one of the b
 
 `.\benchmarker.exe --benchmark={BENCHMARK}`
 
-
 Automatically detect the number of logical processors and execute the benchmark multithreaded (number of threads = number of logical processors)
 
 `.\benchmarker.exe --multithreaded`
-
 
 Manually set the amount of threads to use. Overwrites `--multithreaded`
 
 `.\benchmarker.exe --threads=4`
 
-
 Run the benchmark `X` times and average out the results. By default the benchmark will be run `3` times
 
 `\.benchmarker.exe --runs=5`
+
+Run the benchmarks in a memory efficient manner (on low-memory devices for example)
+
+`\.benchmarker.exe --memory-efficient`
 
 List all available benchmarks
 
@@ -50,9 +51,9 @@ Upload your results
 
 `\.benchmarker.exe --upload`
 
-Run the benchmarks in a memory efficient manner (on low-memory devices for example)
+Clear all saved data
 
-`\.benchmarker.exe --memory-efficient`
+`\.benchmarker.exe --clear`
 
 
 To combine the above
@@ -114,6 +115,13 @@ Detailed system specs:
 - R9 3900x
 - 32 GB 3200 MHz CL16 RAM
 - ASUS Hero VIII
+
+## Planned benchmarks
+
+* AVX/AVX2 integer benchmark (128bit and 256bit integer arithmetic)
+* AVX2-specific instructions benchmark
+* Double (64bit double-precision FP) benchmark
+* AVX512
 
 ## License
 
