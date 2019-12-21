@@ -22,11 +22,11 @@ jobs:
     - name: Move website to docs
       run: |
         cp docs/CPU-Benchmark-Website/dist/* docs/
+        cp docs/CPU-Benchmark-Website/VERSION docs/VERSION
         rm -rf docs/CPU-Benchmark-Website
     - name: push back
       shell: bash
       run: |
-          date +%s > docs/VERSION
           git config --global user.name 'L3tum'
           git config --global user.email 'l3tum@users.noreply.github.com'
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
