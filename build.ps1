@@ -6,15 +6,15 @@ mkdir bin/Release
 dotnet restore Benchmarker.csproj
 
 dotnet publish Benchmarker.csproj --framework netcoreapp3.0 -c Release -o bin/Release/Benchmarker /p:VersionSuffix=$version
-dotnet publish Benchmarker.csproj --framework netcoreapp3.0 -c Release -r win-x64 /p:PublishSingleFile=true /p:PublishTrimmed=true -o bin/Release/Benchmarker-win64 /p:VersionSuffix=$version-win64
-dotnet publish Benchmarker.csproj --framework netcoreapp3.0 -c Release -r win-x86 /p:PublishSingleFile=true /p:PublishTrimmed=true -o bin/Release/Benchmarker-win32 /p:VersionSuffix=$version-win86
-dotnet publish Benchmarker.csproj --framework netcoreapp3.0 -c Release -r linux-arm /p:PublishSingleFile=true /p:PublishTrimmed=true -o bin/Release/Benchmarker-linux-arm32v7 /p:VersionSuffix=$version-linuxarm
-dotnet publish Benchmarker.csproj --framework netcoreapp3.0 -c Release -r win-arm /p:PublishSingleFile=true /p:PublishTrimmed=true -o bin/Release/Benchmarker-win-arm32v7 /p:VersionSuffix=$version-winarm
-dotnet publish Benchmarker.csproj --framework netcoreapp3.0 -c Release -r win-arm64 /p:PublishSingleFile=true /p:PublishTrimmed=true -o bin/Release/Benchmarker-win-arm64 /p:VersionSuffix=$version-winarm64
-dotnet publish Benchmarker.csproj --framework netcoreapp3.0 -c Release -r linux-x64 /p:PublishSingleFile=true /p:PublishTrimmed=true -o bin/Release/Benchmarker-linux64 /p:VersionSuffix=$version-linux64
-dotnet publish Benchmarker.csproj --framework netcoreapp3.0 -c Release -r debian-x64 /p:PublishSingleFile=true /p:PublishTrimmed=true -o bin/Release/Benchmarker-debian64 /p:VersionSuffix=$version-debain64
-dotnet publish Benchmarker.csproj --framework netcoreapp3.0 -c Release -r ubuntu-x64 /p:PublishSingleFile=true /p:PublishTrimmed=true -o bin/Release/Benchmarker-ubuntu64 /p:VersionSuffix=$version-ubuntu64
-dotnet publish Benchmarker.csproj --framework netcoreapp3.0 -c Release -r osx-x64 /p:PublishSingleFile=true /p:PublishTrimmed=true -o bin/Release/Benchmarker-osx64 /p:VersionSuffix=$version-osx64
+dotnet publish Benchmarker.csproj --framework netcoreapp3.0 -c Release -r win-x64 /p:PublishSingleFile=true /p:PublishTrimmed=true -o bin/Release/Benchmarker-win64 /p:Version=$version-win64
+dotnet publish Benchmarker.csproj --framework netcoreapp3.0 -c Release -r win-x86 /p:PublishSingleFile=true /p:PublishTrimmed=true -o bin/Release/Benchmarker-win32 /p:Version=$version-win86
+dotnet publish Benchmarker.csproj --framework netcoreapp3.0 -c Release -r linux-arm /p:PublishSingleFile=true /p:PublishTrimmed=true -o bin/Release/Benchmarker-linux-arm32v7 /p:Version=$version-linuxarm
+dotnet publish Benchmarker.csproj --framework netcoreapp3.0 -c Release -r win-arm /p:PublishSingleFile=true /p:PublishTrimmed=true -o bin/Release/Benchmarker-win-arm32v7 /p:Version=$version-winarm
+dotnet publish Benchmarker.csproj --framework netcoreapp3.0 -c Release -r win-arm64 /p:PublishSingleFile=true /p:PublishTrimmed=true -o bin/Release/Benchmarker-win-arm64 /p:Version=$version-winarm64
+dotnet publish Benchmarker.csproj --framework netcoreapp3.0 -c Release -r linux-x64 /p:PublishSingleFile=true /p:PublishTrimmed=true -o bin/Release/Benchmarker-linux64 /p:Version=$version-linux64
+dotnet publish Benchmarker.csproj --framework netcoreapp3.0 -c Release -r debian-x64 /p:PublishSingleFile=true /p:PublishTrimmed=true -o bin/Release/Benchmarker-debian64 /p:Version=$version-debain64
+dotnet publish Benchmarker.csproj --framework netcoreapp3.0 -c Release -r ubuntu-x64 /p:PublishSingleFile=true /p:PublishTrimmed=true -o bin/Release/Benchmarker-ubuntu64 /p:Version=$version-ubuntu64
+dotnet publish Benchmarker.csproj --framework netcoreapp3.0 -c Release -r osx-x64 /p:PublishSingleFile=true /p:PublishTrimmed=true -o bin/Release/Benchmarker-osx64 /p:Version=$version-osx64
 
 Copy-Item ../README.md bin/Release/Benchmarker/README.md
 Copy-Item ../README.md bin/Release/Benchmarker-win64/README.md
@@ -50,3 +50,17 @@ Compress-Archive -Path bin/Release/Benchmarker-linux64 -DestinationPath bin/Rele
 Compress-Archive -Path bin/Release/Benchmarker-debian64 -DestinationPath bin/Release/ZIPs/Benchmarker-debian64.zip
 Compress-Archive -Path bin/Release/Benchmarker-ubuntu64 -DestinationPath bin/Release/ZIPs/Benchmarker-ubuntu64.zip
 Compress-Archive -Path bin/Release/Benchmarker-osx64 -DestinationPath bin/Release/ZIPs/Benchmarker-osx64.zip
+
+Remove-Item -Recurse -Path bin/Release/Benchmarker
+Remove-Item -Recurse -Path bin/Release/Benchmarker-win64
+Remove-Item -Recurse -Path bin/Release/Benchmarker-win32
+Remove-Item -Recurse -Path bin/Release/Benchmarker-linux-arm32v7
+Remove-Item -Recurse -Path bin/Release/Benchmarker-win-arm32v7
+Remove-Item -Recurse -Path bin/Release/Benchmarker-win-arm64
+Remove-Item -Recurse -Path bin/Release/Benchmarker-linux64
+Remove-Item -Recurse -Path bin/Release/Benchmarker-debian64
+Remove-Item -Recurse -Path bin/Release/Benchmarker-ubuntu64
+Remove-Item -Recurse -Path bin/Release/Benchmarker-osx64
+
+Write-Host "Press any key to continue..."
+$Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
