@@ -11,6 +11,7 @@ using Benchmarking.Compression;
 using Benchmarking.Cryptography;
 using Benchmarking.Extension;
 using Benchmarking.Parsing;
+using Benchmarking.Results;
 
 #endregion
 
@@ -18,7 +19,7 @@ namespace Benchmarking
 {
 	public class BenchmarkRunner
 	{
-		private static readonly List<Type> AvailableBenchmarks = new List<Type>
+		internal static readonly List<Type> AvailableBenchmarks = new List<Type>
 		{
 			typeof(ZIP),
 			typeof(GZip),
@@ -209,6 +210,15 @@ namespace Benchmarking
 			}
 
 			ProcessCategories(categories);
+
+			// Add to save
+			foreach (var runnerResult in Results)
+			{
+				ResultSaver.SaveResult(options.Threads, runnerResult);
+			}
+
+			// Check for newly completed categories
+			ResultCategoryAggregator.ProcessCategories(options, categories);
 		}
 
 		private double ExecuteBenchmark()
@@ -276,7 +286,7 @@ namespace Benchmarking
 
 					foreach (var availableBenchmark in AvailableBenchmarks)
 					{
-						var benchmark = (Benchmark)Activator.CreateInstance(availableBenchmark, options);
+						var benchmark = (Benchmark) Activator.CreateInstance(availableBenchmark, options);
 
 						if (benchmark.GetCategory() == keyValuePair.Key)
 						{

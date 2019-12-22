@@ -244,11 +244,6 @@ namespace Benchmarker
 
 			Console.WriteLine(FormatResults(new Dictionary<uint, List<Result>> {{options.Threads, runner.Results}}));
 
-			foreach (var runnerResult in runner.Results)
-			{
-				ResultSaver.SaveResult(options.Threads, runnerResult);
-			}
-
 			Console.ReadLine();
 		}
 
