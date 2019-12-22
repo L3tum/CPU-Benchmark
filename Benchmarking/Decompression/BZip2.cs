@@ -104,9 +104,9 @@ namespace Benchmarking.Decompression
 			return 5104.0d;
 		}
 
-		public override string GetCategory()
+		public override string[] GetCategories()
 		{
-			return "decompression";
+			return new[] { "decompression" };
 		}
 	}
 }

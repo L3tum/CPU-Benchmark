@@ -125,9 +125,9 @@ namespace Benchmarking.Arithmetic
 			return "arithmetic_float";
 		}
 
-		public override string GetCategory()
+		public override string[] GetCategories()
 		{
-			return "float";
+			return new[] { "float", "arithmetic" };
 		}
 	}
 }

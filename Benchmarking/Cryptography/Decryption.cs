@@ -139,9 +139,9 @@ namespace Benchmarking.Cryptography
 			return 64.0d;
 		}
 
-		public override string GetCategory()
+		public override string[] GetCategories()
 		{
-			return "cryptography";
+			return new[] { "cryptography", "int" };
 		}
 	}
 }

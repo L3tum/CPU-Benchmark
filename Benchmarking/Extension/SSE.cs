@@ -104,9 +104,9 @@ namespace Benchmarking.Extension
 #endif
 		}
 
-		public override string GetCategory()
+		public override string[] GetCategories()
 		{
-			return "extension";
+			return new[] { "extension", "float" };
 		}
 
 #if NETCOREAPP3_0

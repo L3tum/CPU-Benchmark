@@ -20,12 +20,15 @@ namespace Benchmarking.Results
 			{
 				var benchmark = (Benchmark) Activator.CreateInstance(availableBenchmark, options);
 
-				if (!registeredCategories.ContainsKey(benchmark.GetCategory()))
+				foreach (var category in benchmark.GetCategories())
 				{
-					registeredCategories.Add(benchmark.GetCategory(), new List<string>());
-				}
+					if (!registeredCategories.ContainsKey(category))
+					{
+						registeredCategories.Add(category, new List<string>());
+					}
 
-				registeredCategories[benchmark.GetCategory()].Add(benchmark.GetName());
+					registeredCategories[category].Add(benchmark.GetName());
+				}
 			}
 
 			// Add all already run benchmarks except categories

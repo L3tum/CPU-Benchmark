@@ -241,9 +241,9 @@ namespace Benchmarking.Arithmetic
 			return "arithmetic_int";
 		}
 
-		public override string GetCategory()
+		public override string[] GetCategories()
 		{
-			return "int";
+			return new[] { "int", "arithmetic" };
 		}
 	}
 }

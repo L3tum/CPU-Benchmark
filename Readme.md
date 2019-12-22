@@ -92,6 +92,7 @@ To combine the above
 * Deflate/Inflate
 
 ### Arithmetic
+
 * Arithmetic_Int (Simple Integer Benchmark for byte, short, int and long performance)
 * Arithmetic_Float (Simple Float Benchmark)
 * Arithmetic_Double (Simple Double Benchmark)

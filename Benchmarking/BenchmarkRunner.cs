@@ -78,9 +78,12 @@ namespace Benchmarking
 			{
 				var benchmark = (Benchmark) Activator.CreateInstance(bench, opts);
 
-				if (!available.Contains(benchmark.GetCategory().ToUpper()))
+				foreach (var category in benchmark.GetCategories())
 				{
-					available.Add(benchmark.GetCategory().ToUpper());
+					if (!available.Contains(category.ToUpper()))
+					{
+						available.Add(category.ToUpper());
+					}
 				}
 			}
 
@@ -125,10 +128,9 @@ namespace Benchmarking
 				{
 					var benchmark = (Benchmark) Activator.CreateInstance(availableBenchmark, options);
 
-					if (string.Equals(benchmark.GetName(), options.Benchmark,
-						    StringComparison.CurrentCultureIgnoreCase) ||
-					    string.Equals(benchmark.GetCategory(), options.Benchmark,
-						    StringComparison.CurrentCultureIgnoreCase))
+					if (string.Equals(benchmark.GetName(), options.Benchmark, StringComparison.CurrentCultureIgnoreCase)
+					    || benchmark.GetCategories().Any(category =>
+						    string.Equals(category, options.Benchmark, StringComparison.CurrentCultureIgnoreCase)))
 					{
 						benchmarksToRun.Add(benchmark);
 					}
@@ -160,35 +162,45 @@ namespace Benchmarking
 
 			while (benchmarksToRun.Count > 0)
 			{
+				var currentBenchmark = benchmarksToRun[0];
+
 				lock (CurrentRunningBenchmark)
 				{
-					CurrentRunningBenchmark = benchmarksToRun[0].GetName();
+					CurrentRunningBenchmark = currentBenchmark.GetName();
 					CurrentBenchmarkFinished = 0;
 				}
 
-				if (!categories.ContainsKey(benchmarksToRun[0].GetCategory()))
+				foreach (var category in currentBenchmark.GetCategories())
 				{
-					categories.Add(benchmarksToRun[0].GetCategory(), new List<Result>());
+					if (!categories.ContainsKey(category))
+					{
+						categories.Add(category, new List<Result>());
+					}
 				}
 
 				// Execute
-				benchmarksToRun[0].Initialize();
+				currentBenchmark.Initialize();
+
 				CurrentBenchmarkFinished = 0;
-				CurrentRunningBenchmark = benchmarksToRun[0].GetName();
+				CurrentRunningBenchmark = currentBenchmark.GetName();
+
 				var timing = ExecuteBenchmark();
 
 				var result = new Result(
-					benchmarksToRun[0].GetName(),
+					currentBenchmark.GetName(),
 					timing,
-					benchmarksToRun[0].GetRatingMethod().Invoke(timing, benchmarksToRun[0].GetReferenceValue()),
-					benchmarksToRun[0].GetComparison(),
-					benchmarksToRun[0].GetRatingMethod().Invoke(benchmarksToRun[0].GetComparison(),
-						benchmarksToRun[0].GetReferenceValue())
+					currentBenchmark.GetRatingMethod().Invoke(timing, currentBenchmark.GetReferenceValue()),
+					currentBenchmark.GetComparison(),
+					currentBenchmark.GetRatingMethod().Invoke(currentBenchmark.GetComparison(),
+						currentBenchmark.GetReferenceValue())
 				);
 
 				Results.Add(result);
 
-				categories[benchmarksToRun[0].GetCategory()].Add(result);
+				foreach (var category in currentBenchmark.GetCategories())
+				{
+					categories[category].Add(result);
+				}
 
 				benchmarksToRun.RemoveAt(0);
 				GC.Collect();
@@ -209,6 +221,7 @@ namespace Benchmarking
 		private double ExecuteBenchmark()
 		{
 			var sw = new Stopwatch();
+			var currentBenchmark = benchmarksToRun[0];
 			Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.High;
 
 			for (var i = 0; i < options.Runs; i++)
@@ -216,7 +229,7 @@ namespace Benchmarking
 				if (options.MemoryEfficient)
 				{
 					sw.Start();
-					benchmarksToRun[0].Run();
+					currentBenchmark.Run();
 					sw.Stop();
 				}
 				else
@@ -234,7 +247,7 @@ namespace Benchmarking
 						// Generation 2 garbage collection is now
 						// deferred, except in extremely low-memory situations
 						sw.Start();
-						benchmarksToRun[0].Run();
+						currentBenchmark.Run();
 						sw.Stop();
 					}
 					finally
@@ -273,13 +286,15 @@ namespace Benchmarking
 					{
 						var benchmark = (Benchmark) Activator.CreateInstance(availableBenchmark, options);
 
-						if (benchmark.GetCategory() == keyValuePair.Key)
+						if (benchmark.GetCategories().All(category => category != keyValuePair.Key))
 						{
-							if (keyValuePair.Value.All(r => r.Benchmark != benchmark.GetName()))
-							{
-								skip = true;
-								break;
-							}
+							continue;
+						}
+
+						if (keyValuePair.Value.All(r => r.Benchmark != benchmark.GetName()))
+						{
+							skip = true;
+							break;
 						}
 					}
 

@@ -58,9 +58,9 @@ namespace Benchmarking.Parsing
 			return 1141.0d;
 		}
 
-		public override string GetCategory()
+		public override string[] GetCategories()
 		{
-			return "parsing";
+			return new[] { "parsing" };
 		}
 
 		public override void Initialize()

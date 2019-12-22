@@ -37,9 +37,9 @@
 			return BenchmarkRater.RateBenchmark;
 		}
 
-		public virtual string GetCategory()
+		public virtual string[] GetCategories()
 		{
-			return "none";
+			return new[] {"none"};
 		}
 
 		public virtual string GetName()

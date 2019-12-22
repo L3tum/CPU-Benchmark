@@ -78,9 +78,9 @@ namespace Benchmarking.Compression
 			return 52823.0d;
 		}
 
-		public override string GetCategory()
+		public override string[] GetCategories()
 		{
-			return "compression";
+			return new[] { "compression" };
 		}
 	}
 }
