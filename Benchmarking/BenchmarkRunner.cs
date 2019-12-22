@@ -12,6 +12,7 @@ using Benchmarking.Cryptography;
 using Benchmarking.Extension;
 using Benchmarking.Parsing;
 using Benchmarking.Results;
+using Double = Benchmarking.Arithmetic.Double;
 
 #endregion
 
@@ -32,6 +33,7 @@ namespace Benchmarking
 //			typeof(Brotli),
 			typeof(Integer),
 			typeof(Float),
+			typeof(Double),
 			typeof(AVX),
 			typeof(SSE),
 			typeof(SSE2),
@@ -103,27 +105,6 @@ namespace Benchmarking
 		{
 			switch (options.Benchmark.ToUpper())
 			{
-				case "INT":
-				{
-					benchmarksToRun.Add(new Integer(options));
-					benchmarksToRun.Add(new Encryption(options));
-					benchmarksToRun.Add(new Decryption(options));
-					benchmarksToRun.Add(new CSPRNG(options));
-					benchmarksToRun.Add(new HTMLParser(options));
-					benchmarksToRun.Add(new JSONParser(options));
-
-					break;
-				}
-
-				case "FLOAT":
-				{
-					benchmarksToRun.Add(new Float(options));
-					benchmarksToRun.Add(new AVX(options));
-					benchmarksToRun.Add(new SSE(options));
-
-					break;
-				}
-
 				case "ALL":
 				{
 					foreach (var availableBenchmark in AvailableBenchmarks)
