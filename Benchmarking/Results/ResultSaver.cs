@@ -306,7 +306,7 @@ namespace Benchmarking.Results
 
 		private static byte[] GetLastHash()
 		{
-			if (!File.Exists(HASH_FILE))
+			if (!File.Exists(HASH_FILE) || !File.Exists(SAVE_FILE) || !File.Exists(TIME_FILE))
 			{
 				return Array.Empty<byte>();
 			}
@@ -318,6 +318,11 @@ namespace Benchmarking.Results
 
 		private static byte[] ComputeHash()
 		{
+			if (!File.Exists(HASH_FILE) || !File.Exists(SAVE_FILE) || !File.Exists(TIME_FILE))
+			{
+				return Array.Empty<byte>();
+			}
+
 			var combinedHash = new List<byte>();
 
 			using var sha1 = HashAlgorithm.Create("SHA1");
