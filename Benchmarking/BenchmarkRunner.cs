@@ -34,6 +34,7 @@ namespace Benchmarking
 			typeof(Integer),
 			typeof(Float),
 			typeof(Double),
+			typeof(FP16),
 			typeof(AVX),
 			typeof(SSE),
 			typeof(SSE2),

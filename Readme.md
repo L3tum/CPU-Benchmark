@@ -94,11 +94,16 @@ To combine the above
 ### Arithmetic
 * Arithmetic_Int (Simple Integer Benchmark for byte, short, int and long performance)
 * Arithmetic_Float (Simple Float Benchmark)
+* Arithmetic_Double (Simple Double Benchmark)
+* Arithmetic_FP16 (Simple FP16 (half-precision 16-bit floating point) Benchmark)
 
 ### Instruction extensions
 
 * AVX
 * SSE
+* SSE2 (128-bit integer)
+* AVX2Int (256-bit integer)
+* FMA (fused multiply-add of 128-bit float)
 
 ### Cryptography
 
@@ -115,13 +120,6 @@ Detailed system specs:
 - R9 3900x
 - 32 GB 3200 MHz CL16 RAM
 - ASUS Hero VIII
-
-## Planned benchmarks
-
-* AVX/AVX2 integer benchmark (128bit and 256bit integer arithmetic)
-* AVX2-specific instructions benchmark
-* Double (64bit double-precision FP) benchmark
-* AVX512
 
 ## License
 
