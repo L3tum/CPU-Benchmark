@@ -1,7 +1,17 @@
 # Change Log
 
+## [v0.4.1](https://github.com/L3tum/CPU-Benchmark/tree/v0.4.0) (2019-12-22)
+[Full Changelog](https://github.com/L3tum/CPU-Benchmark/compare/v0.4.0...v0.4.1)
+
+**Updates:**
+
+- Fixed exception that could occur when calculating the hash of the current saved data
+- Added "category aggregator" that enables users to run each benchmark separately and if they got all for one category (or "all"), then that category is added (or updated) to the results
+
 ## [v0.4.0](https://github.com/L3tum/CPU-Benchmark/tree/v0.4.0) (2019-12-21)
 [Full Changelog](https://github.com/L3tum/CPU-Benchmark/compare/v0.3.0...v0.4.0)
+
+**Updates:**
 
 - Added clear option to clear all (locally) saved data
 - Added upload option to upload last (valid) benchmark run instead of uploading regardless of situation
