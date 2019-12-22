@@ -12,19 +12,19 @@ using System.Runtime.Intrinsics.X86;
 
 namespace Benchmarking.Extension
 {
-	internal class AVX : Benchmark
+	internal class FMA : Benchmark
 	{
 		private List<float[]> datas;
 		private float randomFloatingNumber;
 
-		public AVX(Options options) : base(options)
+		public FMA(Options options) : base(options)
 		{
 		}
 
 		public override void Run()
 		{
 #if NETCOREAPP3_0
-			if (!Avx.IsSupported)
+			if (!Fma.IsSupported)
 			{
 				return;
 			}
@@ -43,8 +43,7 @@ namespace Benchmarking.Extension
 
 					for (var j = 0; j < iterations; j++)
 					{
-						AddScalarU(randomFloatingSpan, dst);
-						MultiplyScalarU(randomFloatingSpan, dst);
+						AddMulScalarU(randomFloatingSpan, dst);
 					}
 
 					BenchmarkRunner.ReportProgress();
@@ -59,7 +58,7 @@ namespace Benchmarking.Extension
 
 		public override string GetDescription()
 		{
-			return "AVX benchmark of addition and multiplication on 512 floats (2048 bits) 100.000.000 times.";
+			return "SSE benchmark of fused addition and multiplication on 256 floats (1024 bits) 100.000.000 times.";
 		}
 
 		public override void Initialize()
@@ -70,8 +69,8 @@ namespace Benchmarking.Extension
 
 			for (var i = 0; i < options.Threads; i++)
 			{
-				// Multiple of 256 to test AVX only
-				datas.Add(new float[512]);
+				// Multiple of 128 to test SSE only
+				datas.Add(new float[256]);
 			}
 		}
 
@@ -81,7 +80,7 @@ namespace Benchmarking.Extension
 			{
 				case 1:
 				{
-					return 7867.0d;
+					return 3681.0d;
 				}
 				default:
 				{
@@ -93,19 +92,19 @@ namespace Benchmarking.Extension
 		public override double GetReferenceValue()
 		{
 #if NETCOREAPP3_0
-			if (!Avx.IsSupported)
+			if (!Fma.IsSupported)
 			{
 				return 0.0d;
 			}
 
-			return 1113.0d;
+			return 482.0d;
 #else
 			return 0.0d;
 #endif
 		}
 
 #if NETCOREAPP3_0
-		private unsafe void MultiplyScalarU(Span<float> scalar, Span<float> dst)
+		private unsafe void AddMulScalarU(Span<float> scalar, Span<float> dst)
 		{
 			fixed (float* pdst = dst)
 			fixed (float* psrc = scalar)
@@ -113,36 +112,15 @@ namespace Benchmarking.Extension
 				var pDstEnd = pdst + dst.Length;
 				var pDstCurrent = pdst;
 
-				var scalarVector256 = Avx.BroadcastScalarToVector256(psrc);
+				var scalarVector128 = Sse.LoadScalarVector128(psrc);
 
-				while (pDstCurrent + 8 <= pDstEnd)
+				while (pDstCurrent < pDstEnd)
 				{
-					var dstVector = Avx.LoadVector256(pDstCurrent);
-					dstVector = Avx.Multiply(dstVector, scalarVector256);
-					Avx.Store(pDstCurrent, dstVector);
+					var dstVector = Sse.LoadVector128(pDstCurrent);
+					dstVector = Fma.MultiplyAdd(dstVector, scalarVector128, scalarVector128);
+					Sse.Store(pDstCurrent, dstVector);
 
-					pDstCurrent += 8;
-				}
-			}
-		}
-
-		private unsafe void AddScalarU(Span<float> scalar, Span<float> dst)
-		{
-			fixed (float* pdst = dst)
-			fixed (float* psrc = scalar)
-			{
-				var pDstEnd = pdst + dst.Length;
-				var pDstCurrent = pdst;
-
-				var scalarVector256 = Avx.BroadcastScalarToVector256(psrc);
-
-				while (pDstCurrent + 8 <= pDstEnd)
-				{
-					var dstVector = Avx.LoadVector256(pDstCurrent);
-					dstVector = Avx.Add(dstVector, scalarVector256);
-					Avx.Store(pDstCurrent, dstVector);
-
-					pDstCurrent += 8;
+					pDstCurrent += 4;
 				}
 			}
 		}

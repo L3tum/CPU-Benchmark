@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.Intrinsics;
 using System.Threading.Tasks;
 #if NETCOREAPP3_0
 using System.Runtime.Intrinsics.X86;
@@ -12,19 +13,19 @@ using System.Runtime.Intrinsics.X86;
 
 namespace Benchmarking.Extension
 {
-	internal class SSE : Benchmark
+	internal class SSE2 : Benchmark
 	{
-		private List<float[]> datas;
-		private float randomFloatingNumber;
+		private List<uint[]> datas;
+		private uint randomIntegerNumber;
 
-		public SSE(Options options) : base(options)
+		public SSE2(Options options) : base(options)
 		{
 		}
 
 		public override void Run()
 		{
 #if NETCOREAPP3_0
-			if (!Sse.IsSupported)
+			if (!Sse2.IsSupported)
 			{
 				return;
 			}
@@ -36,15 +37,15 @@ namespace Benchmarking.Extension
 				var i1 = i;
 				threads[i] = Task.Run(() =>
 				{
-					var randomFloatingSpan = new Span<float>(new[] {randomFloatingNumber});
-					var dst = new Span<float>(datas[i1]);
+					var randomIntegerSpan = new Span<uint>(new[] {randomIntegerNumber});
+					var dst = new Span<uint>(datas[i1]);
 
 					var iterations = 100000000 / options.Threads;
 
 					for (var j = 0; j < iterations; j++)
 					{
-						AddScalarU(randomFloatingSpan, dst);
-						MultiplyScalarU(randomFloatingSpan, dst);
+						AddScalarU(randomIntegerSpan, dst);
+						MultiplyScalarU(randomIntegerSpan, dst);
 					}
 
 					BenchmarkRunner.ReportProgress();
@@ -59,19 +60,19 @@ namespace Benchmarking.Extension
 
 		public override string GetDescription()
 		{
-			return "SSE benchmark of addition and multiplication on 256 floats (1024 bits) 100.000.000 times.";
+			return "SSE2 benchmark of addition and multiplication on 256 integers (1024 bits) 100.000.000 times.";
 		}
 
 		public override void Initialize()
 		{
-			randomFloatingNumber = float.Epsilon;
+			randomIntegerNumber = 3;
 
-			datas = new List<float[]>((int) options.Threads);
+			datas = new List<uint[]>((int) options.Threads);
 
 			for (var i = 0; i < options.Threads; i++)
 			{
 				// Multiple of 128 to test SSE only
-				datas.Add(new float[256]);
+				datas.Add(new uint[256]);
 			}
 		}
 
@@ -81,7 +82,7 @@ namespace Benchmarking.Extension
 			{
 				case 1:
 				{
-					return 7208.0d;
+					return 3596.0d;
 				}
 				default:
 				{
@@ -93,12 +94,12 @@ namespace Benchmarking.Extension
 		public override double GetReferenceValue()
 		{
 #if NETCOREAPP3_0
-			if (!Sse.IsSupported)
+			if (!Sse2.IsSupported)
 			{
 				return 0.0d;
 			}
 
-			return 1045.0d;
+			return 1100.0d;
 #else
 			return 0.0d;
 #endif
@@ -110,42 +111,42 @@ namespace Benchmarking.Extension
 		}
 
 #if NETCOREAPP3_0
-		private unsafe void MultiplyScalarU(Span<float> scalar, Span<float> dst)
+		private unsafe void MultiplyScalarU(Span<uint> scalar, Span<uint> dst)
 		{
-			fixed (float* pdst = dst)
-			fixed (float* psrc = scalar)
+			fixed (uint* pdst = dst)
+			fixed (uint* psrc = scalar)
 			{
 				var pDstEnd = pdst + dst.Length;
 				var pDstCurrent = pdst;
 
-				var scalarVector128 = Sse.LoadScalarVector128(psrc);
+				var scalarVector128 = Sse2.LoadScalarVector128(psrc);
 
 				while (pDstCurrent < pDstEnd)
 				{
-					var dstVector = Sse.LoadVector128(pDstCurrent);
-					dstVector = Sse.Multiply(dstVector, scalarVector128);
-					Sse.Store(pDstCurrent, dstVector);
+					var dstVector = Sse2.LoadVector128(pDstCurrent);
+					dstVector = Sse2.Multiply(dstVector, scalarVector128).AsUInt32();
+					Sse2.Store(pDstCurrent, dstVector);
 
 					pDstCurrent += 4;
 				}
 			}
 		}
 
-		private unsafe void AddScalarU(Span<float> scalar, Span<float> dst)
+		private unsafe void AddScalarU(Span<uint> scalar, Span<uint> dst)
 		{
-			fixed (float* pdst = dst)
-			fixed (float* psrc = scalar)
+			fixed (uint* pdst = dst)
+			fixed (uint* psrc = scalar)
 			{
 				var pDstEnd = pdst + dst.Length;
 				var pDstCurrent = pdst;
 
-				var scalarVector128 = Sse.LoadScalarVector128(psrc);
+				var scalarVector128 = Sse2.LoadScalarVector128(psrc);
 
 				while (pDstCurrent < pDstEnd)
 				{
-					var dstVector = Sse.LoadVector128(pDstCurrent);
-					dstVector = Sse.Add(dstVector, scalarVector128);
-					Sse.Store(pDstCurrent, dstVector);
+					var dstVector = Sse2.LoadVector128(pDstCurrent);
+					dstVector = Sse2.Add(dstVector, scalarVector128);
+					Sse2.Store(pDstCurrent, dstVector);
 
 					pDstCurrent += 4;
 				}
