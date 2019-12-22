@@ -129,6 +129,7 @@ namespace Benchmarking.Results
 				var response = await ResultUploader.UploadResult(save).ConfigureAwait(false);
 
 				save.UUID = response.UUID;
+				save.Uploaded = response.Uploaded;
 
 				return response;
 			}

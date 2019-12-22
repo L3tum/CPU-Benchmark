@@ -15,10 +15,12 @@ namespace Benchmarking.Results
 		public Dictionary<uint, List<Result>> Results;
 		public string UUID;
 		public Version Version;
+		public long Uploaded;
 
 		public Save()
 		{
 			Results = new Dictionary<uint, List<Result>>();
+			Uploaded = 0;
 		}
 	}
 }

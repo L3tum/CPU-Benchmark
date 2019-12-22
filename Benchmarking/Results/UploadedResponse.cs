@@ -7,5 +7,7 @@
 		public string RawPath { get; set; }
 
 		public string WebsitePath { get; set; }
+
+		public long Uploaded { get; set; }
 	}
 }
