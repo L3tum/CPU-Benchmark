@@ -1,6 +1,16 @@
 # Change Log
 
-## [v0.4.1](https://github.com/L3tum/CPU-Benchmark/tree/v0.4.0) (2019-12-22)
+## [v0.5.0](https://github.com/L3tum/CPU-Benchmark/tree/v0.5.0) (2019-12-23)
+[Full Changelog](https://github.com/L3tum/CPU-Benchmark/compare/v0.4.1...v0.5.0)
+
+- Fixed an exception that could occur on older hardware that doesn't support one of the instruction extensions
+- Added SSE2 (128-bit integer), AVX2 (256-bit integer) and FMA (fused multiply-add of 128-bit float) benchmarks
+- Added arithmetic_double benchmark
+- Added arithmetic_fp16 benchmark
+- Added support for multiple categories per benchmark to better group them together
+- Added uploaded field to save data
+
+## [v0.4.1](https://github.com/L3tum/CPU-Benchmark/tree/v0.4.1) (2019-12-22)
 [Full Changelog](https://github.com/L3tum/CPU-Benchmark/compare/v0.4.0...v0.4.1)
 
 **Updates:**
