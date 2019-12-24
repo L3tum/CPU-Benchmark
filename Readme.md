@@ -4,6 +4,13 @@
 
 WIP Website is here [Website](https://l3tum.github.io/CPU-Benchmark/)
 
+### Complementary Repositories
+
+- [Website](https://github.com/L3tum/CPU-Benchmark-Website)
+- [Database](https://github.com/L3tum/CPU-Benchmark-Database)
+- [Aggregator](https://github.com/L3tum/CPU-Benchmark-Database-Aggregator)
+- ~~Server~~ until I'm 99% certain that opening up the source of that won't enable hundreds of exploits it's gonna stay closed-source. However, it *will* be open-sourced until or with v1.0.
+
 ## Usage
 
 Download the tool [from here](https://github.com/L3tum/CPU-Benchmark/releases/latest).
