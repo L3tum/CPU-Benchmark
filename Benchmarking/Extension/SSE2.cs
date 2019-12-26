@@ -15,11 +15,13 @@ namespace Benchmarking.Extension
 {
 	internal class SSE2 : Benchmark
 	{
+		private readonly uint numberOfIterations = 10000000;
 		private List<uint[]> datas;
 		private uint randomIntegerNumber;
 
 		public SSE2(Options options) : base(options)
 		{
+			numberOfIterations *= BenchmarkRater.ScaleVolume(options.Threads);
 		}
 
 		public override void Run()
@@ -40,7 +42,7 @@ namespace Benchmarking.Extension
 					var randomIntegerSpan = new Span<uint>(new[] {randomIntegerNumber});
 					var dst = new Span<uint>(datas[i1]);
 
-					var iterations = 100000000 / options.Threads;
+					var iterations = numberOfIterations / options.Threads;
 
 					for (var j = 0; j < iterations; j++)
 					{
@@ -60,7 +62,7 @@ namespace Benchmarking.Extension
 
 		public override string GetDescription()
 		{
-			return "SSE2 benchmark of addition and multiplication on 256 integers (1024 bits) 100.000.000 times.";
+			return "SSE2 benchmark of addition and multiplication on 256 integers (8092 bits)";
 		}
 
 		public override void Initialize()
@@ -82,32 +84,18 @@ namespace Benchmarking.Extension
 			{
 				case 1:
 				{
-					return 3596.0d;
+					return 577.0d;
 				}
 				default:
 				{
-					return base.GetComparison();
+					return 117.0d;
 				}
 			}
-		}
-
-		public override double GetReferenceValue()
-		{
-#if NETCOREAPP3_0
-			if (!Sse2.IsSupported)
-			{
-				return 0.0d;
-			}
-
-			return 1100.0d;
-#else
-			return 0.0d;
-#endif
 		}
 
 		public override string[] GetCategories()
 		{
-			return new[] { "extension", "int" };
+			return new[] {"extension", "int"};
 		}
 
 #if NETCOREAPP3_0

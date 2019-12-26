@@ -16,5 +16,12 @@ namespace Benchmarking
 
 			return Math.Round(baseline - baseline * timeInMillis / (baseline + timeInMillis), 0);
 		}
+
+		public static uint ScaleVolume(uint threads)
+		{
+			var scale = threads / 2;
+
+			return scale > 0 ? scale : 1;
+		}
 	}
 }

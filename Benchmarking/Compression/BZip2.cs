@@ -12,10 +12,12 @@ namespace Benchmarking.Compression
 	internal class BZip2 : Benchmark
 	{
 		private readonly string[] datas;
+		private readonly uint volume = 6400000;
 
 		public BZip2(Options options) : base(options)
 		{
 			datas = new string[options.Threads];
+			volume *= BenchmarkRater.ScaleVolume(options.Threads);
 		}
 
 		public override void Run()
@@ -45,19 +47,20 @@ namespace Benchmarking.Compression
 
 		public override string GetDescription()
 		{
-			return "Compressing 128 MB of data with BZip2";
+			return "Compressing data with BZip2";
 		}
 
 		public override void Initialize()
 		{
 			var tasks = new Task[options.Threads];
 
-			// 64 "MB" string -> 2 bytes per character -> 128 MB String
 			for (var i = 0; i < options.Threads; i++)
 			{
 				var i1 = i;
-				// 500000000
-				tasks[i1] = Task.Run(() => { datas[i1] = DataGenerator.GenerateString((int) (64000000 / options.Threads)); });
+				tasks[i1] = Task.Run(() =>
+				{
+					datas[i1] = DataGenerator.GenerateString((int) (volume / options.Threads));
+				});
 			}
 
 			Task.WaitAll(tasks);
@@ -69,23 +72,18 @@ namespace Benchmarking.Compression
 			{
 				case 1:
 				{
-					return 8590.0d;
+					return 783.0d;
 				}
 				default:
 				{
-					return base.GetComparison();
+					return 527.0d;
 				}
 			}
 		}
 
-		public override double GetReferenceValue()
-		{
-			return 5727.0d;
-		}
-
 		public override string[] GetCategories()
 		{
-			return new[] { "compression" };
+			return new[] {"compression"};
 		}
 	}
 }

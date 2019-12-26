@@ -12,10 +12,13 @@ namespace Benchmarking.Decompression
 	internal class GZip : Benchmark
 	{
 		private readonly byte[][] datas;
+		private readonly uint volume = 50000000;
 
 		public GZip(Options options) : base(options)
 		{
 			datas = new byte[options.Threads][];
+
+			volume *= BenchmarkRater.ScaleVolume(options.Threads);
 		}
 
 		public override void Run()
@@ -55,15 +58,13 @@ namespace Benchmarking.Decompression
 		{
 			var tasks = new Task[options.Threads];
 
-			// 500 "MB" string -> 2 bytes per character -> 1 GB String
 			for (var i = 0; i < options.Threads; i++)
 			{
 				var i1 = i;
 
 				tasks[i1] = Task.Run(() =>
 				{
-					// 500000000
-					var data = DataGenerator.GenerateString((int) (500000000 / options.Threads));
+					var data = DataGenerator.GenerateString((int) (volume / options.Threads));
 
 					using var s = new MemoryStream();
 					using (var stream = new GZipOutputStream(s))
@@ -93,23 +94,18 @@ namespace Benchmarking.Decompression
 			{
 				case 1:
 				{
-					return 8151.0d;
+					return 864.0d;
 				}
 				default:
 				{
-					return base.GetComparison();
+					return 334.0d;
 				}
 			}
 		}
 
-		public override double GetReferenceValue()
-		{
-			return 3598.0d;
-		}
-
 		public override string[] GetCategories()
 		{
-			return new[] { "decompression" };
+			return new[] {"decompression"};
 		}
 	}
 }

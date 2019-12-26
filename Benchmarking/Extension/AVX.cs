@@ -14,11 +14,13 @@ namespace Benchmarking.Extension
 {
 	internal class AVX : Benchmark
 	{
+		private readonly uint numberOfIterations = 10000000u;
 		private List<float[]> datas;
 		private float randomFloatingNumber;
 
 		public AVX(Options options) : base(options)
 		{
+			numberOfIterations *= BenchmarkRater.ScaleVolume(options.Threads);
 		}
 
 		public override void Run()
@@ -39,7 +41,7 @@ namespace Benchmarking.Extension
 					var randomFloatingSpan = new Span<float>(new[] {randomFloatingNumber});
 					var dst = new Span<float>(datas[i1]);
 
-					var iterations = 100000000 / options.Threads;
+					var iterations = numberOfIterations / options.Threads;
 
 					for (var j = 0; j < iterations; j++)
 					{
@@ -59,7 +61,7 @@ namespace Benchmarking.Extension
 
 		public override string GetDescription()
 		{
-			return "AVX benchmark of addition and multiplication on 512 floats (2048 bits) 100.000.000 times.";
+			return "AVX benchmark of addition and multiplication on 512 floats (16384 bits)";
 		}
 
 		public override void Initialize()
@@ -81,27 +83,18 @@ namespace Benchmarking.Extension
 			{
 				case 1:
 				{
-					return 7867.0d;
+					return 670.0d;
 				}
 				default:
 				{
-					return base.GetComparison();
+					return 127.0d;
 				}
 			}
 		}
 
-		public override double GetReferenceValue()
+		public override string[] GetCategories()
 		{
-#if NETCOREAPP3_0
-			if (!Avx.IsSupported)
-			{
-				return 0.0d;
-			}
-
-			return 1113.0d;
-#else
-			return 0.0d;
-#endif
+			return new[] {"extension", "float"};
 		}
 
 #if NETCOREAPP3_0
@@ -147,9 +140,5 @@ namespace Benchmarking.Extension
 			}
 		}
 #endif
-		public override string[] GetCategories()
-		{
-			return new[] { "extension", "float" };
-		}
 	}
 }

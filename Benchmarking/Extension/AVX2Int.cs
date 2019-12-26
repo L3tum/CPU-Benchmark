@@ -15,11 +15,13 @@ namespace Benchmarking.Extension
 {
 	internal class AVX2Int : Benchmark
 	{
+		private readonly uint numberOfIterations = 10000000u;
 		private List<uint[]> datas;
 		private uint randomInteger;
 
 		public AVX2Int(Options options) : base(options)
 		{
+			numberOfIterations *= BenchmarkRater.ScaleVolume(options.Threads);
 		}
 
 		public override void Run()
@@ -40,7 +42,7 @@ namespace Benchmarking.Extension
 					var randomIntegerSpan = new Span<uint>(new[] {randomInteger});
 					var dst = new Span<uint>(datas[i1]);
 
-					var iterations = 100000000 / options.Threads;
+					var iterations = numberOfIterations / options.Threads;
 
 					for (var j = 0; j < iterations; j++)
 					{
@@ -60,7 +62,7 @@ namespace Benchmarking.Extension
 
 		public override string GetDescription()
 		{
-			return "AVX benchmark of addition and multiplication on 512 integers (2048 bits) 100.000.000 times.";
+			return "AVX benchmark of addition and multiplication on 512 integers (16384 bits)";
 		}
 
 		public override void Initialize()
@@ -82,32 +84,18 @@ namespace Benchmarking.Extension
 			{
 				case 1:
 				{
-					return 6536.0d;
+					return 564.0d;
 				}
 				default:
 				{
-					return base.GetComparison();
+					return 125.0d;
 				}
 			}
-		}
-
-		public override double GetReferenceValue()
-		{
-#if NETCOREAPP3_0
-			if (!Avx2.IsSupported)
-			{
-				return 0.0d;
-			}
-
-			return 1100.0d;
-#else
-			return 0.0d;
-#endif
 		}
 
 		public override string[] GetCategories()
 		{
-			return new[] { "extension", "int" };
+			return new[] {"extension", "int"};
 		}
 
 #if NETCOREAPP3_0

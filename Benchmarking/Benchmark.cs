@@ -24,7 +24,7 @@
 
 		public virtual double GetComparison()
 		{
-			return GetReferenceValue();
+			return 0.0d;
 		}
 
 		public virtual double GetReferenceValue()

@@ -15,10 +15,13 @@ namespace Benchmarking.Cryptography
 		private readonly string[] datas;
 		private byte[] aesNonce;
 		private byte[] aesKey;
+		private readonly uint volume = 500000000;
 
 		public Encryption(Options options) : base(options)
 		{
 			datas = new string[options.Threads];
+
+			volume *= BenchmarkRater.ScaleVolume(options.Threads);
 		}
 
 		public override void Run()
@@ -60,7 +63,7 @@ namespace Benchmarking.Cryptography
 
 		public override string GetDescription()
 		{
-			return "Encrypting 1 GB of data with SHA512 and AES-GCM";
+			return "Encrypting data with HMACSHA512 and AES-GCM";
 		}
 
 		public override void Initialize()
@@ -72,7 +75,7 @@ namespace Benchmarking.Cryptography
 			{
 				var i1 = i;
 
-				tasks[i1] = Task.Run(() => { datas[i1] = DataGenerator.GenerateString((int) (500000000 / options.Threads)); });
+				tasks[i1] = Task.Run(() => { datas[i1] = DataGenerator.GenerateString((int) (volume / options.Threads)); });
 			}
 
 			Task.WaitAll(tasks);
@@ -95,15 +98,11 @@ namespace Benchmarking.Cryptography
 				}
 				default:
 				{
-					return base.GetComparison();
+					return 250.0d;
 				}
 			}
 		}
 
-		public override double GetReferenceValue()
-		{
-			return 548.0d;
-		}
 		public override string[] GetCategories()
 		{
 			return new[] { "cryptography", "int" };

@@ -13,10 +13,13 @@ namespace Benchmarking.Decompression
 	internal class Deflate : Benchmark
 	{
 		private readonly byte[][] datas;
+		private readonly uint volume = 50000000;
 
 		public Deflate(Options options) : base(options)
 		{
 			datas = new byte[options.Threads][];
+
+			volume *= BenchmarkRater.ScaleVolume(options.Threads);
 		}
 
 		public override void Run()
@@ -56,15 +59,13 @@ namespace Benchmarking.Decompression
 		{
 			var tasks = new Task[options.Threads];
 
-			// 500 "MB" string -> 2 bytes per character -> 1 GB String
 			for (var i = 0; i < options.Threads; i++)
 			{
 				var i1 = i;
 
 				tasks[i1] = Task.Run(() =>
 				{
-					// 500000000
-					var data = DataGenerator.GenerateString((int) (500000000 / options.Threads));
+					var data = DataGenerator.GenerateString((int) (volume / options.Threads));
 
 					using var s = new MemoryStream();
 					using (var stream = new DeflaterOutputStream(s, new Deflater(Deflater.BEST_COMPRESSION)))
@@ -92,23 +93,18 @@ namespace Benchmarking.Decompression
 			{
 				case 1:
 				{
-					return 6666.0d;
+					return 689.0d;
 				}
 				default:
 				{
-					return base.GetComparison();
+					return 315.0d;
 				}
 			}
 		}
 
-		public override double GetReferenceValue()
-		{
-			return 3463.0d;
-		}
-
 		public override string[] GetCategories()
 		{
-			return new[] { "decompression" };
+			return new[] {"decompression"};
 		}
 	}
 }

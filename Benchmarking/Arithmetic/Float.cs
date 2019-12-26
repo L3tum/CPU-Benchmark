@@ -9,12 +9,13 @@ namespace Benchmarking.Arithmetic
 {
 	internal class Float : Benchmark
 	{
-		private const int LENGTH = 200000000;
+		private readonly uint LENGTH = 20000000;
 		private const float randomFloat = float.Epsilon;
 		private float[] floatArray;
 
 		public Float(Options options) : base(options)
 		{
+			LENGTH *= BenchmarkRater.ScaleVolume(options.Threads);
 		}
 
 		[MethodImpl(MethodImplOptions.NoOptimization | MethodImplOptions.NoInlining)]
@@ -96,18 +97,13 @@ namespace Benchmarking.Arithmetic
 			{
 				case 1:
 				{
-					return 8689.0d;
+					return 752.0d;
 				}
 				default:
 				{
-					return base.GetComparison();
+					return 29.0d;
 				}
 			}
-		}
-
-		public override double GetReferenceValue()
-		{
-			return 308.0d;
 		}
 
 		public override string GetDescription()

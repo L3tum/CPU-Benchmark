@@ -10,8 +10,7 @@ namespace Benchmarking.Arithmetic
 {
 	internal class Integer : Benchmark
 	{
-		// 100 "MB"
-		private const int LENGTH = 100000000;
+		private readonly uint LENGTH = 10000000;
 		private byte[] resultByteArray;
 		private int[] resultIntArray;
 		private long[] resultLongArray;
@@ -24,6 +23,7 @@ namespace Benchmarking.Arithmetic
 
 		public Integer(Options options) : base(options)
 		{
+			LENGTH *= BenchmarkRater.ScaleVolume(options.Threads);
 		}
 
 		[MethodImpl(MethodImplOptions.NoOptimization | MethodImplOptions.NoInlining)]
@@ -202,18 +202,13 @@ namespace Benchmarking.Arithmetic
 			{
 				case 1:
 				{
-					return 15464.0d;
+					return 1292.0d;
 				}
 				default:
 				{
-					return base.GetComparison();
+					return 52.0d;
 				}
 			}
-		}
-
-		public override double GetReferenceValue()
-		{
-			return 596.0d;
 		}
 
 		public override string GetDescription()

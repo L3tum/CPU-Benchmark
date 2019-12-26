@@ -264,7 +264,7 @@ namespace Benchmarking
 
 			Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.Normal;
 
-			return timings.Average();
+			return timings.Average() / BenchmarkRater.ScaleVolume(options.Threads);
 		}
 
 		private void ProcessCategories(Dictionary<string, List<Result>> categories)

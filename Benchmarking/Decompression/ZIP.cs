@@ -13,10 +13,13 @@ namespace Benchmarking.Decompression
 	public class ZIP : Benchmark
 	{
 		private readonly string[] datas;
+		private readonly uint volume = 50000000;
 
 		public ZIP(Options options) : base(options)
 		{
 			datas = new string[options.Threads];
+
+			volume *= BenchmarkRater.ScaleVolume(options.Threads);
 		}
 
 		public override void Run()
@@ -56,7 +59,7 @@ namespace Benchmarking.Decompression
 
 		public override string GetDescription()
 		{
-			return "Decompressing 1 GB of data with ZIP";
+			return "Decompressing data with ZIP";
 		}
 
 		public override void Initialize()
@@ -71,7 +74,7 @@ namespace Benchmarking.Decompression
 				tasks[i1] = Task.Run(() =>
 				{
 					// 500000000
-					var data = DataGenerator.GenerateString((int) (500000000 / options.Threads));
+					var data = DataGenerator.GenerateString((int) (volume / options.Threads));
 
 					using (Stream s = new MemoryStream())
 					{
@@ -110,18 +113,13 @@ namespace Benchmarking.Decompression
 			{
 				case 1:
 				{
-					return 1940.0d;
+					return 187.0d;
 				}
 				default:
 				{
-					return base.GetComparison();
+					return 34.0d;
 				}
 			}
-		}
-
-		public override double GetReferenceValue()
-		{
-			return 256.0d;
 		}
 
 		public override string[] GetCategories()
