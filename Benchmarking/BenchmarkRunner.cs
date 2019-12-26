@@ -241,7 +241,7 @@ namespace Benchmarking
 
 					try
 					{
-						GCSettings.LatencyMode = GCLatencyMode.LowLatency;
+						GCSettings.LatencyMode = GCLatencyMode.SustainedLowLatency;
 
 						// Generation 2 garbage collection is now
 						// deferred, except in extremely low-memory situations
