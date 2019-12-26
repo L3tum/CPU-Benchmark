@@ -61,7 +61,7 @@ namespace Benchmarking.Extension
 
 		public override string GetDescription()
 		{
-			return "SSE benchmark of addition and multiplication on 256 floats (8092 bits)";
+			return "SSE benchmark of addition and multiplication on 256 floats (8192 bits)";
 		}
 
 		public override void Initialize()

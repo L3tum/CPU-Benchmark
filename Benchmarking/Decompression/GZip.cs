@@ -51,7 +51,7 @@ namespace Benchmarking.Decompression
 
 		public override string GetDescription()
 		{
-			return "Decompressing 1 GB of data with GZip";
+			return "Decompressing data with GZip";
 		}
 
 		public override void Initialize()

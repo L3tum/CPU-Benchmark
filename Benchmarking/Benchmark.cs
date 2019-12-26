@@ -27,11 +27,6 @@
 			return 0.0d;
 		}
 
-		public virtual double GetReferenceValue()
-		{
-			return 0.0d;
-		}
-
 		public virtual BenchmarkRater.RateMethod GetRatingMethod()
 		{
 			return BenchmarkRater.RateBenchmark;

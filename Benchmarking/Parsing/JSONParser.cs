@@ -10,7 +10,7 @@ namespace Benchmarking.Parsing
 {
 	internal class JSONParser : Benchmark
 	{
-		private readonly uint volume = 1000;
+		private readonly uint volume = 3000;
 
 		public JSONParser(Options options) : base(options)
 		{
@@ -47,11 +47,11 @@ namespace Benchmarking.Parsing
 			{
 				case 1:
 				{
-					return 363.0d;
+					return 884.0d;
 				}
 				default:
 				{
-					return 237.0d;
+					return 141.0d;
 				}
 			}
 		}

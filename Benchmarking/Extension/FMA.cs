@@ -14,7 +14,7 @@ namespace Benchmarking.Extension
 {
 	internal class FMA : Benchmark
 	{
-		private readonly uint numberOfIterations = 10000000;
+		private readonly uint numberOfIterations = 50000000;
 		private List<float[]> datas;
 		private float randomFloatingNumber;
 
@@ -82,11 +82,11 @@ namespace Benchmarking.Extension
 			{
 				case 1:
 				{
-					return 367.0d;
+					return 1213.0d;
 				}
 				default:
 				{
-					return 47.0d;
+					return 351.0d;
 				}
 			}
 		}

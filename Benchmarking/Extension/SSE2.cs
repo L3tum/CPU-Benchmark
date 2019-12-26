@@ -15,7 +15,7 @@ namespace Benchmarking.Extension
 {
 	internal class SSE2 : Benchmark
 	{
-		private readonly uint numberOfIterations = 10000000;
+		private readonly uint numberOfIterations = 20000000;
 		private List<uint[]> datas;
 		private uint randomIntegerNumber;
 
@@ -62,7 +62,7 @@ namespace Benchmarking.Extension
 
 		public override string GetDescription()
 		{
-			return "SSE2 benchmark of addition and multiplication on 256 integers (8092 bits)";
+			return "SSE2 benchmark of addition and multiplication on 256 integers (8192 bits)";
 		}
 
 		public override void Initialize()
@@ -84,11 +84,11 @@ namespace Benchmarking.Extension
 			{
 				case 1:
 				{
-					return 577.0d;
+					return 996.0d;
 				}
 				default:
 				{
-					return 117.0d;
+					return 262.0d;
 				}
 			}
 		}
