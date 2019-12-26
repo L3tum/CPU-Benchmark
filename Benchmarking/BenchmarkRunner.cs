@@ -189,10 +189,9 @@ namespace Benchmarking
 				var result = new Result(
 					currentBenchmark.GetName(),
 					timing,
-					currentBenchmark.GetRatingMethod().Invoke(timing, currentBenchmark.GetReferenceValue()),
+					currentBenchmark.GetRatingMethod().Invoke(timing),
 					currentBenchmark.GetComparison(),
-					currentBenchmark.GetRatingMethod().Invoke(currentBenchmark.GetComparison(),
-						currentBenchmark.GetReferenceValue())
+					currentBenchmark.GetRatingMethod().Invoke(currentBenchmark.GetComparison())
 				);
 
 				Results.Add(result);
