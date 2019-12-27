@@ -9,12 +9,30 @@ namespace Benchmarking
 	public static class BenchmarkRater
 	{
 		public delegate double RateMethod(double timeInMillis);
+		private const int baseline = 10000;
 
 		public static double RateBenchmark(double timeInMillis)
 		{
-			const int baseline = 10000;
+			var step = 1000;
+			var pointsPerMilli = 2.0d;
+			double points = baseline;
 
-			return Math.Round(baseline - baseline * timeInMillis / (baseline + timeInMillis), 0);
+			while (timeInMillis > 0.0)
+			{
+				if (timeInMillis > step)
+				{
+					points -= (step * pointsPerMilli);
+				}
+				else
+				{
+					points -= (timeInMillis * pointsPerMilli);
+				}
+
+				timeInMillis -= step;
+				pointsPerMilli /= 2.0d;
+			}
+
+			return Math.Round(points, 0);
 		}
 
 		public static uint ScaleVolume(uint threads)
