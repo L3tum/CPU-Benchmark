@@ -10,6 +10,7 @@ namespace Benchmarking.Cryptography
 	internal class CSPRNG : Benchmark
 	{
 		private readonly uint numberOfIterations = 4;
+		private const uint volume = 1000000000;
 
 		public CSPRNG(Options options) : base(options)
 		{
@@ -24,7 +25,7 @@ namespace Benchmarking.Cryptography
 			{
 				threads[i] = Task.Run(() =>
 				{
-					var data = new byte[1000000000 / options.Threads];
+					var data = new byte[volume / options.Threads];
 					var csrpng = RandomNumberGenerator.Create();
 
 					for (var j = 0; j < numberOfIterations; j++)
@@ -62,6 +63,11 @@ namespace Benchmarking.Cryptography
 		public override string[] GetCategories()
 		{
 			return new[] {"cryptography", "int"};
+		}
+
+		public override double GetDataThroughput(double timeInMillis)
+		{
+			return sizeof(byte) * numberOfIterations * volume / (timeInMillis / 1000);
 		}
 	}
 }

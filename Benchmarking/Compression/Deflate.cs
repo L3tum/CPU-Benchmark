@@ -86,5 +86,10 @@ namespace Benchmarking.Compression
 		{
 			return new[] { "compression" };
 		}
+
+		public override double GetDataThroughput(double timeInMillis)
+		{
+			return sizeof(char) * volume / (timeInMillis / 1000);
+		}
 	}
 }

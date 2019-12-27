@@ -60,6 +60,11 @@ namespace Benchmarking.Parsing
 		{
 			return new[] {"parsing"};
 		}
+
+		public override double GetDataThroughput(double timeInMillis)
+		{
+			return sizeof(char) * JSONFile.File.Length * volume / (timeInMillis / 1000);
+		}
 	}
 
 	internal sealed class JSONFile

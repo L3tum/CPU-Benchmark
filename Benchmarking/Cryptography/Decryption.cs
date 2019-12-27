@@ -141,5 +141,10 @@ namespace Benchmarking.Cryptography
 		{
 			return new[] { "cryptography", "int" };
 		}
+
+		public override double GetDataThroughput(double timeInMillis)
+		{
+			return sizeof(char) * volume * 2 / (timeInMillis / 1000);
+		}
 	}
 }

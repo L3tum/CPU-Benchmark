@@ -122,5 +122,10 @@ namespace Benchmarking.Decompression
 		{
 			return new[] {"decompression"};
 		}
+
+		public override double GetDataThroughput(double timeInMillis)
+		{
+			return sizeof(char) * volume * numberOfIterations / (timeInMillis / 1000);
+		}
 	}
 }

@@ -104,9 +104,9 @@ namespace Benchmarking.Extension
 
 				while (pDstCurrent < pDstEnd)
 				{
-					var dstVector = Sse.LoadVector128(pDstCurrent);
+					var dstVector = Fma.LoadVector128(pDstCurrent);
 					dstVector = Fma.MultiplyAdd(dstVector, scalarVector128, scalarVector128);
-					Sse.Store(pDstCurrent, dstVector);
+					Fma.Store(pDstCurrent, dstVector);
 
 					pDstCurrent += 4;
 				}
@@ -116,6 +116,11 @@ namespace Benchmarking.Extension
 		public override string[] GetCategories()
 		{
 			return new[] {"extension", "float"};
+		}
+
+		public override double GetDataThroughput(double timeInMillis)
+		{
+			return sizeof(float) * 256 * numberOfIterations * 2 / (timeInMillis / 1000);
 		}
 	}
 }

@@ -12,6 +12,7 @@ using Benchmarking.Cryptography;
 using Benchmarking.Extension;
 using Benchmarking.Parsing;
 using Benchmarking.Results;
+using Benchmarking.Util;
 using Double = Benchmarking.Arithmetic.Double;
 
 #endregion
@@ -191,7 +192,8 @@ namespace Benchmarking
 					timing,
 					currentBenchmark.GetRatingMethod().Invoke(timing),
 					currentBenchmark.GetComparison(),
-					currentBenchmark.GetRatingMethod().Invoke(currentBenchmark.GetComparison())
+					currentBenchmark.GetRatingMethod().Invoke(currentBenchmark.GetComparison()),
+					currentBenchmark.GetDataThroughput(timing) / BenchmarkRater.ScaleVolume(options.Threads)
 				);
 
 				Results.Add(result);
@@ -275,6 +277,7 @@ namespace Benchmarking
 				var timingss = new List<double>();
 				var refPointss = new List<double>();
 				var refTimings = new List<double>();
+				var throughputs = new  List<double>();
 
 				foreach (var keyValuePair in categories)
 				{
@@ -306,6 +309,7 @@ namespace Benchmarking
 					var timing = 0.0d;
 					var refTiming = 0.0d;
 					var refPoints = 0.0d;
+					var throughput = 0.0d;
 
 					foreach (var tuple in keyValuePair.Value)
 					{
@@ -313,6 +317,7 @@ namespace Benchmarking
 						timing += tuple.Timing;
 						refTiming += tuple.ReferenceTiming;
 						refPoints += tuple.ReferencePoints;
+						throughput += tuple.DataThroughput;
 					}
 
 					points /= keyValuePair.Value.Count;
@@ -322,12 +327,13 @@ namespace Benchmarking
 					refPoints = Math.Round(refPoints, 0);
 
 					Results.Add(new Result("Category: " + keyValuePair.Key, timing, points, refTiming,
-						refPoints));
+						refPoints, throughput));
 
 					pointss.Add(points);
 					timingss.Add(timing);
 					refPointss.Add(refPoints);
 					refTimings.Add(refTiming);
+					throughputs.Add(throughput);
 				}
 
 				if (options.Benchmark.ToUpper() == "ALL")
@@ -337,7 +343,8 @@ namespace Benchmarking
 
 					Results.Add(new Result("Category: " + options.Benchmark, timingss.Sum(), totalPoints,
 						refTimings.Sum(),
-						totalRefPoints));
+						totalRefPoints,
+						throughputs.Sum()));
 				}
 			}
 		}

@@ -125,5 +125,10 @@ namespace Benchmarking.Arithmetic
 		{
 			return new[] { "float", "arithmetic" };
 		}
+
+		public override double GetDataThroughput(double timeInMillis)
+		{
+			return sizeof(float) * LENGTH * LENGTH * 8 / (timeInMillis / 1000);
+		}
 	}
 }

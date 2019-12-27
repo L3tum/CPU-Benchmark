@@ -98,6 +98,11 @@ namespace Benchmarking.Extension
 			return new[] {"extension", "int"};
 		}
 
+		public override double GetDataThroughput(double timeInMillis)
+		{
+			return sizeof(uint) * 256 * numberOfIterations * 2 / (timeInMillis / 1000);
+		}
+
 #if NETCOREAPP3_0
 		private unsafe void MultiplyScalarU(Span<uint> scalar, Span<uint> dst)
 		{

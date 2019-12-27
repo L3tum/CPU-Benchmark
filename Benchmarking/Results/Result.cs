@@ -8,13 +8,14 @@ namespace Benchmarking
 {
 	public class Result
 	{
-		public Result(string benchmark, double timing, double points, double referenceTiming, double referencePoints)
+		public Result(string benchmark, double timing, double points, double referenceTiming, double referencePoints, double dataThroughput)
 		{
 			Benchmark = benchmark;
 			Timing = timing;
 			Points = points;
 			ReferenceTiming = referenceTiming;
 			ReferencePoints = referencePoints;
+			DataThroughput = dataThroughput;
 		}
 
 		public Result()
@@ -28,6 +29,8 @@ namespace Benchmarking
 		[JsonIgnore] public double ReferencePoints { get; set; }
 
 		[JsonIgnore] public double ReferenceTiming { get; set; }
+
+		[JsonIgnore] public double DataThroughput { get; set; }
 
 		public double Timing { get; set; }
 	}

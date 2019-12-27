@@ -13,9 +13,9 @@ namespace Benchmarking.Cryptography
 	internal class Encryption : Benchmark
 	{
 		private readonly string[] datas;
-		private byte[] aesNonce;
-		private byte[] aesKey;
 		private readonly uint volume = 500000000;
+		private byte[] aesKey;
+		private byte[] aesNonce;
 
 		public Encryption(Options options) : base(options)
 		{
@@ -35,15 +35,11 @@ namespace Benchmarking.Cryptography
 				{
 					using (Stream s = new MemoryStream())
 					{
-						using (var stream = new CryptoStream(s, new HMACSHA512(), CryptoStreamMode.Write))
-						{
-							using (var sw = new StreamWriter(stream))
-							{
-								sw.Write(datas[i1]);
-								sw.Flush();
-								stream.Flush();
-							}
-						}
+						using var stream = new CryptoStream(s, new HMACSHA512(), CryptoStreamMode.Write);
+						using var sw = new StreamWriter(stream);
+						sw.Write(datas[i1]);
+						sw.Flush();
+						stream.Flush();
 					}
 
 					using (var aes = new AesGcm(aesKey))
@@ -75,7 +71,10 @@ namespace Benchmarking.Cryptography
 			{
 				var i1 = i;
 
-				tasks[i1] = Task.Run(() => { datas[i1] = DataGenerator.GenerateString((int) (volume / options.Threads)); });
+				tasks[i1] = Task.Run(() =>
+				{
+					datas[i1] = DataGenerator.GenerateString((int) (volume / options.Threads));
+				});
 			}
 
 			Task.WaitAll(tasks);
@@ -105,7 +104,12 @@ namespace Benchmarking.Cryptography
 
 		public override string[] GetCategories()
 		{
-			return new[] { "cryptography", "int" };
+			return new[] {"cryptography", "int"};
+		}
+
+		public override double GetDataThroughput(double timeInMillis)
+		{
+			return sizeof(char) * volume * 2 / (timeInMillis / 1000);
 		}
 	}
 }

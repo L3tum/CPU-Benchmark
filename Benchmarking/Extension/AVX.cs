@@ -97,6 +97,11 @@ namespace Benchmarking.Extension
 			return new[] {"extension", "float"};
 		}
 
+		public override double GetDataThroughput(double timeInMillis)
+		{
+			return sizeof(float) * 512 * numberOfIterations * 2 / (timeInMillis / 1000);
+		}
+
 #if NETCOREAPP3_0
 		private unsafe void MultiplyScalarU(Span<float> scalar, Span<float> dst)
 		{

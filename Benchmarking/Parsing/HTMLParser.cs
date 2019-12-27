@@ -59,7 +59,12 @@ namespace Benchmarking.Parsing
 		{
 			return new[] {"parsing"};
 		}
-	}
+
+		public override double GetDataThroughput(double timeInMillis)
+		{
+			return sizeof(char) * HTMLFile.File.Length * volume / (timeInMillis / 1000);
+		}
+    }
 
 	internal sealed class HTMLFile
 	{
