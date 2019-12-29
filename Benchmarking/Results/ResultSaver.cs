@@ -12,6 +12,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Benchmarking.Util;
+using CPU_Benchmark_Common;
 using HardwareInformation;
 using Newtonsoft.Json;
 

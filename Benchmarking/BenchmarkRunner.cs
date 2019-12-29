@@ -13,6 +13,7 @@ using Benchmarking.Extension;
 using Benchmarking.Parsing;
 using Benchmarking.Results;
 using Benchmarking.Util;
+using CPU_Benchmark_Common;
 using Double = Benchmarking.Arithmetic.Double;
 
 #endregion

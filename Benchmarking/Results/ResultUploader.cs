@@ -4,6 +4,7 @@ using System;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using CPU_Benchmark_Common;
 using Newtonsoft.Json;
 
 #endregion

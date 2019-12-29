@@ -2,6 +2,7 @@
 
 using System.Threading.Tasks;
 using Benchmarking.Results;
+using CPU_Benchmark_Common;
 using Newtonsoft.Json;
 
 #endregion

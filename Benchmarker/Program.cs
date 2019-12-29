@@ -11,6 +11,7 @@ using Benchmarking;
 using Benchmarking.Results;
 using Benchmarking.Util;
 using CommandLine;
+using CPU_Benchmark_Common;
 using HardwareInformation;
 using ShellProgressBar;
 
