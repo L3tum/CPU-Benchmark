@@ -45,6 +45,7 @@ namespace Benchmarking
 			typeof(Encryption),
 			typeof(Decryption),
 			typeof(CSPRNG),
+			typeof(Hashing),
 			typeof(HTMLParser),
 			typeof(JSONParser)
 		};
@@ -323,9 +324,11 @@ namespace Benchmarking
 
 					points /= keyValuePair.Value.Count;
 					refPoints /= keyValuePair.Value.Count;
+					throughput /= keyValuePair.Value.Count;
 
 					points = Math.Round(points, 0);
 					refPoints = Math.Round(refPoints, 0);
+					throughput = Math.Round(throughput, 2);
 
 					Results.Add(new Result("Category: " + keyValuePair.Key, timing, points, refTiming,
 						refPoints, throughput));
@@ -341,11 +344,12 @@ namespace Benchmarking
 				{
 					var totalPoints = Math.Round(pointss.Average(), 0);
 					var totalRefPoints = Math.Round(refPointss.Average(), 0);
+					var totalThroughput = Math.Round(throughputs.Average(), 2);
 
 					Results.Add(new Result("Category: " + options.Benchmark, timingss.Sum(), totalPoints,
 						refTimings.Sum(),
 						totalRefPoints,
-						throughputs.Sum()));
+						totalThroughput));
 				}
 			}
 		}

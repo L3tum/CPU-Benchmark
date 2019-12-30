@@ -12,9 +12,9 @@ namespace Benchmarking.Decompression
 {
 	public class ZIP : Benchmark
 	{
+		private const uint volume = 50000000;
 		private readonly string[] datas;
 		private readonly uint numberOfIterations = 10;
-		private const uint volume = 50000000;
 
 		public ZIP(Options options) : base(options)
 		{
