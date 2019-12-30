@@ -17,17 +17,16 @@ namespace Benchmarking.Util
 		[MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
 		internal static string GenerateString(int length)
 		{
-			if (cache.Length < length)
+			lock (cache)
 			{
-				cache += new string(Enumerable.Range(1, length - cache.Length)
-					.Select(_ => chars[random.Next(chars.Length)]).ToArray());
-			}
-			else if (cache.Length > length)
-			{
+				if (cache.Length < length)
+				{
+					cache += new string(Enumerable.Range(1, length - cache.Length)
+						.Select(_ => chars[random.Next(chars.Length)]).ToArray());
+				}
+
 				return new string(cache.Take(length).ToArray());
 			}
-
-			return cache;
 		}
 	}
 }

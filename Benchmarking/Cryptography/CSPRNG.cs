@@ -2,6 +2,7 @@
 
 using System.Security.Cryptography;
 using System.Threading.Tasks;
+using Benchmarking.Util;
 
 #endregion
 
@@ -9,8 +10,8 @@ namespace Benchmarking.Cryptography
 {
 	internal class CSPRNG : Benchmark
 	{
-		private readonly uint numberOfIterations = 4;
 		private const uint volume = 1000000000;
+		private readonly uint numberOfIterations = 4;
 
 		public CSPRNG(Options options) : base(options)
 		{
@@ -23,7 +24,7 @@ namespace Benchmarking.Cryptography
 
 			for (var i = 0; i < options.Threads; i++)
 			{
-				threads[i] = Task.Run(() =>
+				threads[i] = ThreadAffinity.RunAffinity(1uL << i, () =>
 				{
 					var data = new byte[volume / options.Threads];
 					var csrpng = RandomNumberGenerator.Create();

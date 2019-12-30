@@ -3,6 +3,7 @@
 using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Benchmarking.Util;
 
 #endregion
 
@@ -11,15 +12,15 @@ namespace Benchmarking.Arithmetic
 	internal class Integer : Benchmark
 	{
 		private readonly uint LENGTH = 10000000;
-		private byte[] resultByteArray;
-		private int[] resultIntArray;
-		private long[] resultLongArray;
-		private short[] resultShortArray;
 
 		private byte randomByte;
 		private int randomInt;
 		private long randomLong;
 		private short randomShort;
+		private byte[] resultByteArray;
+		private int[] resultIntArray;
+		private long[] resultLongArray;
+		private short[] resultShortArray;
 
 		public Integer(Options options) : base(options)
 		{
@@ -34,7 +35,7 @@ namespace Benchmarking.Arithmetic
 			for (var i = 0; i < options.Threads; i++)
 			{
 				var i1 = i;
-				tasks[i] = Task.Run(() =>
+				tasks[i] = ThreadAffinity.RunAffinity(1uL << i, () =>
 				{
 					// LOAD
 					for (var j = 0 + i1 * (LENGTH / options.Threads); j < LENGTH / options.Threads; j++)
@@ -238,15 +239,15 @@ namespace Benchmarking.Arithmetic
 
 		public override string[] GetCategories()
 		{
-			return new[] { "int", "arithmetic" };
+			return new[] {"int", "arithmetic"};
 		}
 
 		public override double GetDataThroughput(double timeInMillis)
 		{
 			return sizeof(byte) * LENGTH * LENGTH * 6 / (timeInMillis / 1000)
-				+ sizeof(short) * LENGTH * LENGTH * 6 / (timeInMillis / 1000)
-				+ sizeof(int) * LENGTH * LENGTH * 6 / (timeInMillis / 1000)
-				+ sizeof(long) * LENGTH * LENGTH * 6 / (timeInMillis / 1000);
+			       + sizeof(short) * LENGTH * LENGTH * 6 / (timeInMillis / 1000)
+			       + sizeof(int) * LENGTH * LENGTH * 6 / (timeInMillis / 1000)
+			       + sizeof(long) * LENGTH * LENGTH * 6 / (timeInMillis / 1000);
 		}
 	}
 }

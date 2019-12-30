@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -146,10 +145,8 @@ namespace Benchmarker
 						}
 					}
 				}
-				else
-				{
-					Console.WriteLine("Failed uploading results!");
-				}
+
+				Console.WriteLine("Failed uploading results!");
 
 				Console.ReadLine();
 
@@ -233,10 +230,10 @@ namespace Benchmarker
 					return;
 				}
 
-				pbar.Tick(100);
+				pbar.Tick((int) BenchmarkRunner.TotalOverall);
 
 				ct.Cancel();
-				pbar.Tick(100);
+				pbar.Tick((int) BenchmarkRunner.TotalOverall);
 				t.GetAwaiter().GetResult();
 			}
 

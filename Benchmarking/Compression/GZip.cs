@@ -27,7 +27,7 @@ namespace Benchmarking.Compression
 			for (var i = 0; i < options.Threads; i++)
 			{
 				var i1 = i;
-				tasks[i] = Task.Run(() =>
+				tasks[i] = ThreadAffinity.RunAffinity(1uL << i, () =>
 				{
 					using (Stream s = new MemoryStream())
 					{
@@ -86,7 +86,7 @@ namespace Benchmarking.Compression
 
 		public override string[] GetCategories()
 		{
-			return new[] { "compression" };
+			return new[] {"compression"};
 		}
 
 		public override double GetDataThroughput(double timeInMillis)

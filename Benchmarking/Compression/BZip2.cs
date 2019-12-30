@@ -27,7 +27,7 @@ namespace Benchmarking.Compression
 			for (var i = 0; i < options.Threads; i++)
 			{
 				var i1 = i;
-				tasks[i] = Task.Run(() =>
+				tasks[i] = ThreadAffinity.RunAffinity(1uL << i, () =>
 				{
 					using (Stream s = new MemoryStream())
 					{

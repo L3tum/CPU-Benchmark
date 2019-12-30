@@ -18,10 +18,10 @@ namespace Benchmarking.Cryptography
 		private readonly string[] datas;
 		private readonly byte[][] datasAES;
 		private readonly string[] datasSHA;
+		private readonly uint volume = 1000000000;
 		private byte[] aesKey;
 		private byte[] aesNonce;
 		private byte[] sha512Key;
-		private readonly uint volume = 500000000;
 
 		public Decryption(Options options) : base(options)
 		{
@@ -42,7 +42,7 @@ namespace Benchmarking.Cryptography
 			for (var i = 0; i < options.Threads; i++)
 			{
 				var i1 = i;
-				tasks[i] = Task.Run(() =>
+				tasks[i] = ThreadAffinity.RunAffinity(1uL << i, () =>
 				{
 					using (Stream s = new MemoryStream())
 					{
@@ -128,18 +128,18 @@ namespace Benchmarking.Cryptography
 			{
 				case 1:
 				{
-					return 270.0d;
+					return 540.0d;
 				}
 				default:
 				{
-					return 21.0d;
+					return 50.0d;
 				}
 			}
 		}
 
 		public override string[] GetCategories()
 		{
-			return new[] { "cryptography", "int" };
+			return new[] {"cryptography", "int"};
 		}
 
 		public override double GetDataThroughput(double timeInMillis)

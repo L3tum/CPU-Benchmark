@@ -2,6 +2,7 @@
 
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Benchmarking.Util;
 
 #endregion
 
@@ -9,8 +10,8 @@ namespace Benchmarking.Arithmetic
 {
 	internal class Double : Benchmark
 	{
-		private readonly uint LENGTH = 20000000;
 		private const double randomFloat = double.Epsilon;
+		private readonly uint LENGTH = 20000000;
 		private double[] floatArray;
 
 		public Double(Options options) : base(options)
@@ -26,7 +27,7 @@ namespace Benchmarking.Arithmetic
 			for (var i = 0; i < options.Threads; i++)
 			{
 				var i1 = i;
-				tasks[i] = Task.Run(() =>
+				tasks[i] = ThreadAffinity.RunAffinity(1uL << i, () =>
 				{
 					// LOAD
 					for (var j = 0 + i1 * (LENGTH / options.Threads); j < LENGTH / options.Threads; j++)
@@ -123,7 +124,7 @@ namespace Benchmarking.Arithmetic
 
 		public override string[] GetCategories()
 		{
-			return new[] { "float", "arithmetic" };
+			return new[] {"float", "arithmetic"};
 		}
 
 		public override double GetDataThroughput(double timeInMillis)

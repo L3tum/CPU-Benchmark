@@ -1,6 +1,7 @@
 ﻿#region using
 
 using System.Threading.Tasks;
+using Benchmarking.Util;
 using HtmlAgilityPack;
 
 #endregion
@@ -24,7 +25,7 @@ namespace Benchmarking.Parsing
 			{
 				var i1 = i;
 
-				threads[i1] = Task.Run(() =>
+				threads[i1] = ThreadAffinity.RunAffinity(1uL << i, () =>
 				{
 					for (var i = 0; i < volume / options.Threads; i++)
 					{
@@ -64,12 +65,12 @@ namespace Benchmarking.Parsing
 		{
 			return sizeof(char) * HTMLFile.File.Length * volume / (timeInMillis / 1000);
 		}
-    }
+	}
 
 	internal sealed class HTMLFile
 	{
-        // Taken from https://demo.borland.com/testsite/stadyn_largepagewithimages.html on 26.12.2019
-        internal const string File = @"<html><head>
+		// Taken from https://demo.borland.com/testsite/stadyn_largepagewithimages.html on 26.12.2019
+		internal const string File = @"<html><head>
 <!--<meta HTTP-EQUIV='Content-Type' CONTENT='text/html; charset=ISO-8859-1'>  -->
 
 <title>Large HTML page with images</title>

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Intrinsics;
 using System.Threading.Tasks;
+using Benchmarking.Util;
 #if NETCOREAPP3_0
 using System.Runtime.Intrinsics.X86;
 
@@ -37,7 +38,7 @@ namespace Benchmarking.Extension
 			for (var i = 0; i < options.Threads; i++)
 			{
 				var i1 = i;
-				threads[i] = Task.Run(() =>
+				threads[i] = ThreadAffinity.RunAffinity(1uL << i, () =>
 				{
 					var randomIntegerSpan = new Span<uint>(new[] {randomInteger});
 					var dst = new Span<uint>(datas[i1]);

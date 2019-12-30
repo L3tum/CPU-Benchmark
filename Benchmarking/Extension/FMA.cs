@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Benchmarking.Util;
 #if NETCOREAPP3_0
 using System.Runtime.Intrinsics.X86;
 
@@ -36,7 +37,7 @@ namespace Benchmarking.Extension
 			for (var i = 0; i < options.Threads; i++)
 			{
 				var i1 = i;
-				threads[i] = Task.Run(() =>
+				threads[i] = ThreadAffinity.RunAffinity(1uL << i, () =>
 				{
 					var randomFloatingSpan = new Span<float>(new[] {randomFloatingNumber});
 					var dst = new Span<float>(datas[i1]);
@@ -104,9 +105,9 @@ namespace Benchmarking.Extension
 
 				while (pDstCurrent < pDstEnd)
 				{
-					var dstVector = Fma.LoadVector128(pDstCurrent);
+					var dstVector = Sse.LoadVector128(pDstCurrent);
 					dstVector = Fma.MultiplyAdd(dstVector, scalarVector128, scalarVector128);
-					Fma.Store(pDstCurrent, dstVector);
+					Sse.Store(pDstCurrent, dstVector);
 
 					pDstCurrent += 4;
 				}

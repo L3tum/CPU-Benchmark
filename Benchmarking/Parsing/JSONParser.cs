@@ -1,7 +1,7 @@
 ﻿#region using
 
 using System.Threading.Tasks;
-using Benchmarking.Results;
+using Benchmarking.Util;
 using CPU_Benchmark_Common;
 using Newtonsoft.Json;
 
@@ -26,7 +26,7 @@ namespace Benchmarking.Parsing
 			{
 				var i1 = i;
 
-				threads[i1] = Task.Run(() =>
+				threads[i1] = ThreadAffinity.RunAffinity(1uL << i, () =>
 				{
 					for (var i = 0; i < volume / options.Threads; i++)
 					{
