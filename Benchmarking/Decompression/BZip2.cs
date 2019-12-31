@@ -12,10 +12,13 @@ namespace Benchmarking.Decompression
 	internal class BZip2 : Benchmark
 	{
 		private readonly byte[][] datas;
+		private readonly uint volume = 25600000;
 
 		public BZip2(Options options) : base(options)
 		{
 			datas = new byte[options.Threads][];
+
+			volume *= BenchmarkRater.ScaleVolume(options.Threads);
 		}
 
 		public override void Run()
@@ -25,7 +28,7 @@ namespace Benchmarking.Decompression
 			for (var i = 0; i < options.Threads; i++)
 			{
 				var i1 = i;
-				tasks[i] = Task.Run(() =>
+				tasks[i] = ThreadAffinity.RunAffinity(1uL << i, () =>
 				{
 					using (Stream s = new MemoryStream(datas[i1]))
 					{
@@ -48,22 +51,20 @@ namespace Benchmarking.Decompression
 
 		public override string GetDescription()
 		{
-			return "Decompressing 512 MB of data with BZip2";
+			return "Decompressing data with BZip2";
 		}
 
 		public override void Initialize()
 		{
 			var tasks = new Task[options.Threads];
 
-			// 256 "MB" string -> 2 bytes per character -> 512 MB String
 			for (var i = 0; i < options.Threads; i++)
 			{
 				var i1 = i;
 
 				tasks[i1] = Task.Run(() =>
 				{
-					// 500000000
-					var data = DataGenerator.GenerateString((int) (256000000 / options.Threads));
+					var data = DataGenerator.GenerateString((int) (volume / options.Threads));
 
 					using var s = new MemoryStream();
 					using (var stream = new BZip2OutputStream(s))
@@ -90,23 +91,23 @@ namespace Benchmarking.Decompression
 			{
 				case 1:
 				{
-					return 19389.0d;
+					return 1591.0d;
 				}
 				default:
 				{
-					return base.GetComparison();
+					return 441.0d;
 				}
 			}
 		}
 
-		public override double GetReferenceValue()
-		{
-			return 5104.0d;
-		}
-
 		public override string[] GetCategories()
 		{
-			return new[] { "decompression" };
+			return new[] {"decompression"};
+		}
+
+		public override double GetDataThroughput(double timeInMillis)
+		{
+			return sizeof(char) * volume / (timeInMillis / 1000);
 		}
 	}
 }

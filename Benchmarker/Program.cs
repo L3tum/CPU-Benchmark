@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -11,6 +10,7 @@ using Benchmarking;
 using Benchmarking.Results;
 using Benchmarking.Util;
 using CommandLine;
+using CPU_Benchmark_Common;
 using HardwareInformation;
 using ShellProgressBar;
 
@@ -63,8 +63,7 @@ namespace Benchmarker
 			}
 
 #else
-			options = new Options { Benchmark = "zip-decompression", Threads = 1, Runs = 2, QuickRun = true, ListResults
- = true };
+			options = new Options { Benchmark = "decompression", Threads = 1, Runs = 1 };
 #endif
 
 			if (options.ListBenchmarks)
@@ -146,10 +145,8 @@ namespace Benchmarker
 						}
 					}
 				}
-				else
-				{
-					Console.WriteLine("Failed uploading results!");
-				}
+
+				Console.WriteLine("Failed uploading results!");
 
 				Console.ReadLine();
 
@@ -233,10 +230,10 @@ namespace Benchmarker
 					return;
 				}
 
-				pbar.Tick(100);
+				pbar.Tick((int) BenchmarkRunner.TotalOverall);
 
 				ct.Cancel();
-				pbar.Tick(100);
+				pbar.Tick((int) BenchmarkRunner.TotalOverall);
 				t.GetAwaiter().GetResult();
 			}
 
@@ -256,12 +253,13 @@ namespace Benchmarker
 				s += $"Benchmarked on {keyValuePair.Key} Threads\n";
 
 				s += keyValuePair.Value.ToStringTable(
-					new[] {"Benchmark", "Time", "Reference (3900x)", "Points", "Reference(3900x)"},
+					new[] {"Benchmark", "Time", "Reference", "Points", "Reference", "DataThroughput"},
 					r => r.Benchmark,
 					r => FormatTime(r.Timing),
 					r => FormatTime(r.ReferenceTiming),
 					r => r.Points,
-					r => r.ReferencePoints);
+					r => r.ReferencePoints,
+					r => $"{Helper.FormatBytes((ulong) r.DataThroughput)}/s");
 			}
 
 			return s;

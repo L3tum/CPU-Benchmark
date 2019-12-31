@@ -12,10 +12,12 @@ namespace Benchmarking.Compression
 	internal class GZip : Benchmark
 	{
 		private readonly string[] datas;
+		private readonly uint volume = 50000000;
 
 		public GZip(Options options) : base(options)
 		{
 			datas = new string[options.Threads];
+			volume *= BenchmarkRater.ScaleVolume(options.Threads);
 		}
 
 		public override void Run()
@@ -25,7 +27,7 @@ namespace Benchmarking.Compression
 			for (var i = 0; i < options.Threads; i++)
 			{
 				var i1 = i;
-				tasks[i] = Task.Run(() =>
+				tasks[i] = ThreadAffinity.RunAffinity(1uL << i, () =>
 				{
 					using (Stream s = new MemoryStream())
 					{
@@ -47,21 +49,20 @@ namespace Benchmarking.Compression
 
 		public override string GetDescription()
 		{
-			return "Compressing 1 GB of data with GZip";
+			return "Compressing data with GZip";
 		}
 
 		public override void Initialize()
 		{
 			var tasks = new Task[options.Threads];
 
-			// 500 "MB" string -> 2 bytes per character -> 1 GB String
 			for (var i = 0; i < options.Threads; i++)
 			{
 				var i1 = i;
 
 				tasks[i1] = Task.Run(() =>
 				{
-					datas[i1] = DataGenerator.GenerateString((int) (500000000 / options.Threads));
+					datas[i1] = DataGenerator.GenerateString((int) (volume / options.Threads));
 				});
 			}
 
@@ -74,23 +75,23 @@ namespace Benchmarking.Compression
 			{
 				case 1:
 				{
-					return 29511.0d;
+					return 2560.0d;
 				}
 				default:
 				{
-					return base.GetComparison();
+					return 362.0d;
 				}
 			}
 		}
 
-		public override double GetReferenceValue()
-		{
-			return 3800.0d;
-		}
-
 		public override string[] GetCategories()
 		{
-			return new[] { "compression" };
+			return new[] {"compression"};
+		}
+
+		public override double GetDataThroughput(double timeInMillis)
+		{
+			return sizeof(char) * volume / (timeInMillis / 1000);
 		}
 	}
 }

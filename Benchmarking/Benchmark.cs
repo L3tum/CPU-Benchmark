@@ -24,10 +24,15 @@
 
 		public virtual double GetComparison()
 		{
-			return GetReferenceValue();
+			return 0.0d;
 		}
 
-		public virtual double GetReferenceValue()
+		/// <summary>
+		///     Returns the data throughput achieved per second adjusted to the time the benchmark took, in bytes
+		/// </summary>
+		/// <param name="timeInMillis"></param>
+		/// <returns></returns>
+		public virtual double GetDataThroughput(double timeInMillis)
 		{
 			return 0.0d;
 		}

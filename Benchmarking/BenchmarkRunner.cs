@@ -12,6 +12,8 @@ using Benchmarking.Cryptography;
 using Benchmarking.Extension;
 using Benchmarking.Parsing;
 using Benchmarking.Results;
+using Benchmarking.Util;
+using CPU_Benchmark_Common;
 using Double = Benchmarking.Arithmetic.Double;
 
 #endregion
@@ -43,6 +45,7 @@ namespace Benchmarking
 			typeof(Encryption),
 			typeof(Decryption),
 			typeof(CSPRNG),
+			typeof(Hashing),
 			typeof(HTMLParser),
 			typeof(JSONParser)
 		};
@@ -189,10 +192,10 @@ namespace Benchmarking
 				var result = new Result(
 					currentBenchmark.GetName(),
 					timing,
-					currentBenchmark.GetRatingMethod().Invoke(timing, currentBenchmark.GetReferenceValue()),
+					currentBenchmark.GetRatingMethod().Invoke(timing),
 					currentBenchmark.GetComparison(),
-					currentBenchmark.GetRatingMethod().Invoke(currentBenchmark.GetComparison(),
-						currentBenchmark.GetReferenceValue())
+					currentBenchmark.GetRatingMethod().Invoke(currentBenchmark.GetComparison()),
+					currentBenchmark.GetDataThroughput(timing) / BenchmarkRater.ScaleVolume(options.Threads)
 				);
 
 				Results.Add(result);
@@ -242,7 +245,7 @@ namespace Benchmarking
 
 					try
 					{
-						GCSettings.LatencyMode = GCLatencyMode.LowLatency;
+						GCSettings.LatencyMode = GCLatencyMode.SustainedLowLatency;
 
 						// Generation 2 garbage collection is now
 						// deferred, except in extremely low-memory situations
@@ -265,7 +268,7 @@ namespace Benchmarking
 
 			Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.Normal;
 
-			return timings.Average();
+			return timings.Average() / BenchmarkRater.ScaleVolume(options.Threads);
 		}
 
 		private void ProcessCategories(Dictionary<string, List<Result>> categories)
@@ -276,6 +279,7 @@ namespace Benchmarking
 				var timingss = new List<double>();
 				var refPointss = new List<double>();
 				var refTimings = new List<double>();
+				var throughputs = new  List<double>();
 
 				foreach (var keyValuePair in categories)
 				{
@@ -307,6 +311,7 @@ namespace Benchmarking
 					var timing = 0.0d;
 					var refTiming = 0.0d;
 					var refPoints = 0.0d;
+					var throughput = 0.0d;
 
 					foreach (var tuple in keyValuePair.Value)
 					{
@@ -314,31 +319,37 @@ namespace Benchmarking
 						timing += tuple.Timing;
 						refTiming += tuple.ReferenceTiming;
 						refPoints += tuple.ReferencePoints;
+						throughput += tuple.DataThroughput;
 					}
 
 					points /= keyValuePair.Value.Count;
 					refPoints /= keyValuePair.Value.Count;
+					throughput /= keyValuePair.Value.Count;
 
 					points = Math.Round(points, 0);
 					refPoints = Math.Round(refPoints, 0);
+					throughput = Math.Round(throughput, 2);
 
 					Results.Add(new Result("Category: " + keyValuePair.Key, timing, points, refTiming,
-						refPoints));
+						refPoints, throughput));
 
 					pointss.Add(points);
 					timingss.Add(timing);
 					refPointss.Add(refPoints);
 					refTimings.Add(refTiming);
+					throughputs.Add(throughput);
 				}
 
 				if (options.Benchmark.ToUpper() == "ALL")
 				{
 					var totalPoints = Math.Round(pointss.Average(), 0);
 					var totalRefPoints = Math.Round(refPointss.Average(), 0);
+					var totalThroughput = Math.Round(throughputs.Average(), 2);
 
 					Results.Add(new Result("Category: " + options.Benchmark, timingss.Sum(), totalPoints,
 						refTimings.Sum(),
-						totalRefPoints));
+						totalRefPoints,
+						totalThroughput));
 				}
 			}
 		}

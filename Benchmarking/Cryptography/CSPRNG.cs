@@ -2,6 +2,7 @@
 
 using System.Security.Cryptography;
 using System.Threading.Tasks;
+using Benchmarking.Util;
 
 #endregion
 
@@ -9,8 +10,12 @@ namespace Benchmarking.Cryptography
 {
 	internal class CSPRNG : Benchmark
 	{
+		private const uint volume = 1000000000;
+		private readonly uint numberOfIterations = 4;
+
 		public CSPRNG(Options options) : base(options)
 		{
+			numberOfIterations *= BenchmarkRater.ScaleVolume(options.Threads);
 		}
 
 		public override void Run()
@@ -19,12 +24,12 @@ namespace Benchmarking.Cryptography
 
 			for (var i = 0; i < options.Threads; i++)
 			{
-				threads[i] = Task.Run(() =>
+				threads[i] = ThreadAffinity.RunAffinity(1uL << i, () =>
 				{
-					var data = new byte[1000000000 / options.Threads];
+					var data = new byte[volume / options.Threads];
 					var csrpng = RandomNumberGenerator.Create();
 
-					for (var j = 0; j < 64; j++)
+					for (var j = 0; j < numberOfIterations; j++)
 					{
 						csrpng.GetBytes(data);
 					}
@@ -38,7 +43,7 @@ namespace Benchmarking.Cryptography
 
 		public override string GetDescription()
 		{
-			return "Generates 1GB of cryptographically secure random data 64 times";
+			return $"Generates cryptographically secure random data {numberOfIterations} times";
 		}
 
 		public override double GetComparison()
@@ -47,23 +52,23 @@ namespace Benchmarking.Cryptography
 			{
 				case 1:
 				{
-					return 17329.0d;
+					return 1157.0d;
 				}
 				default:
 				{
-					return base.GetComparison();
+					return 260.0d;
 				}
 			}
 		}
 
-		public override double GetReferenceValue()
-		{
-			return 4004.0d;
-		}
-
 		public override string[] GetCategories()
 		{
-			return new[] { "cryptography", "int" };
+			return new[] {"cryptography", "int"};
+		}
+
+		public override double GetDataThroughput(double timeInMillis)
+		{
+			return sizeof(byte) * numberOfIterations * volume / (timeInMillis / 1000);
 		}
 	}
 }

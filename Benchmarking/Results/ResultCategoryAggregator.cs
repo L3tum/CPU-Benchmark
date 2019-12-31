@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CPU_Benchmark_Common;
 
 #endregion
 
@@ -99,9 +100,10 @@ namespace Benchmarking.Results
 					Math.Round(finishedBenchmark.Value.Average(benchmark => benchmark.ReferencePoints), 0);
 				var referenceTiming =
 					Math.Round(finishedBenchmark.Value.Average(benchmark => benchmark.ReferenceTiming), 0);
+				var throughput = Math.Round(finishedBenchmark.Value.Average(benchmark => benchmark.DataThroughput), 0);
 
 				ResultSaver.SaveResult(options.Threads,
-					new Result($"Category: {finishedBenchmark.Key}", timing, points, referenceTiming, referencePoints));
+					new Result($"Category: {finishedBenchmark.Key}", timing, points, referenceTiming, referencePoints, throughput));
 			}
 
 			// Special case for "all"
@@ -122,9 +124,10 @@ namespace Benchmarking.Results
 					Math.Round(allBenchmarks.Average(benchmark => benchmark.ReferencePoints), 0);
 				var referenceTiming =
 					Math.Round(allBenchmarks.Average(benchmark => benchmark.ReferenceTiming), 0);
+				var throughput = Math.Round(allBenchmarks.Average(benchmark => benchmark.DataThroughput), 0);
 
 				ResultSaver.SaveResult(options.Threads,
-					new Result("Category: all", timing, points, referenceTiming, referencePoints));
+					new Result("Category: all", timing, points, referenceTiming, referencePoints, throughput));
 			}
 		}
 	}

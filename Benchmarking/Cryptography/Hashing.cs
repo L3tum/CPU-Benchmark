@@ -2,7 +2,6 @@
 
 using System.IO;
 using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 using Benchmarking.Util;
 
@@ -10,14 +9,12 @@ using Benchmarking.Util;
 
 namespace Benchmarking.Cryptography
 {
-	internal class Encryption : Benchmark
+	internal class Hashing : Benchmark
 	{
 		private readonly string[] datas;
 		private readonly uint volume = 500000000;
-		private byte[] aesKey;
-		private byte[] aesNonce;
 
-		public Encryption(Options options) : base(options)
+		public Hashing(Options options) : base(options)
 		{
 			datas = new string[options.Threads];
 
@@ -35,19 +32,11 @@ namespace Benchmarking.Cryptography
 				{
 					using (Stream s = new MemoryStream())
 					{
-						using var stream = new CryptoStream(s, new HMACSHA512(), CryptoStreamMode.Write);
+						using var stream = new CryptoStream(s, SHA256.Create(), CryptoStreamMode.Write);
 						using var sw = new StreamWriter(stream);
 						sw.Write(datas[i1]);
 						sw.Flush();
 						stream.Flush();
-					}
-
-					using (var aes = new AesGcm(aesKey))
-					{
-						var cipher = new byte[datas[i1].Length];
-						var tag = new byte[16];
-
-						aes.Encrypt(aesNonce, Encoding.UTF8.GetBytes(datas[i1]), cipher, tag);
 					}
 
 					BenchmarkRunner.ReportProgress();
@@ -59,7 +48,7 @@ namespace Benchmarking.Cryptography
 
 		public override string GetDescription()
 		{
-			return "Encrypting data with HMACSHA512 and AES-GCM";
+			return "Hashing data with SHA256";
 		}
 
 		public override void Initialize()
@@ -78,13 +67,6 @@ namespace Benchmarking.Cryptography
 			}
 
 			Task.WaitAll(tasks);
-
-			// 12 byte nonce
-			aesNonce = new byte[12];
-			RandomNumberGenerator.Fill(aesNonce);
-
-			aesKey = new byte[32];
-			RandomNumberGenerator.Fill(aesKey);
 		}
 
 		public override double GetComparison()
@@ -93,11 +75,11 @@ namespace Benchmarking.Cryptography
 			{
 				case 1:
 				{
-					return 2004.0d;
+					return 740.0d;
 				}
 				default:
 				{
-					return 250.0d;
+					return 100.0d;
 				}
 			}
 		}

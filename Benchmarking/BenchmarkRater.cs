@@ -8,29 +8,38 @@ namespace Benchmarking
 {
 	public static class BenchmarkRater
 	{
-		public delegate double RateMethod(double timeInMillis, double referenceTimeInMillis);
+		public delegate double RateMethod(double timeInMillis);
+		private const int baseline = 10000;
 
-		// Maybe replace with linear rating?
-		public static double RateBenchmark(double timeInMillis, double referenceTimeInMillis)
+		public static double RateBenchmark(double timeInMillis)
 		{
-			const int baseline = 50000;
+			var step = 1000;
+			var pointsPerMilli = 2.0d;
+			double points = baseline;
 
-			// if time is higher, subtract reference time and get value on an exponential function
-			if (timeInMillis > referenceTimeInMillis)
+			while (timeInMillis > 0.0)
 			{
-				return Math.Round(baseline * Math.Pow(0.5, 0.00001 * timeInMillis), 0);
+				if (timeInMillis > step)
+				{
+					points -= (step * pointsPerMilli);
+				}
+				else
+				{
+					points -= (timeInMillis * pointsPerMilli);
+				}
+
+				timeInMillis -= step;
+				pointsPerMilli /= 2.0d;
 			}
 
-			// Calculate the graph going through (0, 50000) and (referenceTimeInMillis, 0) (y = mx+b)
-			if (timeInMillis < referenceTimeInMillis)
-			{
-				var m = (baseline - 0) / (0 - referenceTimeInMillis);
-				var b = 0 - m * referenceTimeInMillis;
+			return Math.Round(points, 0);
+		}
 
-				return Math.Round(m * timeInMillis + b, 0) + baseline;
-			}
+		public static uint ScaleVolume(uint threads)
+		{
+			var scale = threads / 2;
 
-			return baseline;
+			return scale > 0 ? scale : 1;
 		}
 	}
 }

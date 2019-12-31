@@ -12,10 +12,12 @@ namespace Benchmarking.Compression
 	public class ZIP : Benchmark
 	{
 		private readonly string[] datas;
+		private readonly uint volume = 50000000;
 
 		public ZIP(Options options) : base(options)
 		{
 			datas = new string[options.Threads];
+			volume *= BenchmarkRater.ScaleVolume(options.Threads);
 		}
 
 		public override void Run()
@@ -25,23 +27,19 @@ namespace Benchmarking.Compression
 			for (var i = 0; i < options.Threads; i++)
 			{
 				var i1 = i;
-				tasks[i] = Task.Run(() =>
+				tasks[i] = ThreadAffinity.RunAffinity(1uL << i, () =>
 				{
 					using (Stream s = new MemoryStream())
 					{
-						using (var stream = new ZipOutputStream(s))
-						{
-							stream.SetLevel(9);
-							stream.PutNextEntry(new ZipEntry("test.txt"));
+						using var stream = new ZipOutputStream(s);
+						stream.SetLevel(9);
+						stream.PutNextEntry(new ZipEntry("test.txt"));
 
-							using (var sw = new StreamWriter(stream))
-							{
-								sw.Write(datas[i1]);
-								sw.Flush();
-								stream.CloseEntry();
-								stream.Finish();
-							}
-						}
+						using var sw = new StreamWriter(stream);
+						sw.Write(datas[i1]);
+						sw.Flush();
+						stream.CloseEntry();
+						stream.Finish();
 					}
 
 					BenchmarkRunner.ReportProgress();
@@ -53,19 +51,21 @@ namespace Benchmarking.Compression
 
 		public override string GetDescription()
 		{
-			return "Compressing 1 GB of data with ZIP";
+			return "Compressing data with ZIP";
 		}
 
 		public override void Initialize()
 		{
 			var tasks = new Task[options.Threads];
 
-			// 500 "MB" string -> 2 bytes per character -> 1 GB String
 			for (var i = 0; i < options.Threads; i++)
 			{
 				var i1 = i;
 
-				tasks[i1] = Task.Run(() => { datas[i1] = DataGenerator.GenerateString((int) (500000000 / options.Threads)); });
+				tasks[i1] = Task.Run(() =>
+				{
+					datas[i1] = DataGenerator.GenerateString((int) (volume / options.Threads));
+				});
 			}
 
 			Task.WaitAll(tasks);
@@ -77,23 +77,23 @@ namespace Benchmarking.Compression
 			{
 				case 1:
 				{
-					return 27676.0d;
+					return 2482.0d;
 				}
 				default:
 				{
-					return base.GetComparison();
+					return 356.0d;
 				}
 			}
 		}
 
-		public override double GetReferenceValue()
-		{
-			return 2675.0d;
-		}
-
 		public override string[] GetCategories()
 		{
-			return new[] { "compression" };
+			return new[] {"compression"};
+		}
+
+		public override double GetDataThroughput(double timeInMillis)
+		{
+			return sizeof(char) * volume / (timeInMillis / 1000);
 		}
 	}
 }

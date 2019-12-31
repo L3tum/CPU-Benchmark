@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Benchmarking.Util;
 #if NETCOREAPP3_0
 using System.Runtime.Intrinsics.X86;
 
@@ -14,11 +15,13 @@ namespace Benchmarking.Extension
 {
 	internal class SSE : Benchmark
 	{
+		private readonly uint numberOfIterations = 10000000;
 		private List<float[]> datas;
 		private float randomFloatingNumber;
 
 		public SSE(Options options) : base(options)
 		{
+			numberOfIterations *= BenchmarkRater.ScaleVolume(options.Threads);
 		}
 
 		public override void Run()
@@ -34,12 +37,12 @@ namespace Benchmarking.Extension
 			for (var i = 0; i < options.Threads; i++)
 			{
 				var i1 = i;
-				threads[i] = Task.Run(() =>
+				threads[i] = ThreadAffinity.RunAffinity(1uL << i, () =>
 				{
 					var randomFloatingSpan = new Span<float>(new[] {randomFloatingNumber});
 					var dst = new Span<float>(datas[i1]);
 
-					var iterations = 100000000 / options.Threads;
+					var iterations = numberOfIterations / options.Threads;
 
 					for (var j = 0; j < iterations; j++)
 					{
@@ -59,7 +62,7 @@ namespace Benchmarking.Extension
 
 		public override string GetDescription()
 		{
-			return "SSE benchmark of addition and multiplication on 256 floats (1024 bits) 100.000.000 times.";
+			return "SSE benchmark of addition and multiplication on 256 floats (8192 bits)";
 		}
 
 		public override void Initialize()
@@ -81,32 +84,23 @@ namespace Benchmarking.Extension
 			{
 				case 1:
 				{
-					return 7208.0d;
+					return 502.0d;
 				}
 				default:
 				{
-					return base.GetComparison();
+					return 95.0d;
 				}
 			}
-		}
-
-		public override double GetReferenceValue()
-		{
-#if NETCOREAPP3_0
-			if (!Sse.IsSupported)
-			{
-				return 0.0d;
-			}
-
-			return 1045.0d;
-#else
-			return 0.0d;
-#endif
 		}
 
 		public override string[] GetCategories()
 		{
-			return new[] { "extension", "float" };
+			return new[] {"extension", "float"};
+		}
+
+		public override double GetDataThroughput(double timeInMillis)
+		{
+			return sizeof(float) * 256 * numberOfIterations * 2 / (timeInMillis / 1000);
 		}
 
 #if NETCOREAPP3_0

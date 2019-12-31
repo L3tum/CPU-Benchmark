@@ -18,6 +18,7 @@ namespace Benchmarking.Cryptography
 		private readonly string[] datas;
 		private readonly byte[][] datasAES;
 		private readonly string[] datasSHA;
+		private readonly uint volume = 1000000000;
 		private byte[] aesKey;
 		private byte[] aesNonce;
 		private byte[] sha512Key;
@@ -30,6 +31,8 @@ namespace Benchmarking.Cryptography
 
 			aesTag = new byte[options.Threads][];
 			aesPlaintext = new byte[options.Threads][];
+
+			volume *= BenchmarkRater.ScaleVolume(options.Threads);
 		}
 
 		public override void Run()
@@ -39,7 +42,7 @@ namespace Benchmarking.Cryptography
 			for (var i = 0; i < options.Threads; i++)
 			{
 				var i1 = i;
-				tasks[i] = Task.Run(() =>
+				tasks[i] = ThreadAffinity.RunAffinity(1uL << i, () =>
 				{
 					using (Stream s = new MemoryStream())
 					{
@@ -72,7 +75,7 @@ namespace Benchmarking.Cryptography
 
 		public override string GetDescription()
 		{
-			return "Decrypting 1 GB of data with HMACSHA512 and AES-GCM";
+			return "Decrypting data with HMACSHA512 and AES-GCM";
 		}
 
 		public override void Initialize()
@@ -92,7 +95,7 @@ namespace Benchmarking.Cryptography
 
 				tasks[i1] = Task.Run(() =>
 				{
-					datas[i1] = DataGenerator.GenerateString((int) (500000000 / options.Threads));
+					datas[i1] = DataGenerator.GenerateString((int) (volume / options.Threads));
 					var rand = new Random();
 					sha512Key = new byte[64];
 
@@ -125,23 +128,23 @@ namespace Benchmarking.Cryptography
 			{
 				case 1:
 				{
-					return 270.0d;
+					return 540.0d;
 				}
 				default:
 				{
-					return base.GetComparison();
+					return 50.0d;
 				}
 			}
 		}
 
-		public override double GetReferenceValue()
-		{
-			return 64.0d;
-		}
-
 		public override string[] GetCategories()
 		{
-			return new[] { "cryptography", "int" };
+			return new[] {"cryptography", "int"};
+		}
+
+		public override double GetDataThroughput(double timeInMillis)
+		{
+			return sizeof(char) * volume * 2 / (timeInMillis / 1000);
 		}
 	}
 }
