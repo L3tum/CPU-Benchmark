@@ -12,7 +12,7 @@ namespace Benchmarking.Decompression
 	internal class GZip : Benchmark
 	{
 		private readonly byte[][] datas;
-		private readonly uint volume = 50000000;
+		private readonly uint volume = 75000000;
 
 		public GZip(Options options) : base(options)
 		{
@@ -94,11 +94,11 @@ namespace Benchmarking.Decompression
 			{
 				case 1:
 				{
-					return 864.0d;
+					return 1300.0d;
 				}
 				default:
 				{
-					return 334.0d;
+					return 520.0d;
 				}
 			}
 		}

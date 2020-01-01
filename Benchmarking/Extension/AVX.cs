@@ -15,7 +15,7 @@ namespace Benchmarking.Extension
 {
 	internal class AVX : Benchmark
 	{
-		private readonly uint numberOfIterations = 10000000u;
+		private readonly uint numberOfIterations = 15000000u;
 		private List<float[]> datas;
 		private float randomFloatingNumber;
 
@@ -84,11 +84,11 @@ namespace Benchmarking.Extension
 			{
 				case 1:
 				{
-					return 670.0d;
+					return 1100.0d;
 				}
 				default:
 				{
-					return 127.0d;
+					return 200.0d;
 				}
 			}
 		}

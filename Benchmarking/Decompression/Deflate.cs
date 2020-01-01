@@ -13,7 +13,7 @@ namespace Benchmarking.Decompression
 	internal class Deflate : Benchmark
 	{
 		private readonly byte[][] datas;
-		private readonly uint volume = 50000000;
+		private readonly uint volume = 100000000;
 
 		public Deflate(Options options) : base(options)
 		{
@@ -93,11 +93,11 @@ namespace Benchmarking.Decompression
 			{
 				case 1:
 				{
-					return 689.0d;
+					return 1400.0d;
 				}
 				default:
 				{
-					return 315.0d;
+					return 660.0d;
 				}
 			}
 		}

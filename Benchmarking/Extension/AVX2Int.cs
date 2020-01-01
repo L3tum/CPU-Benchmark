@@ -16,7 +16,7 @@ namespace Benchmarking.Extension
 {
 	internal class AVX2Int : Benchmark
 	{
-		private readonly uint numberOfIterations = 10000000u;
+		private readonly uint numberOfIterations = 20000000u;
 		private List<uint[]> datas;
 		private uint randomInteger;
 
@@ -85,11 +85,11 @@ namespace Benchmarking.Extension
 			{
 				case 1:
 				{
-					return 564.0d;
+					return 1150.0d;
 				}
 				default:
 				{
-					return 125.0d;
+					return 250.0d;
 				}
 			}
 		}

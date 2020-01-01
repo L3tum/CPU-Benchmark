@@ -12,7 +12,7 @@ namespace Benchmarking.Compression
 	internal class BZip2 : Benchmark
 	{
 		private readonly string[] datas;
-		private readonly uint volume = 6400000;
+		private readonly uint volume = 12800000;
 
 		public BZip2(Options options) : base(options)
 		{
@@ -72,11 +72,11 @@ namespace Benchmarking.Compression
 			{
 				case 1:
 				{
-					return 783.0d;
+					return 1570.0d;
 				}
 				default:
 				{
-					return 527.0d;
+					return 1080.0d;
 				}
 			}
 		}

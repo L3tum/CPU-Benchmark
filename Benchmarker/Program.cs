@@ -63,7 +63,7 @@ namespace Benchmarker
 			}
 
 #else
-			options = new Options { Benchmark = "decompression", Threads = 1, Runs = 1 };
+			options = new Options { Benchmark = "decryption", Threads = 1, Runs = 1 };
 #endif
 
 			if (options.ListBenchmarks)

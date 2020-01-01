@@ -10,7 +10,7 @@ namespace Benchmarking.Parsing
 {
 	internal class HTMLParser : Benchmark
 	{
-		private readonly uint volume = 30;
+		private readonly uint volume = 45;
 
 		public HTMLParser(Options options) : base(options)
 		{
@@ -47,11 +47,11 @@ namespace Benchmarking.Parsing
 			{
 				case 1:
 				{
-					return 770.0d;
+					return 1150.0d;
 				}
 				default:
 				{
-					return 455.0d;
+					return 620.0d;
 				}
 			}
 		}

@@ -11,7 +11,7 @@ namespace Benchmarking.Arithmetic
 	internal class Float : Benchmark
 	{
 		private const float randomFloat = float.Epsilon;
-		private readonly uint LENGTH = 20000000;
+		private readonly uint LENGTH = 40000000;
 		private float[] floatArray;
 
 		public Float(Options options) : base(options)
@@ -98,11 +98,11 @@ namespace Benchmarking.Arithmetic
 			{
 				case 1:
 				{
-					return 752.0d;
+					return 1550.0d;
 				}
 				default:
 				{
-					return 29.0d;
+					return 68.0d;
 				}
 			}
 		}

@@ -12,7 +12,7 @@ namespace Benchmarking.Cryptography
 	internal class Hashing : Benchmark
 	{
 		private readonly string[] datas;
-		private readonly uint volume = 500000000;
+		private readonly uint volume = 1000000000;
 
 		public Hashing(Options options) : base(options)
 		{
@@ -75,11 +75,11 @@ namespace Benchmarking.Cryptography
 			{
 				case 1:
 				{
-					return 740.0d;
+					return 1500.0d;
 				}
 				default:
 				{
-					return 100.0d;
+					return 200.0d;
 				}
 			}
 		}

@@ -15,7 +15,7 @@ namespace Benchmarking.Extension
 {
 	internal class SSE : Benchmark
 	{
-		private readonly uint numberOfIterations = 10000000;
+		private readonly uint numberOfIterations = 20000000;
 		private List<float[]> datas;
 		private float randomFloatingNumber;
 
@@ -84,11 +84,11 @@ namespace Benchmarking.Extension
 			{
 				case 1:
 				{
-					return 502.0d;
+					return 1010.0d;
 				}
 				default:
 				{
-					return 95.0d;
+					return 200.0d;
 				}
 			}
 		}
