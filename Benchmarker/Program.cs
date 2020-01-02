@@ -63,7 +63,7 @@ namespace Benchmarker
 			}
 
 #else
-			options = new Options { Benchmark = "decryption", Threads = 1, Runs = 1 };
+			options = new Options { Benchmark = "zip", Threads = 1, Runs = 1 };
 #endif
 
 			if (options.ListBenchmarks)
@@ -162,7 +162,7 @@ namespace Benchmarker
 			}
 
 			if (!BenchmarkRunner.GetAvailableBenchmarks()
-				.Any(a => a.ToLower().Equals(options.Benchmark)))
+				.Any(a => a.ToLowerInvariant().Equals(options.Benchmark.ToLowerInvariant())))
 			{
 				Console.WriteLine("Benchmark name not recognized!");
 				Console.ReadLine();
@@ -188,7 +188,7 @@ namespace Benchmarker
 
 			ResultSaver.Init(options);
 
-			var runner = new BenchmarkRunner(options);
+			var runner = new BenchmarkRunner(options, information);
 
 			runner.Prepare();
 

@@ -12,8 +12,8 @@ using Benchmarking.Cryptography;
 using Benchmarking.Extension;
 using Benchmarking.Parsing;
 using Benchmarking.Results;
-using Benchmarking.Util;
 using CPU_Benchmark_Common;
+using HardwareInformation;
 using Double = Benchmarking.Arithmetic.Double;
 
 #endregion
@@ -32,7 +32,6 @@ namespace Benchmarking
 			typeof(Decompression.GZip),
 			typeof(Decompression.Deflate),
 			typeof(Decompression.BZip2),
-//			typeof(Brotli),
 			typeof(Integer),
 			typeof(Float),
 			typeof(Double),
@@ -50,14 +49,17 @@ namespace Benchmarking
 			typeof(JSONParser)
 		};
 
+		internal static MachineInformation MachineInformation;
+
 		private readonly List<Benchmark> benchmarksToRun = new List<Benchmark>();
 		private readonly Options options;
 		public readonly List<Result> Results = new List<Result>();
 		private readonly long[] timings;
 
-		public BenchmarkRunner(Options options)
+		public BenchmarkRunner(Options options, MachineInformation machineInformation)
 		{
 			this.options = options;
+			MachineInformation = machineInformation;
 			timings = new long[options.Runs];
 
 			TotalOverall = options.Runs * options.Threads;
@@ -207,6 +209,8 @@ namespace Benchmarking
 
 				benchmarksToRun.RemoveAt(0);
 				GC.Collect();
+				GC.WaitForPendingFinalizers();
+				GC.Collect();
 			}
 
 			ProcessCategories(categories);
@@ -229,6 +233,10 @@ namespace Benchmarking
 
 			for (var i = 0; i < options.Runs; i++)
 			{
+				GC.Collect();
+				GC.WaitForPendingFinalizers();
+				GC.Collect();
+
 				if (options.MemoryEfficient)
 				{
 					sw.Start();
@@ -261,6 +269,8 @@ namespace Benchmarking
 				}
 
 				GC.Collect();
+				GC.WaitForPendingFinalizers();
+				GC.Collect();
 
 				timings[i] = sw.ElapsedMilliseconds;
 				sw.Reset();
@@ -279,7 +289,7 @@ namespace Benchmarking
 				var timingss = new List<double>();
 				var refPointss = new List<double>();
 				var refTimings = new List<double>();
-				var throughputs = new  List<double>();
+				var throughputs = new List<double>();
 
 				foreach (var keyValuePair in categories)
 				{
