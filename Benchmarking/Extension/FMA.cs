@@ -116,7 +116,7 @@ namespace Benchmarking.Extension
 #endif
 		public override string[] GetCategories()
 		{
-			return new[] {"extension", "float"};
+			return new[] {"extension", "float", "sse"};
 		}
 
 		public override double GetDataThroughput(double timeInMillis)

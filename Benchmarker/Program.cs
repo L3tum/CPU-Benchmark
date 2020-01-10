@@ -63,7 +63,7 @@ namespace Benchmarker
 			}
 
 #else
-			options = new Options { Benchmark = "zip", Threads = 1, Runs = 1 };
+			options = new Options { Benchmark = "sse4-crc32c", Threads = 1, Runs = 1 };
 #endif
 
 			if (options.ListBenchmarks)

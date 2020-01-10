@@ -10,6 +10,7 @@ using Benchmarking.Arithmetic;
 using Benchmarking.Compression;
 using Benchmarking.Cryptography;
 using Benchmarking.Extension;
+using Benchmarking.Latency;
 using Benchmarking.Parsing;
 using Benchmarking.Results;
 using CPU_Benchmark_Common;
@@ -41,12 +42,15 @@ namespace Benchmarking
 			typeof(SSE2),
 			typeof(AVX2Int),
 			typeof(FMA),
+			typeof(SSE4),
+			typeof(SSE42CRC32C),
 			typeof(Encryption),
 			typeof(Decryption),
 			typeof(CSPRNG),
 			typeof(Hashing),
 			typeof(HTMLParser),
-			typeof(JSONParser)
+			typeof(JSONParser),
+			typeof(L2CacheLatency)
 		};
 
 		internal static MachineInformation MachineInformation;
@@ -190,6 +194,8 @@ namespace Benchmarking
 				CurrentRunningBenchmark = currentBenchmark.GetName();
 
 				var timing = ExecuteBenchmark();
+
+				currentBenchmark.Shutdown();
 
 				var result = new Result(
 					currentBenchmark.GetName(),

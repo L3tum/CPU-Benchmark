@@ -13,13 +13,13 @@ using System.Runtime.Intrinsics.X86;
 
 namespace Benchmarking.Extension
 {
-	internal class SSE : Benchmark
+	internal class SSE4 : Benchmark
 	{
 		private readonly uint numberOfIterations = 20000000;
 		private List<float[]> datas;
 		private float randomFloatingNumber;
 
-		public SSE(Options options) : base(options)
+		public SSE4(Options options) : base(options)
 		{
 			numberOfIterations *= BenchmarkRater.ScaleVolume(options.Threads);
 		}
@@ -27,7 +27,7 @@ namespace Benchmarking.Extension
 		public override void Run()
 		{
 #if NETCOREAPP3_0
-			if (!Sse.IsSupported)
+			if (!Sse41.IsSupported)
 			{
 				return;
 			}
@@ -46,8 +46,7 @@ namespace Benchmarking.Extension
 
 					for (var j = 0; j < iterations; j++)
 					{
-						AddScalarU(randomFloatingSpan, dst);
-						MultiplyScalarU(randomFloatingSpan, dst);
+						DotProductU(randomFloatingSpan, dst);
 					}
 
 					BenchmarkRunner.ReportProgress();
@@ -62,7 +61,7 @@ namespace Benchmarking.Extension
 
 		public override string GetDescription()
 		{
-			return "SSE benchmark of addition and multiplication on 256 floats (8192 bits)";
+			return "SSE4.1 benchmark of dot products on 256 floats (8192 bits)";
 		}
 
 		public override void Initialize()
@@ -84,11 +83,11 @@ namespace Benchmarking.Extension
 			{
 				case 1:
 				{
-					return 1010.0d;
+					return 1475.0d;
 				}
 				default:
 				{
-					return 200.0d;
+					return 300.0d;
 				}
 			}
 		}
@@ -100,11 +99,11 @@ namespace Benchmarking.Extension
 
 		public override double GetDataThroughput(double timeInMillis)
 		{
-			return sizeof(float) * 256 * numberOfIterations * 2 / (timeInMillis / 1000);
+			return sizeof(float) * 256 * numberOfIterations / (timeInMillis / 1000);
 		}
 
 #if NETCOREAPP3_0
-		private unsafe void MultiplyScalarU(Span<float> scalar, Span<float> dst)
+		private unsafe void DotProductU(Span<float> scalar, Span<float> dst)
 		{
 			fixed (float* pdst = dst)
 			fixed (float* psrc = scalar)
@@ -117,28 +116,7 @@ namespace Benchmarking.Extension
 				while (pDstCurrent < pDstEnd)
 				{
 					var dstVector = Sse.LoadVector128(pDstCurrent);
-					dstVector = Sse.Multiply(dstVector, scalarVector128);
-					Sse.Store(pDstCurrent, dstVector);
-
-					pDstCurrent += 4;
-				}
-			}
-		}
-
-		private unsafe void AddScalarU(Span<float> scalar, Span<float> dst)
-		{
-			fixed (float* pdst = dst)
-			fixed (float* psrc = scalar)
-			{
-				var pDstEnd = pdst + dst.Length;
-				var pDstCurrent = pdst;
-
-				var scalarVector128 = Sse.LoadScalarVector128(psrc);
-
-				while (pDstCurrent < pDstEnd)
-				{
-					var dstVector = Sse.LoadVector128(pDstCurrent);
-					dstVector = Sse.Add(dstVector, scalarVector128);
+					dstVector = Sse41.DotProduct(dstVector, scalarVector128, 0xff);
 					Sse.Store(pDstCurrent, dstVector);
 
 					pDstCurrent += 4;

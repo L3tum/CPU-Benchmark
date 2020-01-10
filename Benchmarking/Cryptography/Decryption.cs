@@ -16,7 +16,8 @@ namespace Benchmarking.Cryptography
 		private readonly byte[][] aesTag;
 		private readonly byte[][] datasAES;
 		private readonly string[] datasSHA;
-		private readonly uint volume = 100000000;
+		private readonly uint volume = 10000000;
+		private const uint runs = 200;
 		private byte[] aesKey;
 		private byte[] aesNonce;
 		private byte[] sha512Key;
@@ -40,7 +41,7 @@ namespace Benchmarking.Cryptography
 				var i1 = i;
 				tasks[i] = ThreadAffinity.RunAffinity(1uL << i, () =>
 				{
-					for (var j = 0; j < 20; j++)
+					for (var j = 0; j < runs; j++)
 					{
 						using (Stream s = new MemoryStream())
 						{
@@ -141,7 +142,7 @@ namespace Benchmarking.Cryptography
 
 		public override double GetDataThroughput(double timeInMillis)
 		{
-			return sizeof(char) * volume * 2 * 10 / (timeInMillis / 1000);
+			return sizeof(char) * volume * 2 * runs / (timeInMillis / 1000);
 		}
 	}
 }

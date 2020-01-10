@@ -12,7 +12,7 @@ namespace Benchmarking.Util
 	{
 		private const string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 		private static readonly Random random = new Random();
-		private static string cache = "";
+		private static string cache = CompilerGenerated.RANDOM_DATA;
 
 		[MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
 		internal static string GenerateString(int length)

@@ -9,16 +9,20 @@
 			this.options = options;
 		}
 
-		public virtual void Run()
-		{
-		}
-
 		public virtual string GetDescription()
 		{
 			return "Base Benchmark Class - You should never see this!";
 		}
 
 		public virtual void Initialize()
+		{
+		}
+
+		public virtual void Run()
+		{
+		}
+
+		public virtual void Shutdown()
 		{
 		}
 
