@@ -1,7 +1,9 @@
 ﻿#region using
 
+using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Benchmarking.Util;
 #if NETCOREAPP3_0
@@ -53,6 +55,50 @@ namespace Benchmarking.Extension
 			Task.WaitAll(threads);
 #else
 			return;
+#endif
+		}
+
+		public override ulong Stress(CancellationToken cancellationToken)
+		{
+#if NETCOREAPP3_0
+			if (!Sse42.IsSupported)
+			{
+				return 0uL;
+			}
+
+			var threads = new Task[options.Threads];
+			var completed = 0uL;
+
+			for (var i = 0; i < options.Threads; i++)
+			{
+				threads[i] = ThreadAffinity.RunAffinity(1uL << i, () =>
+				{
+					var threadCompleted = 0uL;
+
+					while (!cancellationToken.IsCancellationRequested)
+					{
+						var crc = 0uL;
+
+						foreach (var character in datas)
+						{
+							crc = Sse42.X64.Crc32(crc, character);
+						}
+
+						threadCompleted++;
+					}
+
+					lock (threads)
+					{
+						completed += threadCompleted;
+					}
+				});
+			}
+
+			Task.WaitAll(threads);
+
+			return completed / numberOfIterations;
+#else
+			return 0uL;
 #endif
 		}
 

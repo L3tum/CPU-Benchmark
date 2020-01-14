@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Benchmarking.Util;
 #if NETCOREAPP3_0
@@ -15,9 +16,9 @@ namespace Benchmarking.Extension
 {
 	internal class FMA : Benchmark
 	{
+		private const float randomFloatingNumber = float.Epsilon;
 		private readonly uint numberOfIterations = 50000000;
 		private List<float[]> datas;
-		private float randomFloatingNumber;
 
 		public FMA(Options options) : base(options)
 		{
@@ -36,11 +37,10 @@ namespace Benchmarking.Extension
 
 			for (var i = 0; i < options.Threads; i++)
 			{
-				var i1 = i;
 				threads[i] = ThreadAffinity.RunAffinity(1uL << i, () =>
 				{
 					var randomFloatingSpan = new Span<float>(new[] {randomFloatingNumber});
-					var dst = new Span<float>(datas[i1]);
+					var dst = new Span<float>(new float[256]);
 
 					var iterations = numberOfIterations / options.Threads;
 
@@ -59,22 +59,51 @@ namespace Benchmarking.Extension
 #endif
 		}
 
-		public override string GetDescription()
+		public override ulong Stress(CancellationToken cancellationToken)
 		{
-			return "SSE benchmark of fused addition and multiplication on 256 floats (8192 bits)";
-		}
+#if NETCOREAPP3_0
+			if (!Fma.IsSupported)
+			{
+				return 0uL;
+			}
 
-		public override void Initialize()
-		{
-			randomFloatingNumber = float.Epsilon;
-
-			datas = new List<float[]>((int) options.Threads);
+			var threads = new Task[options.Threads];
+			var completed = 0uL;
 
 			for (var i = 0; i < options.Threads; i++)
 			{
-				// Multiple of 128 to test SSE only
-				datas.Add(new float[256]);
+				threads[i] = ThreadAffinity.RunAffinity(1uL << i, () =>
+				{
+					var threadCompleted = 0uL;
+					var randomFloatingSpan = new Span<float>(new[] {randomFloatingNumber});
+					var dst = new Span<float>(new float[256]);
+
+					while (!cancellationToken.IsCancellationRequested)
+					{
+						AddMulScalarU(randomFloatingSpan, dst);
+
+						dst.Clear();
+						threadCompleted++;
+					}
+
+					lock (threads)
+					{
+						completed += threadCompleted;
+					}
+				}, ThreadPriority.BelowNormal);
 			}
+
+			Task.WaitAll(threads);
+
+			return completed / numberOfIterations;
+#else
+			return 0uL;
+#endif
+		}
+
+		public override string GetDescription()
+		{
+			return "SSE benchmark of fused addition and multiplication on 256 floats (8192 bits)";
 		}
 
 		public override double GetComparison()

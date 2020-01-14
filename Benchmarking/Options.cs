@@ -45,5 +45,8 @@ namespace Benchmarking
 
 		[Option('c', "clear", Default = false, HelpText = "Clears all saved data.")]
 		public bool ClearSave { get; set; }
+
+		[Option('s', "stress", Default = false, HelpText = "Starts a stress test with the selected benchmark. Press any key to stop it.")]
+		public bool Stress { get; set; }
 	}
 }

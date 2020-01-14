@@ -3,12 +3,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Benchmarking;
 using Benchmarking.Results;
-using Benchmarking.Util;
 using CommandLine;
 using CPU_Benchmark_Common;
 using HardwareInformation;
@@ -63,108 +61,11 @@ namespace Benchmarker
 			}
 
 #else
-			options = new Options { Benchmark = "sse4-crc32c", Threads = 1, Runs = 1 };
+			options = new Options { Benchmark = "avx2int", Threads = 1, Runs = 1 };
 #endif
 
-			if (options.ListBenchmarks)
+			if (!OptionParser.ParseOptions(options))
 			{
-				Console.WriteLine(string.Join(Environment.NewLine, BenchmarkRunner.GetAvailableBenchmarks()));
-				Console.ReadLine();
-
-				return;
-			}
-
-			if (options.ListResults)
-			{
-				ResultSaver.Init(options);
-				Console.WriteLine();
-				Console.WriteLine(FormatResults(ResultSaver.GetResults()));
-				Console.ReadLine();
-
-				return;
-			}
-
-			if (options.Upload)
-			{
-				if (!ResultSaver.Init(options))
-				{
-					Console.WriteLine(
-						"A restart or hardware change has been detected. Please redo the benchmark and upload it without restarting.");
-					Console.ReadLine();
-
-					return;
-				}
-
-				var result = ResultSaver.IsAllowedToUpload(options);
-
-				if (result == ErrorCode.NOT_WINDOWS)
-				{
-					Console.WriteLine("You can only upload your results on a Windows machine.");
-					Console.ReadLine();
-
-					return;
-				}
-
-				if (result == ErrorCode.NO_CATEGORY_ALL)
-				{
-					Console.WriteLine("You can only upload your results after having completed all benchmarks.");
-					Console.ReadLine();
-
-					return;
-				}
-
-				Console.WriteLine();
-				Console.WriteLine("Uploading results...");
-
-				var response = ResultSaver.UploadResults().Result;
-
-				if (response != null)
-				{
-					Console.WriteLine("Done!");
-					Console.WriteLine("You can view your raw save here: {0}", response.RawPath);
-					Console.WriteLine("You can view your parsed save here: {0}", response.WebsitePath);
-
-					Console.WriteLine(
-						"Click 'a' to open raw, 'b' to open parsed or any other key to close the program!");
-
-					while (true)
-					{
-						var key = Console.ReadKey(true);
-
-						if (key.Key == ConsoleKey.A)
-						{
-							Helper.OpenBrowser(response.RawPath);
-						}
-						else if (key.Key == ConsoleKey.B)
-						{
-							Helper.OpenBrowser(response.WebsitePath);
-						}
-						else
-						{
-							return;
-						}
-					}
-				}
-
-				Console.WriteLine("Failed uploading results!");
-
-				Console.ReadLine();
-
-				return;
-			}
-
-			if (options.Benchmark == null || string.IsNullOrWhiteSpace(options.Benchmark))
-			{
-				Console.WriteLine("Please specify a benchmark!");
-				Console.ReadLine();
-
-				return;
-			}
-
-			if (!BenchmarkRunner.GetAvailableBenchmarks()
-				.Any(a => a.ToLowerInvariant().Equals(options.Benchmark.ToLowerInvariant())))
-			{
-				Console.WriteLine("Benchmark name not recognized!");
 				Console.ReadLine();
 
 				return;
@@ -181,6 +82,31 @@ namespace Benchmarker
 			Console.WriteLine("Physical Cores: {0}", information.Cpu.PhysicalCores);
 
 			Console.WriteLine();
+
+			if (options.Stress)
+			{
+				var cancellationTokenSource = new CancellationTokenSource();
+				var consoleTask = Task.Run(() =>
+				{
+					Thread.CurrentThread.Priority = ThreadPriority.Highest;
+					Console.WriteLine("Press any key to stop the stress test.");
+					Console.ReadKey(true);
+
+					cancellationTokenSource.Cancel();
+				});
+
+				var stressTester = new StressTestRunner(options);
+				stressTester.Prepare();
+				var completed = stressTester.RunStressTest(cancellationTokenSource.Token);
+
+				Task.WaitAll(consoleTask);
+
+				Console.WriteLine("You've completed {0} benchmark iteration{1}; ~{2} per thread.", completed,
+					completed == 1 ? "" : "s",
+					Math.Round(completed / (double) options.Threads, 2));
+
+				return;
+			}
 
 			Console.WriteLine("Starting Benchmark...");
 
@@ -207,6 +133,8 @@ namespace Benchmarker
 				using var ct = new CancellationTokenSource();
 				var t = Task.Run(() =>
 				{
+					Thread.CurrentThread.Priority = ThreadPriority.AboveNormal;
+
 					while (!ct.IsCancellationRequested)
 					{
 						lock (BenchmarkRunner.CurrentRunningBenchmark)
@@ -239,41 +167,10 @@ namespace Benchmarker
 
 			Console.WriteLine();
 
-			Console.WriteLine(FormatResults(new Dictionary<uint, List<Result>> {{options.Threads, runner.Results}}));
+			Console.WriteLine(
+				Util.FormatResults(new Dictionary<uint, List<Result>> {{options.Threads, runner.Results}}));
 
 			Console.ReadLine();
-		}
-
-		private static string FormatResults(Dictionary<uint, List<Result>> results)
-		{
-			var s = string.Empty;
-
-			foreach (var keyValuePair in results)
-			{
-				s += $"Benchmarked on {keyValuePair.Key} Threads\n";
-
-				s += keyValuePair.Value.ToStringTable(
-					new[] {"Benchmark", "Time", "Reference", "Points", "Reference", "DataThroughput"},
-					r => r.Benchmark,
-					r => FormatTime(r.Timing),
-					r => FormatTime(r.ReferenceTiming),
-					r => r.Points,
-					r => r.ReferencePoints,
-					r => $"{Helper.FormatBytes((ulong) r.DataThroughput)}/s");
-			}
-
-			return s;
-		}
-
-		private static string FormatTime(double time)
-		{
-			var ts = TimeSpan.FromMilliseconds(time);
-
-			var parts = $"{ts.Days:D2}d:{ts.Hours:D2}h:{ts.Minutes:D2}m:{ts.Seconds:D2}s:{ts.Milliseconds:D3}ms"
-				.Split(':')
-				.SkipWhile(s => Regex.Match(s, @"^00\w").Success) // skip zero-valued components
-				.ToArray();
-			return string.Join(" ", parts); // combine the result
 		}
 	}
 }

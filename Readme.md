@@ -79,6 +79,10 @@ To combine the above
 * CRYPTOGRAPHY (runs all cryptography benchmarks)
 * INT (runs all integer-related benchmarks)
 * FLOAT (runs all float-related benchmarks)
+* AVX (runs all AVX benchmarks)
+* SSE (runs all SSE benchmarks)
+* Latency (runs all latency-related benchmarks)
+* Experimental (runs all experimental benchmarks)
 
 ### Compression
 
@@ -112,6 +116,8 @@ To combine the above
 * SSE2 (128-bit integer)
 * AVX2Int (256-bit integer)
 * FMA (fused multiply-add of 128-bit float)
+* SSE4 (SSE4.1 Benchmark)
+* SSE4-CRC32C (SSE4.2 CRC32C Benchmark)
 
 ### Cryptography
 
@@ -134,4 +140,12 @@ Detailed system specs:
 This tool is licensed under the GNU GPLv3. This tool and the developers are not responsible for bricking your system (e.g. when you're running without a thermal treshold).
 
 You may contact us if the license is not suitable for your needs.
+
+## Acknowledgements
+
+- [CommandLine](https://github.com/commandlineparser/commandline) for the command line options
+- [ShellProgressBar](https://github.com/Mpdreamz/shellprogressbar) for the progress bar
+- [HTMLAgilityPack](https://github.com/zzzprojects/html-agility-pack) used in the HTML benchmark
+- [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json) used in the JSON benchmark and for saves
+- [SharpZipLib](https://github.com/icsharpcode/SharpZipLib) used for the (de)compression benchmarks
 

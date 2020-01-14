@@ -1,4 +1,6 @@
-﻿namespace Benchmarking
+﻿using System.Threading;
+
+namespace Benchmarking
 {
 	public abstract class Benchmark
 	{
@@ -24,6 +26,11 @@
 
 		public virtual void Shutdown()
 		{
+		}
+
+		public virtual ulong Stress(CancellationToken cancellationToken)
+		{
+			return 0uL;
 		}
 
 		public virtual double GetComparison()
