@@ -18,7 +18,6 @@ namespace Benchmarking.Extension
 	internal class SSE2 : Benchmark
 	{
 		private readonly uint numberOfIterations = 20000000;
-		private List<uint[]> datas;
 		private const uint randomIntegerNumber = 3;
 
 		public SSE2(Options options) : base(options)

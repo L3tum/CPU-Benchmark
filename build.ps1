@@ -9,6 +9,8 @@ if($PSBoundParameters.ContainsKey("v") -and $v.Length -gt 0){
     $version = $v.TrimStart("v");
 }
 
+Write-Host "Building version ${version}"
+
 cd Benchmarker
 if([System.IO.File]::Exists("bin/Release")){
     Remove-Item -Path bin/Release -Recurse

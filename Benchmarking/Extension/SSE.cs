@@ -17,7 +17,6 @@ namespace Benchmarking.Extension
 	internal class SSE : Benchmark
 	{
 		private readonly uint numberOfIterations = 20000000;
-		private List<float[]> datas;
 		private const float randomFloatingNumber = float.Epsilon;
 
 		public SSE(Options options) : base(options)
@@ -37,7 +36,6 @@ namespace Benchmarking.Extension
 
 			for (var i = 0; i < options.Threads; i++)
 			{
-				var i1 = i;
 				threads[i] = ThreadAffinity.RunAffinity(1uL << i, () =>
 				{
 					var randomFloatingSpan = new Span<float>(new[] {randomFloatingNumber});

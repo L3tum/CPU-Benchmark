@@ -18,7 +18,6 @@ namespace Benchmarking.Extension
 	{
 		private const float randomFloatingNumber = float.Epsilon;
 		private readonly uint numberOfIterations = 50000000;
-		private List<float[]> datas;
 
 		public FMA(Options options) : base(options)
 		{
