@@ -1,0 +1,38 @@
+name: .NET Core
+
+on: 
+  release:
+  push:
+    branches: master
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+    
+    # DotNet
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.0.100
+    - name: Build with dotnet
+      run: .\build.ps1 -v "${{ github.event.release.tag_name }}"
+      
+    # Docker
+    #- name: Build Docker image
+    #  uses: actions/docker/cli@master
+    #  with:
+    #    args: build . -t my-image
+#
+    #- name: Save the image
+    #  uses: actions/docker/cli@master
+    #  with:
+    #    args: save my-image:latest
+#
+    #- name: Upload to release
+    #  uses: JasonEtco/upload-to-release@master
+    #  with:
+    #    args: my-image.tar
+    #  env:
+    #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
