@@ -1,9 +1,7 @@
-name: .NET Core
+name: Release
 
 on: 
   release:
-  push:
-    branches: master
 
 jobs:
   build:
@@ -16,8 +14,58 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.0.100
-    - name: Build with dotnet
+    - name: Build with dotnet 3.0.1
       run: .\build.ps1 -v "${{ github.event.release.tag_name }}"
+    - uses: JasonEtco/upload-to-release@master
+      with:
+        args: Benchmarker/bin/Release/ZIPs/Benchmarker.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - uses: JasonEtco/upload-to-release@master
+      with:
+        args: Benchmarker/bin/Release/ZIPs/Benchmarker-win64.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - uses: JasonEtco/upload-to-release@master
+      with:
+        args: Benchmarker/bin/Release/ZIPs/Benchmarker-win32.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - uses: JasonEtco/upload-to-release@master
+      with:
+        args: Benchmarker/bin/Release/ZIPs/Benchmarker-linux-arm32v7.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - uses: JasonEtco/upload-to-release@master
+      with:
+        args: Benchmarker/bin/Release/ZIPs/Benchmarker-win-arm32v7.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - uses: JasonEtco/upload-to-release@master
+      with:
+        args: Benchmarker/bin/Release/ZIPs/Benchmarker-win-arm64.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - uses: JasonEtco/upload-to-release@master
+      with:
+        args: Benchmarker/bin/Release/ZIPs/Benchmarker-linux64.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - uses: JasonEtco/upload-to-release@master
+      with:
+        args: Benchmarker/bin/Release/ZIPs/Benchmarker-debian64.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - uses: JasonEtco/upload-to-release@master
+      with:
+        args: Benchmarker/bin/Release/ZIPs/Benchmarker-ubuntu64.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - uses: JasonEtco/upload-to-release@master
+      with:
+        args: Benchmarker/bin/Release/ZIPs/Benchmarker-osx64.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
     # Docker
     #- name: Build Docker image
