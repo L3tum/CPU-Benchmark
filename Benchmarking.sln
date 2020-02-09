@@ -9,6 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Benchmarker", "Benchmarker\
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{235C6351-5D3D-46F9-9577-835EDCBE4676}"
 	ProjectSection(SolutionItems) = preProject
+		build.ps1 = build.ps1
 		CHANGELOG.md = CHANGELOG.md
 		Dockerfile.alpine = Dockerfile.alpine
 		Dockerfile.arm32v7 = Dockerfile.arm32v7

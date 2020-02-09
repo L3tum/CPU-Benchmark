@@ -10,7 +10,9 @@ if($PSBoundParameters.ContainsKey("v") -and $v.Length -gt 0){
 }
 
 cd Benchmarker
-Remove-Item -Path bin/Release -Recurse
+if([System.IO.File]::Exists("bin/Release")){
+    Remove-Item -Path bin/Release -Recurse
+}
 mkdir bin/Release
 dotnet restore Benchmarker.csproj
 
