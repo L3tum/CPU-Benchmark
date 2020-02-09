@@ -1,4 +1,13 @@
-$version="0.5.0"
+param(
+	[parameter(Mandatory=$false)]
+    [String]$v
+)
+
+$version="0.6.0"
+
+if($PSBoundParameters.ContainsKey("v") -and $v.Length -gt 0){
+    $version = $v.TrimStart("v");
+}
 
 cd Benchmarker
 Remove-Item -Path bin/Release -Recurse
@@ -61,6 +70,3 @@ Remove-Item -Recurse -Path bin/Release/Benchmarker-linux64
 Remove-Item -Recurse -Path bin/Release/Benchmarker-debian64
 Remove-Item -Recurse -Path bin/Release/Benchmarker-ubuntu64
 Remove-Item -Recurse -Path bin/Release/Benchmarker-osx64
-
-Write-Host "Press any key to continue..."
-$Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
