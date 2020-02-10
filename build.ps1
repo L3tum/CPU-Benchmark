@@ -12,7 +12,7 @@ if($PSBoundParameters.ContainsKey("v") -and $v.Length -gt 0){
 Write-Host "Building version ${version}"
 
 cd Benchmarker
-if([System.IO.File]::Exists("bin/Release")){
+if([System.IO.Directory]::Exists("bin/Release")){
     Remove-Item -Path bin/Release -Recurse
 }
 mkdir bin/Release
