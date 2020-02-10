@@ -5,7 +5,7 @@ on:
 
 jobs:
   release-zips:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET Core
@@ -13,7 +13,8 @@ jobs:
       with:
         dotnet-version: 3.0.100
     - name: Build with dotnet 3.0.1
-      run: .\build.ps1 -v "${{ github.event.release.tag_name }}"
+      run: ./build.ps1 -v "${{ github.event.release.tag_name }}"
+      shell: pwsh
     - uses: JasonEtco/upload-to-release@master
       with:
         args: Benchmarker/bin/Release/ZIPs/Benchmarker.zip
@@ -69,6 +70,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Docker Login
+        uses: Azure/docker-login@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Set up Docker Buildx
         id: buildx
         uses: crazy-max/ghaction-docker-buildx@v1
@@ -76,16 +82,11 @@ jobs:
           version: latest
       - name: Available platforms
         run: echo ${{ steps.buildx.outputs.platforms }}
-      - name: Docker Login
-        uses: Azure/docker-login@v1
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Run Buildx
         run: |
           docker buildx build \
             --platform linux/amd64,linux/arm/v7,linux/arm64 \
-            --push \
+            --output "type=repository,push=true" \
             --tag ${{ secrets.DOCKER_USERNAME }}/rial-bench:${{ github.event.release.tag_name }} \
             --build-arg BUILD_VERSION="${{ github.event.release.tag_name }}" \
             --file ./Dockerfile .
