@@ -1,9 +1,9 @@
-FROM mcr.microsoft.com/dotnet/core/runtime:3.0-alpine AS base
+FROM --platform $TARGETPLATFORM mcr.microsoft.com/dotnet/core/runtime:3.0 AS base
 ARG BUILD_VERSION
 ENV VERSION=$BUILD_VERSION
 WORKDIR /app
 
-FROM mcr.microsoft.com/dotnet/core/sdk:3.0-alpine AS build
+FROM --platform $BUILDPLATFORM mcr.microsoft.com/dotnet/core/sdk:3.0 AS build
 WORKDIR /src
 COPY ["Benchmarker/Benchmarker.csproj", "Benchmarker/"]
 RUN dotnet restore "Benchmarker/Benchmarker.csproj"
