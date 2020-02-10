@@ -1,5 +1,48 @@
 # Change Log
 
+## [v0.6.0](https://github.com/L3tum/CPU-Benchmark/tree/v0.6.0) (2020-02-10)
+[Full Changelog](https://github.com/L3tum/CPU-Benchmark/compare/v0.5.0...v0.6.0)
+
+Right, this isn't the GUI update sadly. I'm kinda struggling with XAML right now, so I'm trying to avoid it. That delayed the whole thing quite a bit though.
+Codename for this release is: "If I wouldn't want to have a GUI by Version 1.0 then this would have been 1.0".
+
+I've also decided on a name for this application (since CPU-Benchmark is a bit too generic :P). Please say welcome to:
+
+# RIALBench
+
+I thought it was a nice relation to "real" and I associate quite a bit with the name "Ria". I'll update the name in the following weeks everywhere.
+
+Either way, here's some updates for the current version:
+
+- Complementary Repos added to Readme (this is only housekeeping, but you can now go directly to the related repos)
+- Switched to a different rating algorithm. Points are now from 0-10000 rather than all over the place like Geekbench does it. This should simplify interpreting points as well as updating benchmarks in the future
+- Implemented benchmark scaling. Something you see in Cinebench for example. The volume of the benchmark is scaled with the number of cores working on it. Though not linearly, since that would increase the volume way too much. Tests have shown that the results are still representative and it should enable better benchmarks on single cores as well as big CPUs (> 12 Cores).
+- Adjusted the default benchmark volume. Since benchmarks now scale there's no need to have a 5 minutes single-core run just because it would be a 5 second multi-core run. The goal is to keep each benchmark below 1 second on the reference CPU. This cuts down on the time taken to benchmark from roughly ~15 minutes (on my Intel Laptop) to ~3 Minutes.
+- Replaced the on-the-fly generated HTML/JSON with real-world data. While the binary is a bit larger, it cut down on the benchmarking times for those benchmarks, as well as increased the representation value for them.
+- Switched GC Mode from LowLatency to SustainedLowLatency. The former is not available on Windows Server, so this should enable the program working on Windows Server as well. 
+- Added an experimental throughput statistic, which is ignored when uploading your results but should give a somewhat accurate representation of the throughput in bytes you achieved per benchmark.
+- Moved most of the communications stuff to the new Common Library (linked in the Readme). This greatly simplifies the communication between Benchmarker, Server and Website and should (theoretically) enable third-party websites as well as third-party benchmarks.
+- Added a pure SHA-256 benchmark
+- Improved the performance of the on-the-fly data generation. Since there's large amounts of data generated for the benchmarks this should improve the overall runtime a bit
+- Added pregenerated random data to decrease the generation time a bit more
+- Added ThreadAffinity and Priority settings which should decrease the fluctuation in results quite a bit
+- Added stress tests for the extension benchmarks. There's more to come and I'm not quite happy with the implementation just yet, but it works.
+- Added more AVX and SSE benchmarks
+- Added new AVX and SSE categories
+- Added new experimental L2CacheLatency benchmark
+- Decreased the memory consumption of the decryption benchmark (it was quite insane)
+- Improved extension benchmarks in general
+- Refactored options parsing to increase code quality in Program.cs
+- Bumped CommandLineParser version to latest
+- Bumped HTMLAgilityPack to latest
+- Bumped Common Library and HardwareInformation to latest
+- Added automated Github and Docker release pipelines, let's see if they work
+- On that note, also added multi-platform Docker images. Currently available are linux-amd64, linux-arm64 and linux-arm32v7
+
+** Bugfixes:**
+- Fixed a bug in the ZIP Benchmark
+- Fixed a bug causing the progress bar to jump around after completion
+
 ## [v0.5.0](https://github.com/L3tum/CPU-Benchmark/tree/v0.5.0) (2019-12-23)
 [Full Changelog](https://github.com/L3tum/CPU-Benchmark/compare/v0.4.1...v0.5.0)
 

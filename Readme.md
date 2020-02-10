@@ -161,4 +161,3 @@ You may contact us if the license is not suitable for your needs.
 - [HTMLAgilityPack](https://github.com/zzzprojects/html-agility-pack) used in the HTML benchmark
 - [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json) used in the JSON benchmark and for saves
 - [SharpZipLib](https://github.com/icsharpcode/SharpZipLib) used for the (de)compression benchmarks
-
