@@ -82,7 +82,7 @@ jobs:
           docker login --username ${{ secrets.DOCKER_USERNAME }} --password ${{ secrets.DOCKER_PASSWORD }} && \
           docker buildx build \
             --platform linux/amd64,linux/arm/v7,linux/arm64 \
-            --output "type=repository,push=true" \
+            --output "type=image,push=true" \
             --tag ${{ secrets.DOCKER_USERNAME }}/rial-bench:${{ github.event.release.tag_name }} \
             --build-arg BUILD_VERSION="${{ github.event.release.tag_name }}" \
             --file ./Dockerfile .
