@@ -46,6 +46,10 @@ Run the benchmarks in a memory efficient manner (on low-memory devices for examp
 
 `\.benchmarker.exe --memory-efficient`
 
+Run a stress test for the selected benchmark (currently only available for all extension benchmarks)
+
+`\.benchmarker.exe --stress`
+
 List all available benchmarks
 
 `\.benchmarker.exe --list-benchmrks`
@@ -124,6 +128,14 @@ To combine the above
 * Encryption
 * Decryption
 * CSPRNG (cryptographically secure pseudo-random number generator)
+
+### Latency
+
+* L2CacheLatency (Tests L2 Cache Latency and outputs it into the file ./nanoseconds.txt, name is currently l2cachelatency-experimental)
+
+### Experimental
+
+* L2CacheLatency
 
 More will be added in the future :)
 
