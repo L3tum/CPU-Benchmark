@@ -29,16 +29,16 @@ dotnet publish Benchmarker.csproj --framework netcoreapp3.0 -c Release -r debian
 dotnet publish Benchmarker.csproj --framework netcoreapp3.0 -c Release -r ubuntu-x64 /p:PublishSingleFile=true /p:PublishTrimmed=true -o bin/Release/Benchmarker-ubuntu64 /p:Version=$version-ubuntu64
 dotnet publish Benchmarker.csproj --framework netcoreapp3.0 -c Release -r osx-x64 /p:PublishSingleFile=true /p:PublishTrimmed=true -o bin/Release/Benchmarker-osx64 /p:Version=$version-osx64
 
-Copy-Item ../README.md bin/Release/Benchmarker/README.md
-Copy-Item ../README.md bin/Release/Benchmarker-win64/README.md
-Copy-Item ../README.md bin/Release/Benchmarker-win32/README.md
-Copy-Item ../README.md bin/Release/Benchmarker-linux-arm32v7/README.md
-Copy-Item ../README.md bin/Release/Benchmarker-win-arm32v7/README.md
-Copy-Item ../README.md bin/Release/Benchmarker-win-arm64/README.md
-Copy-Item ../README.md bin/Release/Benchmarker-linux64/README.md
-Copy-Item ../README.md bin/Release/Benchmarker-debian64/README.md
-Copy-Item ../README.md bin/Release/Benchmarker-ubuntu64/README.md
-Copy-Item ../README.md bin/Release/Benchmarker-osx64/README.md
+Copy-Item ../Readme.md bin/Release/Benchmarker/README.md
+Copy-Item ../Readme.md bin/Release/Benchmarker-win64/README.md
+Copy-Item ../Readme.md bin/Release/Benchmarker-win32/README.md
+Copy-Item ../Readme.md bin/Release/Benchmarker-linux-arm32v7/README.md
+Copy-Item ../Readme.md bin/Release/Benchmarker-win-arm32v7/README.md
+Copy-Item ../Readme.md bin/Release/Benchmarker-win-arm64/README.md
+Copy-Item ../Readme.md bin/Release/Benchmarker-linux64/README.md
+Copy-Item ../Readme.md bin/Release/Benchmarker-debian64/README.md
+Copy-Item ../Readme.md bin/Release/Benchmarker-ubuntu64/README.md
+Copy-Item ../Readme.md bin/Release/Benchmarker-osx64/README.md
 
 Copy-Item ../LICENSE bin/Release/Benchmarker/LICENSE
 Copy-Item ../LICENSE bin/Release/Benchmarker-win64/LICENSE
