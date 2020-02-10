@@ -128,6 +128,7 @@ To combine the above
 * Encryption
 * Decryption
 * CSPRNG (cryptographically secure pseudo-random number generator)
+* Hashing (Hash with SHA-256)
 
 ### Latency
 
