@@ -1,0 +1,6 @@
+.git
+.github
+.vs
+docs
+**/obj
+**/bin

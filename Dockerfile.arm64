@@ -1,4 +1,6 @@
 FROM mcr.microsoft.com/dotnet/core/runtime:3.0-alpine-arm64v8 AS base
+ARG BUILD_VERSION
+ENV VERSION=$BUILD_VERSION
 WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/core/sdk:3.0-buster-arm64v8 AS build

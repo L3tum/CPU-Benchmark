@@ -1,4 +1,6 @@
 FROM mcr.microsoft.com/dotnet/core/runtime:3.0-alpine AS base
+ARG BUILD_VERSION
+ENV VERSION=$BUILD_VERSION
 WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/core/sdk:3.0-alpine AS build
@@ -7,13 +9,13 @@ COPY ["Benchmarker/Benchmarker.csproj", "Benchmarker/"]
 RUN dotnet restore "Benchmarker/Benchmarker.csproj"
 COPY . .
 WORKDIR "/src/Benchmarker"
-RUN dotnet build "Benchmarker.csproj" -c Release -o /app
+RUN dotnet build "Benchmarker.csproj" --framework netcoreapp3.0 -c Release -o /app
 
 FROM build AS publish
-RUN dotnet publish "Benchmarker.csproj" -c Release -o /app
+RUN dotnet publish "Benchmarker.csproj" --framework netcoreapp3.0 -c Release -o /app
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app .
 ENTRYPOINT ["dotnet", "Benchmarker.dll"]
-CMD ["--benchmark=zip", "--runs=3"]
+CMD ["--help"]

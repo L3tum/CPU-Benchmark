@@ -1,4 +1,6 @@
 FROM mcr.microsoft.com/dotnet/core/runtime:3.0-buster-slim-arm32v7 AS base
+ARG BUILD_VERSION
+ENV VERSION=$BUILD_VERSION
 WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/core/sdk:3.0-buster-arm32v7 AS build
