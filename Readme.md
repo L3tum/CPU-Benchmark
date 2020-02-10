@@ -46,7 +46,7 @@ Run the benchmarks in a memory efficient manner (on low-memory devices for examp
 
 `\.benchmarker.exe --memory-efficient`
 
-Run a stress test for the selected benchmark (currently only available for all extension benchmarks)
+Run a stress test for the selected benchmark (currently only available for all extension benchmarks). Stop by pressing any key.
 
 `\.benchmarker.exe --stress`
 
