@@ -20,7 +20,7 @@
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.7.82" />
     <PackageReference Include="CPU-Benchmark-Common" Version="1.1.0" />
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.18" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.25" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="Newtonsoft.Json.Bson" Version="1.0.2" />
     <PackageReference Include="SharpZipLib" Version="1.2.0" />
