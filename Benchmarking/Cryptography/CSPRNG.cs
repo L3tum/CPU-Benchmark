@@ -1,74 +1,59 @@
 ﻿#region using
 
 using System.Security.Cryptography;
-using System.Threading.Tasks;
-using Benchmarking.Util;
+using System.Threading;
 
 #endregion
 
 namespace Benchmarking.Cryptography
 {
-	internal class CSPRNG : Benchmark
-	{
-		private const uint volume = 1000000000;
-		private readonly uint numberOfIterations = 4;
+    internal class CSPRNG : Benchmark
+    {
+        private const int VOLUME = int.MaxValue / 64;
 
-		public CSPRNG(Options options) : base(options)
-		{
-			numberOfIterations *= BenchmarkRater.ScaleVolume(options.Threads);
-		}
+        public override ulong Run(CancellationToken cancellationToken)
+        {
+            var iterations = 0uL;
+            var data = new byte[VOLUME];
 
-		public override void Run()
-		{
-			var threads = new Task[options.Threads];
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                var csrpng = RandomNumberGenerator.Create();
+                csrpng.GetBytes(data);
+                iterations++;
+            }
 
-			for (var i = 0; i < options.Threads; i++)
-			{
-				threads[i] = ThreadAffinity.RunAffinity(1uL << i, () =>
-				{
-					var data = new byte[volume / options.Threads];
-					var csrpng = RandomNumberGenerator.Create();
+            return iterations;
+        }
 
-					for (var j = 0; j < numberOfIterations; j++)
-					{
-						csrpng.GetBytes(data);
-					}
+        public override string GetDescription()
+        {
+            return "Generates cryptographically secure random data";
+        }
 
-					BenchmarkRunner.ReportProgress();
-				});
-			}
+        public override ulong GetComparison(Options options)
+        {
+            switch (options.Threads)
+            {
+                case 1:
+                {
+                    return 1157;
+                }
+                default:
+                {
+                    return 260;
+                }
+            }
+        }
 
-			Task.WaitAll(threads);
-		}
+        public override string[] GetCategories()
+        {
+            return new[] {"cryptography", "int", "all"};
+        }
 
-		public override string GetDescription()
-		{
-			return $"Generates cryptographically secure random data {numberOfIterations} times";
-		}
-
-		public override double GetComparison()
-		{
-			switch (options.Threads)
-			{
-				case 1:
-				{
-					return 1157.0d;
-				}
-				default:
-				{
-					return 260.0d;
-				}
-			}
-		}
-
-		public override string[] GetCategories()
-		{
-			return new[] {"cryptography", "int"};
-		}
-
-		public override double GetDataThroughput(double timeInMillis)
-		{
-			return sizeof(byte) * numberOfIterations * volume / (timeInMillis / 1000);
-		}
-	}
+        public override double GetDataThroughput(ulong iterations)
+        {
+            return sizeof(byte) * (double) (VOLUME * iterations);
+        }
+    }
 }

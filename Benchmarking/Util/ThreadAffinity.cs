@@ -14,7 +14,7 @@ namespace Benchmarking.Util
 	internal static class ThreadAffinity
 	{
 		internal static Task RunAffinity(ulong affinity, Action action,
-			ThreadPriority priority = ThreadPriority.Highest)
+			ThreadPriority priority = ThreadPriority.AboveNormal)
 		{
 			return Task.Run(() =>
 			{

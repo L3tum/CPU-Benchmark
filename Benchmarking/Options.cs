@@ -1,52 +1,30 @@
 ﻿#region using
 
-using System;
-using CommandLine;
-
 #endregion
 
 namespace Benchmarking
 {
-	public class Options
-	{
-		[Option('t', "threads", Required = false, Default = 0u,
-			HelpText = "Manually set the number of threads to use (overrides multithreaded)")]
-		public uint Threads { get; set; } = 1u;
+    public class Options
+    {
+        public enum Mode
+        {
+            SINGLE_THREADED,
+            MULTI_THREADED,
+            BOTH
+        }
 
-		[Option('r', "runs", Default = 3u, HelpText = "Times to run the benchmark and average the result")]
-		public uint Runs { get; set; } = 3u;
+        public uint Runs { get; set; } = 1u;
 
-		[Option('m', "multithreaded", Default = false,
-			HelpText = "Run benchmarks multithreaded (automatically uses all logical processors)")]
-		public bool Multithreaded { get; set; } = false;
+        public string Benchmark { get; set; } = null!;
 
-		[Option('b', "benchmark", HelpText = "Choose the benchmark to run")]
-		public string Benchmark { get; set; }
+        public int Threads { get; internal set; }
 
-		[Option('l', "list-benchmarks", Default = false, HelpText = "List available benchmarks")]
-		public bool ListBenchmarks { get; set; }
+        public Mode BenchmarkingMode { get; set; } = Mode.BOTH;
 
-		[Option('i', "list-results", Default = false, HelpText = "List all benchmark results so far")]
-		public bool ListResults { get; set; }
+        public bool EnableProgressBar { get; set; } = true;
 
-		[Option('m', "memory-efficient", Default = false,
-			HelpText = "Runs benchmarks in a memory efficient mode. May be slower.")]
-		public bool MemoryEfficient { get; set; }
+        public bool EnableFrequencyMeasurements { get; set; } = true;
 
-		[Obsolete]
-		[Option('q', "quick", Default = true,
-			HelpText =
-				"[DEPRECATED] Skips a few additional checks and routines. Exempts you from uploading to the benchmark database.",
-			Hidden = true)]
-		public bool QuickRun { get; set; }
-
-		[Option('u', "upload", Default = false, HelpText = "Uploads your results to the benchmark database.")]
-		public bool Upload { get; set; }
-
-		[Option('c', "clear", Default = false, HelpText = "Clears all saved data.")]
-		public bool ClearSave { get; set; }
-
-		[Option('s', "stress", Default = false, HelpText = "Starts a stress test with the selected benchmark. Press any key to stop it.")]
-		public bool Stress { get; set; }
-	}
+        public int WarmupTime { get; set; } = 0;
+    }
 }

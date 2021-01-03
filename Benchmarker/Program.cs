@@ -2,27 +2,34 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using Benchmarking;
 using Benchmarking.Results;
-using CommandLine;
-using CPU_Benchmark_Common;
+using Benchmarking.Util;
 using HardwareInformation;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Logging.Console;
 using ShellProgressBar;
 
 #endregion
 
 namespace Benchmarker
 {
-	internal class Program
-	{
-		private static void Main(string[] args)
-		{
-			var options = new Options();
+    internal class Program
+    {
+        private static readonly ILoggerFactory LoggerFactory =
+            Microsoft.Extensions.Logging.LoggerFactory.Create(builder => { builder.AddConsole(); });
 
-#if RELEASE
+        private static readonly ILogger<Runner> Logger = LoggerFactory.CreateLogger<Runner>();
+
+        private static Options? GetOptions(string[] args)
+        {
+            var arguments = new Arguments();
+
+#if (RELEASE && FALSE)
 			Parser.Default.ParseArguments<Options>(args).WithParsed(opts =>
 			{
 				options = opts;
@@ -61,116 +68,113 @@ namespace Benchmarker
 			}
 
 #else
-			options = new Options { Benchmark = "avx2int", Threads = 1, Runs = 1 };
+            arguments = new Arguments {Benchmark = "parsing"};
 #endif
 
-			if (!OptionParser.ParseOptions(options))
-			{
-				Console.ReadLine();
+            return OptionParser.ParseOptions(arguments);
+        }
 
-				return;
-			}
+        private static void Main(string[] args)
+        {
+            var saver = new ResultSaver();
+            AppDomain.CurrentDomain.ProcessExit +=
+                (sender, eventArgs) => CurrentDomainOnProcessExit(sender, eventArgs, saver);
+            Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.BelowNormal;
+            
+            var options = GetOptions(args);
 
-			Console.WriteLine("Gathering hardware information...");
+            if (options is null)
+            {
+                return;
+            }
 
-			var information = MachineInformationGatherer.GatherInformation();
+            Console.WriteLine("Gathering hardware information...");
+            var information = MachineInformationGatherer.GatherInformation();
+            Console.WriteLine("OS:             {0}", information.OperatingSystem);
+            Console.WriteLine("Processor:      {0}", information.Cpu.Name);
+            Console.WriteLine("Architecture:   {0}", information.Cpu.Architecture);
+            Console.WriteLine("Logical Cores:  {0}", information.Cpu.LogicalCores);
+            Console.WriteLine("Physical Cores: {0}", information.Cpu.PhysicalCores);
+            Console.WriteLine();
+            Console.WriteLine("Starting Benchmark...");
+            Console.WriteLine();
+            
+            var runner = new Runner(options, new NullLogger<Runner>());
 
-			Console.WriteLine("OS:             {0}", information.OperatingSystem);
-			Console.WriteLine("Processor:      {0}", information.Cpu.Name);
-			Console.WriteLine("Architecture:   {0}", information.Cpu.Architecture);
-			Console.WriteLine("Logical Cores:  {0}", information.Cpu.LogicalCores);
-			Console.WriteLine("Physical Cores: {0}", information.Cpu.PhysicalCores);
+            Console.WriteLine("Running the following benchmarks in approx. {1}: {0}",
+                string.Join(", ", runner.GetBenchmarksToRun().Select(benchmark => benchmark.GetName())),
+                Helper.FormatTime(runner.GetTotalTime()));
+            Console.WriteLine();
+            Console.WriteLine();
 
-			Console.WriteLine();
+            using var ct = new CancellationTokenSource();
+            var t = new Thread(() => DisplayProgressbar(ref runner, ref options, ct.Token));
+            t.Start();
 
-			if (options.Stress)
-			{
-				var cancellationTokenSource = new CancellationTokenSource();
-				var consoleTask = Task.Run(() =>
-				{
-					Thread.CurrentThread.Priority = ThreadPriority.Highest;
-					Console.WriteLine("Press any key to stop the stress test.");
-					Console.ReadKey(true);
+            runner.RunBenchmarks();
+            ct.Cancel();
+            t.Join();
 
-					cancellationTokenSource.Cancel();
-				});
+            saver.CreateOrUpdateSaveForCurrentRun(information, runner.Results);
+            var save = saver.GetSave("current");
+            if (save is null)
+            {
+                return;
+            }
 
-				var stressTester = new StressTestRunner(options);
-				stressTester.Prepare();
-				var completed = stressTester.RunStressTest(cancellationTokenSource.Token);
+            Console.WriteLine();
+            Console.WriteLine(
+                Util.FormatResults(new Dictionary<int, List<Result>>
+                {
+                    {1, save.SingleThreadedResults},
+                    {Environment.ProcessorCount, save.MultiThreadedResults}
+                }));
+            Console.WriteLine();
+        }
 
-				Task.WaitAll(consoleTask);
+        private static void CurrentDomainOnProcessExit(object? sender, EventArgs e, ResultSaver saver)
+        {
+            saver.WriteSaves();
+        }
 
-				Console.WriteLine("You've completed {0} benchmark iteration{1}; ~{2} per thread.", completed,
-					completed == 1 ? "" : "s",
-					Math.Round(completed / (double) options.Threads, 2));
+        private static void DisplayProgressbar(ref Runner runner, ref Options options, CancellationToken ct)
+        {
+            if (!options.EnableProgressBar)
+            {
+                return;
+            }
+            
+            while (string.IsNullOrEmpty(runner.CurrentBenchmark))
+            {
+                Thread.Sleep(100);
+            }
 
-				return;
-			}
+            Thread.CurrentThread.Priority = ThreadPriority.Normal;
 
-			Console.WriteLine("Starting Benchmark...");
+            var totalTime = (int) runner.GetTotalTime();
+            var poptions = new ProgressBarOptions
+            {
+                ForegroundColor = ConsoleColor.Yellow,
+                BackgroundColor = ConsoleColor.DarkGray,
+                ProgressCharacter = '#',
+                ProgressBarOnBottom = true,
+                CollapseWhenFinished = false
+            };
+            using var pbar = new ProgressBar(totalTime,
+                $"Running Benchmark {options.Benchmark} on {options.Threads} threads {options.Runs} times",
+                poptions);
+            var sw = Stopwatch.StartNew();
 
-			Console.WriteLine();
+            while (!ct.IsCancellationRequested)
+            {
+                pbar.Tick((int) sw.ElapsedMilliseconds,
+                    TimeSpan.FromMilliseconds(totalTime - sw.ElapsedMilliseconds),
+                    $"Overall. Currently running {runner.CurrentBenchmark} on {options.Threads} threads {options.Runs} times");
 
-			ResultSaver.Init(options);
+                Thread.Sleep(200);
+            }
 
-			var runner = new BenchmarkRunner(options, information);
-
-			runner.Prepare();
-
-			var poptions = new ProgressBarOptions
-			{
-				ForegroundColor = ConsoleColor.Yellow,
-				BackgroundColor = ConsoleColor.DarkYellow,
-				ProgressCharacter = '─',
-				ProgressBarOnBottom = true,
-				CollapseWhenFinished = false
-			};
-
-			using (var pbar = new ProgressBar((int) BenchmarkRunner.TotalOverall,
-				$"Running Benchmark {options.Benchmark} on {options.Threads} threads {options.Runs} times", poptions))
-			{
-				using var ct = new CancellationTokenSource();
-				var t = Task.Run(() =>
-				{
-					Thread.CurrentThread.Priority = ThreadPriority.AboveNormal;
-
-					while (!ct.IsCancellationRequested)
-					{
-						lock (BenchmarkRunner.CurrentRunningBenchmark)
-						{
-							pbar.Tick(BenchmarkRunner.FinishedOverall,
-								$"Overall. Currently running {BenchmarkRunner.CurrentRunningBenchmark} on {options.Threads} threads {options.Runs} times");
-						}
-
-						Thread.Sleep(200);
-					}
-				}, ct.Token);
-
-				try
-				{
-					runner.RunBenchmark();
-				}
-				catch (ArgumentException e)
-				{
-					Console.WriteLine(e.Message);
-
-					return;
-				}
-
-				pbar.Tick((int) BenchmarkRunner.TotalOverall);
-
-				ct.Cancel();
-				pbar.Tick((int) BenchmarkRunner.TotalOverall);
-				t.GetAwaiter().GetResult();
-			}
-
-			Console.WriteLine();
-
-			Console.WriteLine(
-				Util.FormatResults(new Dictionary<uint, List<Result>> {{options.Threads, runner.Results}}));
-
-			Console.ReadLine();
-		}
-	}
+            pbar.Tick(totalTime);
+        }
+    }
 }

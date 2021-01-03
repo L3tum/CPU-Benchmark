@@ -1,0 +1,16 @@
+<#@ assembly name="System.Core" #>
+<#+
+    private string GenerateStringRaw(int length)
+    {
+        var random = new Random();
+        const string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        return new string(Enumerable.Range(1, length)
+            .Select(_ => chars[random.Next(chars.Length)]).ToArray());
+    }
+
+    private void GenerateString(int length)
+    {
+        var generated = GenerateStringRaw(length);
+#>"<#= generated #>"<#+
+    }
+#>

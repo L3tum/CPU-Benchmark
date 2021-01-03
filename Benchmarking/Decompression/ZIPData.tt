@@ -1,0 +1,30 @@
+<#@ template language="C#" #>
+<#@ assembly name="$(NuGetPackageRoot)\sharpziplib\1.3.1\lib\netstandard2.0\ICSharpCode.SharpZipLib.dll" #>
+<#@ include file="..\Util\DataGenTemplate.ttinclude"#>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="ICSharpCode.SharpZipLib.Zip" #>
+<#
+    var data = GenerateStringRaw(12500);
+    using var s = new MemoryStream();
+    using (var stream = new ZipOutputStream(s))
+    {
+        stream.SetLevel(9);
+        stream.PutNextEntry(new ZipEntry("test.txt"));
+        using var sw = new StreamWriter(stream);
+        sw.Write(data);
+        sw.Flush();
+        stream.CloseEntry();
+        stream.Finish();
+        stream.Flush();
+    }
+    s.Flush();
+    var memory = s.ToArray();
+#>
+
+namespace Benchmarking.Decompression {
+	class ZIPData {
+		internal static byte[] RANDOM_DATA = new byte[<#= memory.Length #>] { 0x<#=
+                    string.Join(", 0x", memory.Select(bite => bite.ToString("X2"))) #> };
+	}
+}

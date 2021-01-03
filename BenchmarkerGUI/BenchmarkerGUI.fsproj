@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net5.0</TargetFramework>
+        <Version Condition="'$(VersionSuffix)' != ''">$(VersionSuffix)</Version>
+        <Version Condition="'$(VersionSuffix)' == ''">0.0.0</Version>
+        <AssemblyVersion Condition="'$(VersionSuffix)' != ''">$(VersionSuffix)</AssemblyVersion>
+        <AssemblyVersion Condition="'$(VersionSuffix)' == ''">0.0.0</AssemblyVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="MsgType.fs" />
+        <Compile Include="DetailedResultDisplayer.fs" />
+        <Compile Include="BenchmarkStarter.fs" />
+        <Compile Include="ResultDisplayer.fs" />
+        <Compile Include="SystemInformation.fs" />
+        <Compile Include="BenchmarkRunner.fs" />
+        <Compile Include="Main.fs" />
+        <Compile Include="Program.fs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="JaggerJo.Avalonia.FuncUI" Version="0.5.0-beta" />
+      <PackageReference Include="JaggerJo.Avalonia.FuncUI.DSL" Version="0.5.0-beta" />
+      <PackageReference Include="JaggerJo.Avalonia.FuncUI.Elmish" Version="0.5.0-beta" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Benchmarking\Benchmarking.csproj" />
+    </ItemGroup>
+
+</Project>

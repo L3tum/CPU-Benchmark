@@ -1,115 +1,93 @@
 ﻿#region using
 
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using Benchmarking;
 using Benchmarking.Results;
-using Benchmarking.Util;
+using Microsoft.Extensions.Logging.Abstractions;
 
 #endregion
 
 namespace Benchmarker
 {
-	internal static class OptionParser
-	{
-		internal static bool ParseOptions(Options options)
-		{
-			if (options.ListBenchmarks)
-			{
-				Console.WriteLine(string.Join(Environment.NewLine, BenchmarkRunner.GetAvailableBenchmarks()));
+    internal static class OptionParser
+    {
+        internal static Options? ParseOptions(Arguments arguments)
+        {
+            var options = new Options
+            {
+                Benchmark = arguments.Benchmark,
+                Runs = arguments.Runs
+            };
 
-				return false;
-			}
+            if (arguments.MultiThreaded && (arguments.SingleThreaded || arguments.SingleMultiThreaded) ||
+                arguments.SingleThreaded && arguments.SingleMultiThreaded)
+            {
+                Console.WriteLine("Only one mode can be specified");
 
-			if (options.ListResults)
-			{
-				ResultSaver.Init(options);
-				Console.WriteLine();
-				Console.WriteLine(Util.FormatResults(ResultSaver.GetResults()));
+                return null;
+            }
 
-				return false;
-			}
+            if (arguments.MultiThreaded)
+            {
+                options.BenchmarkingMode = Options.Mode.MULTI_THREADED;
+            }
+            else if (arguments.SingleThreaded)
+            {
+                options.BenchmarkingMode = Options.Mode.SINGLE_THREADED;
+            }
+            else
+            {
+                options.BenchmarkingMode = Options.Mode.BOTH;
+            }
 
-			if (options.Upload)
-			{
-				if (!ResultSaver.Init(options))
-				{
-					Console.WriteLine(
-						"A restart or hardware change has been detected. Please redo the benchmark and upload it without restarting.");
+            if (arguments.ListBenchmarks)
+            {
+                Console.WriteLine(string.Join(Environment.NewLine,
+                    new Runner(options, new NullLogger<Runner>()).GetListOfBenchmarksAndCategories()));
 
-					return false;
-				}
+                return null;
+            }
 
-				var result = ResultSaver.IsAllowedToUpload(options);
+            if (arguments.ListResults)
+            {
+                var saver = new ResultSaver();
 
-				if (result == ErrorCode.NOT_WINDOWS)
-				{
-					Console.WriteLine("You can only upload your results on a Windows machine.");
+                foreach (var saveName in saver.GetListOfSaves())
+                {
+                    var save = saver.GetSave(saveName);
 
-					return false;
-				}
+                    if (save is null)
+                    {
+                        continue;
+                    }
 
-				if (result == ErrorCode.NO_CATEGORY_ALL)
-				{
-					Console.WriteLine("You can only upload your results after having completed all benchmarks.");
+                    Console.WriteLine();
+                    Console.WriteLine(Util.FormatResults(new Dictionary<int, List<Result>>
+                    {
+                        {1, save.SingleThreadedResults},
+                        {(int) save.MachineInformation!.Cpu.LogicalCores, save.MultiThreadedResults}
+                    }));
+                }
 
-					return false;
-				}
+                return null;
+            }
 
-				Console.WriteLine();
-				Console.WriteLine("Uploading results...");
+            if (options.Benchmark == null || string.IsNullOrWhiteSpace(options.Benchmark))
+            {
+                Console.WriteLine("Please specify a benchmark!");
 
-				var response = ResultSaver.UploadResults().Result;
+                return null;
+            }
 
-				if (response != null)
-				{
-					Console.WriteLine("Done!");
-					Console.WriteLine("You can view your raw save here: {0}", response.RawPath);
-					Console.WriteLine("You can view your parsed save here: {0}", response.WebsitePath);
+            if (arguments.DisableProgressBar)
+            {
+                options.EnableProgressBar = false;
+            }
 
-					Console.WriteLine(
-						"Click 'a' to open raw, 'b' to open parsed or any other key to close the program!");
+            options.WarmupTime = (int) arguments.WarmupTime * 1000;
 
-					while (true)
-					{
-						var key = Console.ReadKey(true);
-
-						if (key.Key == ConsoleKey.A)
-						{
-							Helper.OpenBrowser(response.RawPath);
-						}
-						else if (key.Key == ConsoleKey.B)
-						{
-							Helper.OpenBrowser(response.WebsitePath);
-						}
-						else
-						{
-							return false;
-						}
-					}
-				}
-
-				Console.WriteLine("Failed uploading results!");
-
-				return false;
-			}
-
-			if (options.Benchmark == null || string.IsNullOrWhiteSpace(options.Benchmark))
-			{
-				Console.WriteLine("Please specify a benchmark!");
-
-				return false;
-			}
-
-			if (!BenchmarkRunner.GetAvailableBenchmarks()
-				.Any(a => a.ToLowerInvariant().Equals(options.Benchmark.ToLowerInvariant())))
-			{
-				Console.WriteLine("Benchmark name not recognized!");
-
-				return false;
-			}
-
-			return true;
-		}
-	}
+            return options;
+        }
+    }
 }

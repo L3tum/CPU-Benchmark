@@ -1,116 +1,61 @@
-﻿#region using
-
 using System.IO;
-using System.Threading.Tasks;
-using Benchmarking.Util;
+using System.Threading;
+using ICSharpCode.SharpZipLib.BZip2;
 using ICSharpCode.SharpZipLib.GZip;
-
-#endregion
+using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
 
 namespace Benchmarking.Decompression
 {
-	internal class GZip : Benchmark
-	{
-		private readonly byte[][] datas;
-		private readonly uint volume = 75000000;
+    public class GZip : BaseDecompression
+    {
+        public override ulong Run(CancellationToken cancellationToken)
+        {
+            var iterations = 0uL;
 
-		public GZip(Options options) : base(options)
-		{
-			datas = new byte[options.Threads][];
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                for (var i = 0; i < LENGTH; i++)
+                {
+                    using Stream s = new MemoryStream(GZipData.RANDOM_DATA);
+                    using var stream = new GZipInputStream(s);
+                    using var sr = new StreamReader(stream);
+                    sr.ReadToEnd();
+                }
 
-			volume *= BenchmarkRater.ScaleVolume(options.Threads);
-		}
+                iterations++;
+            }
 
-		public override void Run()
-		{
-			var tasks = new Task[options.Threads];
+            return iterations;
+        }
 
-			for (var i = 0; i < options.Threads; i++)
-			{
-				var i1 = i;
-				tasks[i] = ThreadAffinity.RunAffinity(1uL << i, () =>
-				{
-					using (Stream s = new MemoryStream(datas[i1]))
-					{
-						using var stream = new GZipInputStream(s);
-						using var sr = new StreamReader(stream);
-						sr.ReadToEnd();
-					}
+        public override string GetDescription()
+        {
+            return "Decompressing data with GZip";
+        }
 
-					BenchmarkRunner.ReportProgress();
-				});
-			}
+        public override ulong GetComparison(Options options)
+        {
+            switch (options.Threads)
+            {
+                case 1:
+                {
+                    return 1570;
+                }
+                default:
+                {
+                    return 1080;
+                }
+            }
+        }
 
-			Task.WaitAll(tasks);
-		}
+        public override string[] GetCategories()
+        {
+            return new[] {"decompression", "gzip", "all"};
+        }
 
-		public override string GetName()
-		{
-			return base.GetName() + "-decompression";
-		}
-
-		public override string GetDescription()
-		{
-			return "Decompressing data with GZip";
-		}
-
-		public override void Initialize()
-		{
-			var tasks = new Task[options.Threads];
-
-			for (var i = 0; i < options.Threads; i++)
-			{
-				var i1 = i;
-
-				tasks[i1] = Task.Run(() =>
-				{
-					var data = DataGenerator.GenerateString((int) (volume / options.Threads));
-
-					using var s = new MemoryStream();
-					using (var stream = new GZipOutputStream(s))
-					{
-						stream.SetLevel(9);
-
-						using var sw = new StreamWriter(stream);
-						sw.Write(data);
-						sw.Flush();
-						stream.Finish();
-
-						stream.IsStreamOwner = false;
-					}
-
-					s.Seek(0, SeekOrigin.Begin);
-
-					datas[i1] = s.ToArray();
-				});
-			}
-
-			Task.WaitAll(tasks);
-		}
-
-		public override double GetComparison()
-		{
-			switch (options.Threads)
-			{
-				case 1:
-				{
-					return 1300.0d;
-				}
-				default:
-				{
-					return 520.0d;
-				}
-			}
-		}
-
-		public override string[] GetCategories()
-		{
-			return new[] {"decompression"};
-		}
-
-		public override double GetDataThroughput(double timeInMillis)
-		{
-			return sizeof(char) * volume / (timeInMillis / 1000);
-		}
-	}
+        public override string GetName()
+        {
+            return $"{base.GetName()}-decompression";
+        }
+    }
 }

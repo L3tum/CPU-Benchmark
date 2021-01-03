@@ -25,7 +25,7 @@ namespace Benchmarking.Util
 						.Select(_ => chars[random.Next(chars.Length)]).ToArray());
 				}
 
-				return new string(cache.Take(length).ToArray());
+				return cache.Substring(0, length);
 			}
 		}
 	}

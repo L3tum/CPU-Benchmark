@@ -19,6 +19,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.github\workflows\secrets-checker.yml = .github\workflows\secrets-checker.yml
 	EndProjectSection
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "BenchmarkerGUI", "BenchmarkerGUI\BenchmarkerGUI.fsproj", "{273E3695-06A8-4868-A09D-C79C3C8FD975}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{874F59AE-52A8-49B2-9C98-653164631D95}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{874F59AE-52A8-49B2-9C98-653164631D95}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{874F59AE-52A8-49B2-9C98-653164631D95}.Release|Any CPU.Build.0 = Release|Any CPU
+		{273E3695-06A8-4868-A09D-C79C3C8FD975}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{273E3695-06A8-4868-A09D-C79C3C8FD975}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{273E3695-06A8-4868-A09D-C79C3C8FD975}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{273E3695-06A8-4868-A09D-C79C3C8FD975}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -2,96 +2,71 @@
 
 using System.IO;
 using System.Security.Cryptography;
-using System.Threading.Tasks;
+using System.Threading;
 using Benchmarking.Util;
 
 #endregion
 
 namespace Benchmarking.Cryptography
 {
-	internal class Hashing : Benchmark
-	{
-		private readonly string[] datas;
-		private readonly uint volume = 1000000000;
+    internal class Hashing : Benchmark
+    {
+        // 1 Megabyte
+        private const int VOLUME = 5000000;
+        private string? data;
 
-		public Hashing(Options options) : base(options)
-		{
-			datas = new string[options.Threads];
+        public override ulong Run(CancellationToken cancellationToken)
+        {
+            var iterations = 0uL;
 
-			volume *= BenchmarkRater.ScaleVolume(options.Threads);
-		}
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                using Stream s = new MemoryStream();
+                using var stream = new CryptoStream(s, SHA256.Create(), CryptoStreamMode.Write);
+                using var sw = new StreamWriter(stream);
+                sw.Write(data);
+                sw.Flush();
+                stream.Flush();
 
-		public override void Run()
-		{
-			var tasks = new Task[options.Threads];
+                iterations++;
+            }
 
-			for (var i = 0; i < options.Threads; i++)
-			{
-				var i1 = i;
-				tasks[i] = ThreadAffinity.RunAffinity(1uL << i, () =>
-				{
-					using (Stream s = new MemoryStream())
-					{
-						using var stream = new CryptoStream(s, SHA256.Create(), CryptoStreamMode.Write);
-						using var sw = new StreamWriter(stream);
-						sw.Write(datas[i1]);
-						sw.Flush();
-						stream.Flush();
-					}
+            return iterations;
+        }
 
-					BenchmarkRunner.ReportProgress();
-				});
-			}
+        public override void Initialize()
+        {
+            data = DataGenerator.GenerateString(VOLUME);
+        }
 
-			Task.WaitAll(tasks);
-		}
+        public override string GetDescription()
+        {
+            return "Hashing data with SHA256";
+        }
 
-		public override string GetDescription()
-		{
-			return "Hashing data with SHA256";
-		}
+        public override ulong GetComparison(Options options)
+        {
+            switch (options.Threads)
+            {
+                case 1:
+                {
+                    return 1500;
+                }
+                default:
+                {
+                    return 200;
+                }
+            }
+        }
 
-		public override void Initialize()
-		{
-			var tasks = new Task[options.Threads];
+        public override string[] GetCategories()
+        {
+            return new[] {"cryptography", "int", "all"};
+        }
 
-			// 500 "MB" string -> 2 bytes per character -> 1 GB String
-			for (var i = 0; i < options.Threads; i++)
-			{
-				var i1 = i;
-
-				tasks[i1] = Task.Run(() =>
-				{
-					datas[i1] = DataGenerator.GenerateString((int) (volume / options.Threads));
-				});
-			}
-
-			Task.WaitAll(tasks);
-		}
-
-		public override double GetComparison()
-		{
-			switch (options.Threads)
-			{
-				case 1:
-				{
-					return 1500.0d;
-				}
-				default:
-				{
-					return 200.0d;
-				}
-			}
-		}
-
-		public override string[] GetCategories()
-		{
-			return new[] {"cryptography", "int"};
-		}
-
-		public override double GetDataThroughput(double timeInMillis)
-		{
-			return sizeof(char) * volume * 2 / (timeInMillis / 1000);
-		}
-	}
+        public override double GetDataThroughput(ulong iterations)
+        {
+            return sizeof(char) * (double) (VOLUME * iterations);
+        }
+    }
 }

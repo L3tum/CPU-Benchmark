@@ -2,65 +2,52 @@
 
 namespace Benchmarking
 {
-	public abstract class Benchmark
-	{
-		protected Options options;
+    public abstract class Benchmark
+    {
+        protected const int LENGTH = int.MaxValue / 64;
+        
+        public virtual string GetDescription()
+        {
+            return "Base Benchmark Class - You should never see this!";
+        }
 
-		protected Benchmark(Options options)
-		{
-			this.options = options;
-		}
+        public virtual ulong Run(CancellationToken cancellationToken)
+        {
+            return 0uL;
+        }
 
-		public virtual string GetDescription()
-		{
-			return "Base Benchmark Class - You should never see this!";
-		}
+        public virtual void Initialize()
+        {
+        }
 
-		public virtual void Initialize()
-		{
-		}
+        public virtual ulong GetComparison(Options options)
+        
+        {
+            return 0;
+        }
 
-		public virtual void Run()
-		{
-		}
+        /// <summary>
+        ///     Returns the data throughput achieved per second adjusted to the time the benchmark took, in bytes
+        /// </summary>
+        /// <returns></returns>
+        public virtual double GetDataThroughput(ulong iterations)
+        {
+            return 0.0d;
+        }
 
-		public virtual void Shutdown()
-		{
-		}
+        public virtual string[] GetCategories()
+        {
+            return new[] {"none"};
+        }
 
-		public virtual ulong Stress(CancellationToken cancellationToken)
-		{
-			return 0uL;
-		}
+        public virtual string GetName()
+        {
+            return GetType().Name.ToLowerInvariant();
+        }
 
-		public virtual double GetComparison()
-		{
-			return 0.0d;
-		}
-
-		/// <summary>
-		///     Returns the data throughput achieved per second adjusted to the time the benchmark took, in bytes
-		/// </summary>
-		/// <param name="timeInMillis"></param>
-		/// <returns></returns>
-		public virtual double GetDataThroughput(double timeInMillis)
-		{
-			return 0.0d;
-		}
-
-		public virtual BenchmarkRater.RateMethod GetRatingMethod()
-		{
-			return BenchmarkRater.RateBenchmark;
-		}
-
-		public virtual string[] GetCategories()
-		{
-			return new[] {"none"};
-		}
-
-		public virtual string GetName()
-		{
-			return GetType().Name;
-		}
-	}
+        public virtual int GetRuntimeInMilliseconds()
+        {
+            return 5000;
+        }
+    }
 }

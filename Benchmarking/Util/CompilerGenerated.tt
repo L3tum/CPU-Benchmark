@@ -4,20 +4,10 @@
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>
 <#@ output extension=".cs" #>
+<#@ include file="DataGenTemplate.ttinclude"#>
 
 namespace Benchmarking.Util {
 	class CompilerGenerated {
 		internal const string RANDOM_DATA = <#GenerateString(1000000);#>;
 	}
 }
-
-<#+ 
-private void GenerateString(int length)
-{
-	Random random = new Random();
-	const string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-	var generated = new string(Enumerable.Range(1, length)
-				.Select(_ => chars[random.Next(chars.Length)]).ToArray());
-#>"<#= generated #>"<#+
-}
-#>
