@@ -16,6 +16,8 @@ namespace Benchmarking.Results
         {
             MultiThreadedResults = new List<Result>();
             SingleThreadedResults = new List<Result>();
+            SingleThreadedPerCategory = new Dictionary<string, ulong>();
+            MultiThreadedPerCategory = new Dictionary<string, ulong>();
         }
 
         /// <summary>
@@ -37,6 +39,16 @@ namespace Benchmarking.Results
         ///     Benchmark results
         /// </summary>
         public List<Result> SingleThreadedResults { get; set; }
+
+        /// <summary>
+        ///     MultiThreaded results per category
+        /// </summary>
+        public Dictionary<string, ulong> MultiThreadedPerCategory { get; set; }
+
+        /// <summary>
+        ///     SingleThreaded results per category
+        /// </summary>
+        public Dictionary<string, ulong> SingleThreadedPerCategory { get; set; }
 
         /// <summary>
         ///     Overall points for all multiThreaded results

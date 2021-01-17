@@ -125,17 +125,14 @@ namespace Benchmarking.Util
             return string.Join(" ", parts); // combine the result
         }
 
-        public static double GetGeometricMean(IEnumerable<double> values)
-        {
-            var doubles = values as double[] ?? values.ToArray();
-            var total = doubles.Aggregate(1.0d, (current, value) => current * value);
-
-            return Math.Pow(total, 1.0 / doubles.Length);
-        }
-
         public static ulong GetGeometricMean(IEnumerable<ulong> values)
         {
-            return (ulong) GetGeometricMean(values.Cast<double>());
+            var ulongs = values as ulong[] ?? values.ToArray();
+            var sum = ulongs.Sum(@ulong => Math.Log(@ulong));
+
+            sum /= ulongs.Length;
+
+            return (ulong) Math.Exp(sum);
         }
     }
 }

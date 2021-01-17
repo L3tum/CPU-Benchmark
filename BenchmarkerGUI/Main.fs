@@ -147,7 +147,14 @@ module Main =
                                         DockPanel.children [
                                             Button.create [
                                                 DockPanel.dock Dock.Left
-                                                Button.content "Yes"
+                                                Button.content (
+                                                    TextBlock.create [
+                                                        TextBlock.verticalAlignment VerticalAlignment.Center
+                                                        TextBlock.horizontalAlignment HorizontalAlignment.Center
+                                                        TextBlock.text "Yes"
+                                                    ]    
+                                                )
+                                                Button.width 50.0
                                                 Button.onClick (fun args ->
                                                     hasAnsweredSave <- true
                                                     ResultDisplayer.saveSaves state.ResultDisplayerState true
@@ -158,7 +165,14 @@ module Main =
                                             
                                             Button.create [
                                                 DockPanel.dock Dock.Right
-                                                Button.content "No"
+                                                Button.content (
+                                                    TextBlock.create [
+                                                        TextBlock.verticalAlignment VerticalAlignment.Center
+                                                        TextBlock.horizontalAlignment HorizontalAlignment.Center
+                                                        TextBlock.text "No"
+                                                    ]    
+                                                )
+                                                Button.width 50.0
                                                 Button.onClick (fun args ->
                                                     hasAnsweredSave <- true
                                                     

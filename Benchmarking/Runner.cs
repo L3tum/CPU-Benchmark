@@ -200,6 +200,7 @@ namespace Benchmarking
             var result = new Result
             {
                 Benchmark = baseBenchmark.GetName(),
+                Categories = baseBenchmark.GetCategories().ToList(),
                 MultiThreaded = options.Threads > 1
             };
 

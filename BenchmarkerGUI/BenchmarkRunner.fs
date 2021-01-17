@@ -2,6 +2,7 @@ namespace BenchmarkerGUI
 
 open System
 open System.Reactive.Disposables
+open Avalonia
 open Avalonia.Controls
 open Avalonia.Controls.Primitives
 open Avalonia.FuncUI.DSL
@@ -82,10 +83,14 @@ module BenchmarkRunner =
             DockPanel.margin 5.0
             DockPanel.dock Dock.Top
             DockPanel.children [
-                TextBlock.create [
-                    TextBlock.textWrapping TextWrapping.Wrap
-                    TextBlock.text (state.logs |> List.rev |> String.concat "\n")
-                    TextBlock.verticalScrollBarVisibility ScrollBarVisibility.Auto
+                ScrollViewer.create [
+                    ScrollViewer.onScrollChanged (fun args -> if args.ExtentDelta.SquaredLength <> 0.0 then (args.Source :?> ScrollViewer).ScrollToEnd())
+                    ScrollViewer.content (
+                        TextBlock.create [
+                            TextBlock.textWrapping TextWrapping.Wrap
+                            TextBlock.text (state.logs |> List.rev |> String.concat "\n")
+                        ]
+                    )
                 ]
             ]
         ]

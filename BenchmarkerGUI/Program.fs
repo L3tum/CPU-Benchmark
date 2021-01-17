@@ -1,6 +1,8 @@
 ﻿namespace BenchmarkerGUI
 
+open System
 open System.Diagnostics
+open System.Runtime.ExceptionServices
 open Avalonia.Controls
 open BenchmarkerGUI.Main
 open Avalonia
@@ -21,9 +23,14 @@ type App() =
 
 
 module Program =
+    let handler(obj: Object) (args: FirstChanceExceptionEventArgs) =
+        Console.WriteLine(args.Exception.Message)
+        Console.WriteLine(args.Exception.StackTrace)
+    
     [<EntryPoint>]
     let main(args: string[]) =
         Process.GetCurrentProcess().PriorityClass <- ProcessPriorityClass.BelowNormal
+        AppDomain.CurrentDomain.FirstChanceException.AddHandler(EventHandler<FirstChanceExceptionEventArgs>(handler))
         AppBuilder
             .Configure<App>()
             .UsePlatformDetect()

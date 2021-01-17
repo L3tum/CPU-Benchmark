@@ -108,6 +108,8 @@ namespace Benchmarking.Results
             currentSave.OverallSingleThreaded = singleThreaded.Count > 0
                 ? Helper.GetGeometricMean(singleThreaded.Select(result => result.Iterations))
                 : 0uL;
+            currentSave.SingleThreadedPerCategory = GetResultByCategory(singleThreaded);
+            currentSave.MultiThreadedPerCategory = GetResultByCategory(multiThreaded);
         }
 
         private void AddOrUpdateResult(Result result, ref List<Result> results)
@@ -120,6 +122,33 @@ namespace Benchmarking.Results
             }
 
             results.Add(result);
+        }
+
+        private Dictionary<string, ulong> GetResultByCategory(List<Result> results)
+        {
+            var resultsByCategoryList = new Dictionary<string, List<ulong>>();
+
+            foreach (var result in results)
+            {
+                foreach (var category in result.Categories)
+                {
+                    if (!resultsByCategoryList.ContainsKey(category))
+                    {
+                        resultsByCategoryList.Add(category, new List<ulong>());
+                    }
+
+                    resultsByCategoryList[category].Add(result.Iterations);
+                }
+            }
+
+            var resultsByCategory = new Dictionary<string, ulong>();
+
+            foreach (var kvp in resultsByCategoryList)
+            {
+                resultsByCategory.Add(kvp.Key, Helper.GetGeometricMean(kvp.Value));
+            }
+
+            return resultsByCategory;
         }
 
         public List<string> GetListOfSaves()

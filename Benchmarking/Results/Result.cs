@@ -2,6 +2,9 @@
 
 #endregion
 
+using System.Collections.Generic;
+using System.Linq;
+
 namespace Benchmarking.Results
 {
 	/// <summary>
@@ -13,14 +16,16 @@ namespace Benchmarking.Results
 	    ///     Constructor
 	    /// </summary>
 	    /// <param name="benchmark"></param>
+	    /// <param name="categories"></param>
 	    /// <param name="iterations"></param>
 	    /// <param name="referenceIterations"></param>
 	    /// <param name="dataThroughput"></param>
 	    /// <param name="multiThreaded"></param>
-	    public Result(string benchmark, ulong iterations, ulong referenceIterations, double dataThroughput,
+	    public Result(string benchmark, IEnumerable<string> categories, ulong iterations, ulong referenceIterations, double dataThroughput,
             bool multiThreaded)
         {
             Benchmark = benchmark;
+            Categories = categories as List<string> ?? categories.ToList();
             Iterations = iterations;
             ReferenceIterations = referenceIterations;
             DataThroughput = dataThroughput;
@@ -41,6 +46,11 @@ namespace Benchmarking.Results
 	    public string Benchmark { get; set; } = null!;
 
 	    /// <summary>
+	    ///     The categories this benchmark belongs to
+	    /// </summary>
+	    public List<string> Categories { get; set; } = null!;
+
+	    /// <summary>
 	    ///     Time spent on the benchmark by the reference CPU, in ms
 	    /// </summary>
 	    public ulong ReferenceIterations { get; set; }
@@ -59,8 +69,7 @@ namespace Benchmarking.Results
 	    ///     The frequencies achieved during the run
 	    /// </summary>
 	    public FrequencyMeasurement? Frequency { get; set; } = null!;
-	    
-	    
+
 
 	    /// <summary>
 	    ///     If the result was for multiThreaded or singleThreaded
