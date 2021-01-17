@@ -113,7 +113,7 @@ namespace Benchmarking.Util
             var median = size % 2 != 0 ? sortedNumbers[mid] : (sortedNumbers[mid] + sortedNumbers[mid - 1]) / 2;
             return median;
         }
-        
+
         public static string FormatTime(double time)
         {
             var ts = TimeSpan.FromMilliseconds(time);
@@ -123,6 +123,19 @@ namespace Benchmarking.Util
                 .SkipWhile(s => Regex.Match(s, @"^00\w").Success) // skip zero-valued components
                 .ToArray();
             return string.Join(" ", parts); // combine the result
+        }
+
+        public static double GetGeometricMean(IEnumerable<double> values)
+        {
+            var doubles = values as double[] ?? values.ToArray();
+            var total = doubles.Aggregate(1.0d, (current, value) => current * value);
+
+            return Math.Pow(total, 1.0 / doubles.Length);
+        }
+
+        public static ulong GetGeometricMean(IEnumerable<ulong> values)
+        {
+            return (ulong) GetGeometricMean(values.Cast<double>());
         }
     }
 }

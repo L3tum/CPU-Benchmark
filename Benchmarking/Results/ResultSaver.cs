@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using Benchmarking.Util;
 using HardwareInformation;
 using JsonNet.ContractResolvers;
 using Newtonsoft.Json;
@@ -39,7 +40,7 @@ namespace Benchmarking.Results
             {
                 ContractResolver = new PrivateSetterContractResolver()
             };
-            
+
             foreach (var saveFile in Directory.GetFiles(SAVE_DIRECTORY, "*.json"))
             {
                 using var stream = File.OpenRead(saveFile);
@@ -101,8 +102,12 @@ namespace Benchmarking.Results
 
             currentSave.SingleThreadedResults = singleThreaded;
             currentSave.MultiThreadedResults = multiThreaded;
-            currentSave.OverallMultiThreaded = multiThreaded.Count > 0 ? (ulong) multiThreaded.Average(result => (double) result.Iterations) : 0uL;
-            currentSave.OverallSingleThreaded = singleThreaded.Count > 0 ? (ulong) singleThreaded.Average(result => (double) result.Iterations) : 0uL;
+            currentSave.OverallMultiThreaded = multiThreaded.Count > 0
+                ? Helper.GetGeometricMean(multiThreaded.Select(result => result.Iterations))
+                : 0uL;
+            currentSave.OverallSingleThreaded = singleThreaded.Count > 0
+                ? Helper.GetGeometricMean(singleThreaded.Select(result => result.Iterations))
+                : 0uL;
         }
 
         private void AddOrUpdateResult(Result result, ref List<Result> results)
