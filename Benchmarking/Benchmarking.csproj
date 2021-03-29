@@ -38,7 +38,7 @@
   <ItemGroup>
     <PackageReference Include="HardwareInformation" Version="5.0.0" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.29" />
-    <PackageReference Include="JsonNet.ContractResolvers" Version="1.1.0" />
+    <PackageReference Include="JsonNet.ContractResolvers" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="SharpZipLib" Version="1.3.1" />
